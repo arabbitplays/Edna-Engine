@@ -21,7 +21,7 @@ namespace RtEngine {
 
         std::shared_ptr<Texture> addTexture(std::string path, TextureType type) {
             if (texture_path_cache.contains(path)) {
-                spdlog::debug(fmt::runtime("Texture cache hit with path: {}"), path);
+                spdlog::debug("Texture cache hit with path: {}", path);
                 return texture_path_cache[path];
             }
 

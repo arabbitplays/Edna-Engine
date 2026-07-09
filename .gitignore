@@ -36,4 +36,5 @@
 
 # Meson
 subprojects/*/
-!subprojects/*
+
+resources/benchmarks/
