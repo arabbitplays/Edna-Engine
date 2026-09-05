@@ -18,25 +18,14 @@ namespace RtEngine {
     }
 
     void Renderer::createCommandBuffers() {
-        command_buffers.resize(max_frames_in_flight);
-
-        VkCommandBufferAllocateInfo allocInfo{};
-        allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-        allocInfo.commandPool = vulkan_context->command_manager->commandPool;
-        allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-        allocInfo.commandBufferCount = static_cast<uint32_t>(command_buffers.size());
-
-        if (vkAllocateCommandBuffers(vulkan_context->device_manager->getDevice(), &allocInfo, command_buffers.data()) !=
-            VK_SUCCESS) {
-            throw std::runtime_error("failed to allocate command bufer!");
-        }
+        command_buffers = vulkan_context->command_manager->allocatePrimaryCommandBuffers(max_frames_in_flight);
     }
 
     void Renderer::waitForNextFrameStart() {
         sync_manager->waitForNextFrameStart();
     }
 
-    VkCommandBuffer Renderer::getNewCommandBuffer() {
+    VkCommandBuffer Renderer::getNextCommandBuffer() {
         VkCommandBuffer cmd = command_buffers[currentFrameSlot()];
         vkResetCommandBuffer(cmd, 0);
         return cmd;

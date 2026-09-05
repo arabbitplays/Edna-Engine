@@ -53,6 +53,21 @@ namespace RtEngine {
 		vkFreeCommandBuffers(deviceManager->getDevice(), commandPool, 1, &commandBuffer);
 	}
 
+	std::vector<VkCommandBuffer> CommandManager::allocatePrimaryCommandBuffers(uint32_t count) const {
+		std::vector<VkCommandBuffer> buffers(count);
+
+		VkCommandBufferAllocateInfo allocInfo{};
+		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+		allocInfo.commandPool = commandPool;
+		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+		allocInfo.commandBufferCount = count;
+
+		if (vkAllocateCommandBuffers(deviceManager->getDevice(), &allocInfo, buffers.data()) != VK_SUCCESS) {
+			throw std::runtime_error("failed to allocate command buffers!");
+		}
+		return buffers;
+	}
+
 	void CommandManager::destroy() const {
 		vkDestroyCommandPool(deviceManager->getDevice(), commandPool, nullptr);
 	}

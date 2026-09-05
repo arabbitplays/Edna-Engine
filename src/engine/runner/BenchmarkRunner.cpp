@@ -60,7 +60,7 @@ namespace RtEngine {
 	void BenchmarkRunner::drawFrame(const std::shared_ptr<DrawContext> &draw_context) {
 		raytracing_renderer->waitForNextFrameStart();
 
-		VkCommandBuffer cmd = raytracing_renderer->getNewCommandBuffer();
+		VkCommandBuffer cmd = raytracing_renderer->getNextCommandBuffer();
 		std::shared_ptr<RenderTarget> target = draw_context->targets[0];
 
 		uint32_t curr_sample_count = target->getTotalSampleCount();

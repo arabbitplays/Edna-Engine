@@ -29,7 +29,6 @@ namespace RtEngine {
         void cleanup();
 
     private:
-        void createCommandBuffers();
         VkCommandBuffer beginCommandBuffer();
         void endCommandBuffer(VkCommandBuffer cmd);
 

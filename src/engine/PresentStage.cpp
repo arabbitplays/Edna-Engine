@@ -14,22 +14,7 @@ namespace RtEngine {
     }
 
     void PresentStage::init() {
-        createCommandBuffers();
-    }
-
-    void PresentStage::createCommandBuffers() {
-        command_buffers.resize(max_frames_in_flight);
-
-        VkCommandBufferAllocateInfo alloc_info{};
-        alloc_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-        alloc_info.commandPool = vulkan_context->command_manager->commandPool;
-        alloc_info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-        alloc_info.commandBufferCount = static_cast<uint32_t>(command_buffers.size());
-
-        if (vkAllocateCommandBuffers(vulkan_context->device_manager->getDevice(), &alloc_info, command_buffers.data()) !=
-            VK_SUCCESS) {
-            throw std::runtime_error("PresentStage: failed to allocate command buffers");
-        }
+        command_buffers = vulkan_context->command_manager->allocatePrimaryCommandBuffers(max_frames_in_flight);
     }
 
     int32_t PresentStage::acquireNextSwapchainImage() {

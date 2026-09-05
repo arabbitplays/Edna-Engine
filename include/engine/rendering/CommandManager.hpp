@@ -5,6 +5,7 @@
 #include <VulkanUtil.hpp>
 #include <memory>
 #include <optional>
+#include <vector>
 #include <vulkan/vulkan_core.h>
 
 namespace RtEngine {
@@ -17,6 +18,9 @@ namespace RtEngine {
 		void createCommandPool();
 		VkCommandBuffer beginSingleTimeCommands() const;
 		void endSingleTimeCommand(VkCommandBuffer commandBuffer) const;
+
+		std::vector<VkCommandBuffer> allocatePrimaryCommandBuffers(uint32_t count) const;
+
 		void destroy() const;
 
 	private:

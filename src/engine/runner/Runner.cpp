@@ -76,7 +76,7 @@ namespace RtEngine {
             return;
         }
 
-        VkCommandBuffer cmd = raytracing_renderer->getNewCommandBuffer();
+        VkCommandBuffer cmd = raytracing_renderer->getNextCommandBuffer();
         std::shared_ptr<RenderTarget> target = draw_context->targets[0]; // TODO handle multiple
 
         prepareFrame(cmd, draw_context);

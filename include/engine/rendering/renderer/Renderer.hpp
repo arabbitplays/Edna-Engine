@@ -19,7 +19,7 @@ namespace RtEngine {
 
         void waitForNextFrameStart();
 
-        VkCommandBuffer getNewCommandBuffer();
+        VkCommandBuffer getNextCommandBuffer();
 
         void nextFrame();
 
