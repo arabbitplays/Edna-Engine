@@ -24,6 +24,7 @@ namespace RtEngine {
         void recordBeginCommandBuffer(VkCommandBuffer &commandBuffer);
 
         void recordEndCommandBuffer(VkCommandBuffer &commandBuffer);
+        bool framebufferWasResized();
 
         void destroy();
     private:
@@ -43,6 +44,9 @@ namespace RtEngine {
         std::shared_ptr<RaytracingRenderer> raytracing_renderer;
         std::shared_ptr<GuiRenderer> gui_renderer;
         std::shared_ptr<ComputeRenderer> glitch_renderer;
+
+		bool framebufferResized = false;
+
     };
 } // RtEngine
 

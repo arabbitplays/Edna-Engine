@@ -101,7 +101,8 @@ namespace RtEngine {
 
     void Runner::finishFrame(VkCommandBuffer cmd, const std::shared_ptr<DrawContext> &draw_context, uint32_t swapchain_image_idx, bool present) const {
         engine_context->rendering_manager->recordEndCommandBuffer(cmd);
-        if (raytracing_renderer->submitCommands(present, swapchain_image_idx)) {
+        bool swapchain_out_of_date = raytracing_renderer->submitCommands(present, swapchain_image_idx);
+        if (engine_context->rendering_manager->framebufferWasResized() || swapchain_out_of_date) {
             handle_resize();
         }
         raytracing_renderer->nextFrame();

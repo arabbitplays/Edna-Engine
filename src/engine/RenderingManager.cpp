@@ -8,6 +8,10 @@ namespace RtEngine {
 
         createVulkanContext();
         createRenderer();
+
+		window->addResizeCallback([this](uint32_t width, uint32_t height) {
+			framebufferResized = true;
+		});
     }
 
 
@@ -56,7 +60,7 @@ namespace RtEngine {
     }
 
     void RenderingManager::createRenderer() {
-        raytracing_renderer = std::make_shared<RaytracingRenderer>(window, vulkan_context, resources_dir, max_frames_in_flight);
+        raytracing_renderer = std::make_shared<RaytracingRenderer>(vulkan_context, resources_dir, max_frames_in_flight);
         raytracing_renderer->init();
         gui_renderer = std::make_shared<GuiRenderer>(vulkan_context);
     }
@@ -94,6 +98,13 @@ namespace RtEngine {
         if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) {
             throw std::runtime_error("failed to record command buffer!");
         }
+    }
+
+    bool RenderingManager::framebufferWasResized()
+    {
+        bool result = framebufferResized;
+        framebufferResized = false;
+        return result;
     }
 
     void RenderingManager::destroy() {

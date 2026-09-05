@@ -26,14 +26,12 @@ namespace RtEngine {
 		}
 	}
 
-	RaytracingRenderer::RaytracingRenderer(const std::shared_ptr<Window>& window, const std::shared_ptr<VulkanContext> &vulkan_context,
+	RaytracingRenderer::RaytracingRenderer(const std::shared_ptr<VulkanContext> &vulkan_context,
 		const std::string &resources_dir, const uint32_t max_frames_in_flight)
-		: Renderer(vulkan_context, max_frames_in_flight), resources_dir(resources_dir), window(window) {
+		: Renderer(vulkan_context, max_frames_in_flight), resources_dir(resources_dir) {
 	}
 
 	void RaytracingRenderer::init() {
-		initWindow();
-
 		createRepositories();
 
 		scene_adapter = std::make_shared<SceneAdapter>(vulkan_context, texture_repository, max_frames_in_flight,
@@ -41,12 +39,6 @@ namespace RtEngine {
 		deletion_queue.pushFunction([&]() { scene_adapter->clearResources(); });
 
 		Renderer::init();
-	}
-
-	void RaytracingRenderer::initWindow() {
-		window->addResizeCallback([this](uint32_t width, uint32_t height) {
-			framebufferResized = true;
-		});
 	}
 
 	void RaytracingRenderer::createRepositories() {
@@ -132,15 +124,12 @@ namespace RtEngine {
 			std::vector<VkSemaphore> waitSemaphore = {imageAvailableSemaphores[current_frame]};
 			std::vector<VkSemaphore> signalSemaphore = {renderFinishedSemaphores[swapchain_image_idx]};
 			submitCommandBuffer(waitSemaphore, signalSemaphore);
-			presentSwapchainImage(signalSemaphore, swapchain_image_idx);
+			return presentSwapchainImage(signalSemaphore, swapchain_image_idx);
 		} else {
 			submitCommandBuffer({} , {});
 		}
 
-		bool rebuild_needed = framebufferResized;
-		framebufferResized = false;
-
-		return rebuild_needed;
+		return false;
 	}
 
 	void RaytracingRenderer::submitCommandBuffer(const std::vector<VkSemaphore> &wait_semaphore,
@@ -164,7 +153,8 @@ namespace RtEngine {
 		}
 	}
 
-	void RaytracingRenderer::presentSwapchainImage(const std::vector<VkSemaphore>& wait_semaphore, const uint32_t image_index) {
+	bool RaytracingRenderer::presentSwapchainImage(const std::vector<VkSemaphore>& wait_semaphore,
+	                                               const uint32_t image_index) {
 		VkPresentInfoKHR presentInfo{};
 		presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
 		presentInfo.waitSemaphoreCount = static_cast<uint32_t>(wait_semaphore.size());
@@ -177,10 +167,12 @@ namespace RtEngine {
 		VkResult result = vkQueuePresentKHR(vulkan_context->device_manager->getQueue(PRESENT), &presentInfo);
 
 		if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
-			framebufferResized = true;
+			return true;
 		} else if (result != VK_SUCCESS) {
 			throw std::runtime_error("failed to present swap chain image!");
 		}
+
+		return false;
 	}
 
 	void RaytracingRenderer::waitForIdle() {
