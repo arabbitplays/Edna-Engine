@@ -1,7 +1,3 @@
-//
-// Created by oschdi on 19.01.26.
-//
-
 #include "../../include/engine/SwapchainManager.hpp"
 
 #include <cassert>
@@ -11,14 +7,21 @@ namespace RtEngine {
         assert(swapchain != nullptr);
     }
 
-    void SwapchainManager::addRecreateCallback(const std::function<void(uint32_t, uint32_t)> &func) {
-        recreate_callbacks.push_back(func);
+    SwapchainManager::RecreateCallbackHandle SwapchainManager::addRecreateCallback(
+            const std::function<void(uint32_t, uint32_t)> &func) {
+        const RecreateCallbackHandle handle = next_callback_handle++;
+        recreate_callbacks.emplace(handle, func);
+        return handle;
+    }
+
+    void SwapchainManager::removeRecreateCallback(RecreateCallbackHandle handle) {
+        recreate_callbacks.erase(handle);
     }
 
     void SwapchainManager::recreate() const {
         swapchain->recreate();
         VkExtent2D new_extent = swapchain->extent;
-        for (const auto& callback : recreate_callbacks) {
+        for (const auto& [handle, callback] : recreate_callbacks) {
             callback(new_extent.width, new_extent.height);
         }
     }

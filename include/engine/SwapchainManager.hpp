@@ -1,19 +1,20 @@
-//
-// Created by oschdi on 19.01.26.
-//
-
 #ifndef VULKAN_RAYTRACING_SWAPCHAINMANAGER_HPP
 #define VULKAN_RAYTRACING_SWAPCHAINMANAGER_HPP
+#include <cstdint>
+#include <unordered_map>
 #include <vector>
 #include <Swapchain.hpp>
 
 namespace RtEngine {
     class SwapchainManager {
     public:
+        using RecreateCallbackHandle = uint64_t;
+
         SwapchainManager() = default;
         explicit SwapchainManager(const std::shared_ptr<Swapchain> &swapchain);
 
-        void addRecreateCallback(const std::function<void(uint32_t, uint32_t)> &func);
+        RecreateCallbackHandle addRecreateCallback(const std::function<void(uint32_t, uint32_t)> &func);
+        void removeRecreateCallback(RecreateCallbackHandle handle);
 
         void recreate() const;
 
@@ -21,7 +22,8 @@ namespace RtEngine {
 
     private:
         std::shared_ptr<Swapchain> swapchain;
-        std::vector<std::function<void(uint32_t, uint32_t)>> recreate_callbacks;
+        std::unordered_map<RecreateCallbackHandle, std::function<void(uint32_t, uint32_t)>> recreate_callbacks;
+        RecreateCallbackHandle next_callback_handle = 1;
     };
 } // RtEngine
 
