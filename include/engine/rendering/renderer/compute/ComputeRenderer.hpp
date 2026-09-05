@@ -12,16 +12,15 @@ namespace RtEngine {
     class ComputeRenderer : public Renderer {
     public:
         ComputeRenderer(const std::shared_ptr<VulkanContext>& vulkan_context,
-                        const std::shared_ptr<SyncManager>& sync_manager,
                         const uint32_t max_frames_in_flight = 1);
 
         void init() override;
 
         void writeRenderTarget(const std::shared_ptr<RenderTarget> &target) override = 0;
-        void writeResources(const std::shared_ptr<DrawContext> &draw_context, UpdateFlagsHandle update_flags) override = 0;
+        void writeResources(const std::shared_ptr<DrawContext> &draw_context, UpdateFlagsHandle update_flags, uint32_t frame_idx) override = 0;
 
-        void recordCommandBuffer(VkCommandBuffer commandBuffer, std::shared_ptr<RenderTarget> target, uint32_t swapchain_image_idx);
-        void submitCommandBuffer(uint32_t stage_index = 0);
+        VkCommandBuffer recordCommandBuffer(uint32_t frame_idx) override;
+        QueueType queueType() const override { return COMPUTE; }
 
         void cleanup();
     protected:
@@ -34,6 +33,8 @@ namespace RtEngine {
         std::shared_ptr<ComputePipeline> pipeline;
         VkDescriptorSetLayout descriptor_layout;
         VkDescriptorSet descriptor_set;
+
+        std::shared_ptr<RenderTarget> current_target;
     };
 } // RtEngine
 

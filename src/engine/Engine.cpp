@@ -55,7 +55,8 @@ namespace RtEngine {
         scene_manager = std::make_shared<SceneManager>(options->resources_dir); // this is the non interfaced version
         engine_context->scene_manager = scene_manager; // this it the version for the components providing scene information
         engine_context->input_manager = std::make_shared<InputManager>(window);
-        engine_context->swapchain_manager = std::make_shared<SwapchainManager>(rendering_manager->getVulkanContext()->swapchain);
+        engine_context->swapchain_manager = rendering_manager->getSwapchainManager();
+        engine_context->sync_manager = rendering_manager->getSyncManager();
     }
 
     void Engine::createRunner() {

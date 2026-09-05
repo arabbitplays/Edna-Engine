@@ -1,14 +1,14 @@
 #include "compute/ComputeRenderer.hpp"
 
 #include <glitch.comp.spv.h>
+#include <stdexcept>
 
 #include "DescriptorLayoutBuilder.hpp"
 
 namespace RtEngine {
     ComputeRenderer::ComputeRenderer(const std::shared_ptr<VulkanContext> &vulkan_context,
-                                     const std::shared_ptr<SyncManager> &sync_manager,
                                      const uint32_t max_frames_in_flight)
-        : Renderer(vulkan_context, sync_manager, max_frames_in_flight) {
+        : Renderer(vulkan_context, max_frames_in_flight) {
     }
 
     void ComputeRenderer::init() {
@@ -42,14 +42,23 @@ namespace RtEngine {
     }
 
 
-    void ComputeRenderer::recordCommandBuffer(VkCommandBuffer commandBuffer, std::shared_ptr<RenderTarget> target, uint32_t swapchain_image_idx) {
-        vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline->getHandle());
-        vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline->getLayoutHandle(), 0, 1, &descriptor_set, 0, 0);
-        recordDispatch(commandBuffer, target);
-    }
+    VkCommandBuffer ComputeRenderer::recordCommandBuffer(uint32_t frame_idx) {
+        VkCommandBuffer cmd = getFreshCommandBuffer(frame_idx);
 
-    void ComputeRenderer::submitCommandBuffer(uint32_t stage_index) {
-        submitStage(stage_index, vulkan_context->device_manager->getQueue(COMPUTE));
+        VkCommandBufferBeginInfo begin_info{};
+        begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+        if (vkBeginCommandBuffer(cmd, &begin_info) != VK_SUCCESS) {
+            throw std::runtime_error("ComputeRenderer: failed to begin command buffer");
+        }
+
+        vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline->getHandle());
+        vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline->getLayoutHandle(), 0, 1, &descriptor_set, 0, 0);
+        recordDispatch(cmd, current_target);
+
+        if (vkEndCommandBuffer(cmd) != VK_SUCCESS) {
+            throw std::runtime_error("ComputeRenderer: failed to end command buffer");
+        }
+        return cmd;
     }
 
     void ComputeRenderer::cleanup() {

@@ -6,11 +6,10 @@ namespace RtEngine {
     class GlitchRenderer : public ComputeRenderer {
     public:
         GlitchRenderer(const std::shared_ptr<VulkanContext>& vulkan_context,
-                       const std::shared_ptr<SyncManager>& sync_manager,
                        const uint32_t max_frames_in_flight = 1);
 
         void writeRenderTarget(const std::shared_ptr<RenderTarget> &target) override;
-        void writeResources(const std::shared_ptr<DrawContext> &draw_context, UpdateFlagsHandle update_flags) override;
+        void writeResources(const std::shared_ptr<DrawContext> &draw_context, UpdateFlagsHandle update_flags, uint32_t frame_idx) override;
 
     protected:
         void initDescriptorLayout(DescriptorLayoutBuilder &layout_builder) override;

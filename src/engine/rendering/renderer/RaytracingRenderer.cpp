@@ -27,9 +27,8 @@ namespace RtEngine {
 	}
 
 	RaytracingRenderer::RaytracingRenderer(const std::shared_ptr<VulkanContext> &vulkan_context,
-		const std::shared_ptr<SyncManager> &sync_manager,
 		const std::string &resources_dir, const uint32_t max_frames_in_flight)
-		: Renderer(vulkan_context, sync_manager, max_frames_in_flight), resources_dir(resources_dir) {
+		: Renderer(vulkan_context, max_frames_in_flight), resources_dir(resources_dir) {
 	}
 
 	void RaytracingRenderer::init() {
@@ -60,27 +59,38 @@ namespace RtEngine {
 		scene_adapter->loadNewScene(scene);
 	}
 
-	void RaytracingRenderer::writeResources(const std::shared_ptr<DrawContext> &draw_context, UpdateFlagsHandle update_flags) {
-		scene_adapter->updateScene(draw_context, currentFrameSlot(), update_flags);
+	void RaytracingRenderer::writeResources(const std::shared_ptr<DrawContext> &draw_context, UpdateFlagsHandle update_flags, uint32_t frame_idx) {
+		scene_adapter->updateScene(draw_context, frame_idx, update_flags);
 	}
 
 	void RaytracingRenderer::writeRenderTarget(const std::shared_ptr<RenderTarget> &target) {
+		current_target = target;
 		scene_adapter->updateRenderTarget(target);
-	}
-
-	void RaytracingRenderer::submit(uint32_t stage_index) {
-		submitStage(stage_index, vulkan_context->device_manager->getQueue(GRAPHICS));
 	}
 
 	void RaytracingRenderer::waitForIdle() {
 		vkDeviceWaitIdle(vulkan_context->device_manager->getDevice());
 	}
 
-	void RaytracingRenderer::recordCommandBuffer(VkCommandBuffer commandBuffer, std::shared_ptr<RenderTarget> target) {
-		recordRenderToImage(commandBuffer, target);
+	VkCommandBuffer RaytracingRenderer::recordCommandBuffer(uint32_t frame_idx) {
+		VkCommandBuffer cmd = getFreshCommandBuffer(frame_idx);
+
+		VkCommandBufferBeginInfo begin_info{};
+		begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+		if (vkBeginCommandBuffer(cmd, &begin_info) != VK_SUCCESS) {
+			throw std::runtime_error("RaytracingRenderer: failed to begin command buffer");
+		}
+
+		recordRenderToImage(cmd, frame_idx);
+
+		if (vkEndCommandBuffer(cmd) != VK_SUCCESS) {
+			throw std::runtime_error("RaytracingRenderer: failed to end command buffer");
+		}
+		return cmd;
 	}
 
-	void RaytracingRenderer::recordRenderToImage(VkCommandBuffer commandBuffer, std::shared_ptr<RenderTarget> target) {
+	void RaytracingRenderer::recordRenderToImage(VkCommandBuffer commandBuffer, uint32_t frame_idx) {
+		const std::shared_ptr<RenderTarget> &target = current_target;
 		RaytracingPipeline pipeline = *scene_adapter->getMaterial()->pipeline;
 
 		const uint32_t handleSizeAligned =
@@ -105,7 +115,7 @@ namespace RtEngine {
 		VkStridedDeviceAddressRegionKHR callableShaderSbtEntry{};
 
 		std::vector<VkDescriptorSet> descriptor_sets{};
-		descriptor_sets.push_back(scene_adapter->getSceneDescriptorSet(currentFrameSlot()));
+		descriptor_sets.push_back(scene_adapter->getSceneDescriptorSet(frame_idx));
 		descriptor_sets.push_back(scene_adapter->getMaterial()->materialDescriptorSet);
 
 		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_RAY_TRACING_KHR, pipeline.getHandle());

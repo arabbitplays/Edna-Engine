@@ -29,5 +29,9 @@ namespace RtEngine {
     VkExtent2D SwapchainManager::getSwapchainExtent() const {
         return swapchain->extent;
     }
+
+    std::shared_ptr<Swapchain> SwapchainManager::getSwapchain() const {
+        return swapchain;
+    }
 } // RtEngine
 

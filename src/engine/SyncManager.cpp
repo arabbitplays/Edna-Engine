@@ -6,13 +6,17 @@ namespace RtEngine
 {
     SyncManager::SyncManager(uint32_t max_frames_in_flight,
                              std::shared_ptr<DeviceManager> device_manager,
-                             std::shared_ptr<Swapchain> swapchain)
+                             std::shared_ptr<SwapchainManager> swapchain_manager)
         : device_manager(std::move(device_manager)),
-          swapchain(std::move(swapchain)),
+          swapchain_manager(std::move(swapchain_manager)),
           max_frames_in_flight(max_frames_in_flight) {
         createTimelineSemaphore();
         createFrameSemaphores();
         createSwapchainSemaphores();
+
+        // Rebuild per-swapchain-image semaphores when the swapchain is recreated.
+        resize_callback_handle = this->swapchain_manager->addRecreateCallback(
+                [this](uint32_t, uint32_t) { recreateSwapchainSemaphores(); });
     }
 
     void SyncManager::setStagesPerFrame(uint32_t stages_per_frame) {
@@ -148,6 +152,10 @@ namespace RtEngine
     }
 
     void SyncManager::destroy() {
+        if (resize_callback_handle != 0 && swapchain_manager) {
+            swapchain_manager->removeRecreateCallback(resize_callback_handle);
+            resize_callback_handle = 0;
+        }
         deletion_queue.flush();
         destroySwapchainSemaphores();
     }
@@ -190,7 +198,7 @@ namespace RtEngine
     }
 
     void SyncManager::createSwapchainSemaphores() {
-        const uint32_t count = static_cast<uint32_t>(swapchain->images.size());
+        const uint32_t count = static_cast<uint32_t>(swapchain_manager->getSwapchain()->images.size());
         render_finished_semaphores.resize(count);
 
         VkSemaphoreCreateInfo info{};

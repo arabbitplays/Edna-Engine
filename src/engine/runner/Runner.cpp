@@ -10,7 +10,7 @@ namespace RtEngine {
           raytracing_renderer(engine_context->rendering_manager->getRaytracingRenderer()),
           gui_renderer(engine_context->rendering_manager->getGuiRenderer()),
           present_stage(engine_context->rendering_manager->getPresentStage()),
-          sync_manager(engine_context->rendering_manager->getSyncManager()) {
+          sync_manager(engine_context->sync_manager) {
 
         scene_reader = std::make_shared<SceneReader>(engine_context);
         update_flags = std::make_shared<UpdateFlags>();
@@ -68,7 +68,7 @@ namespace RtEngine {
     }
 
     void Runner::drawFrame(const std::shared_ptr<DrawContext>& draw_context) {
-        raytracing_renderer->waitForNextFrameStart();
+        sync_manager->waitForNextFrameStart();
 
         const int32_t swapchain_image_idx = present_stage->acquireNextSwapchainImage();
         if (swapchain_image_idx < 0) {
@@ -76,19 +76,19 @@ namespace RtEngine {
             return;
         }
 
-        VkCommandBuffer cmd = raytracing_renderer->getNextCommandBuffer();
+        const uint32_t frame_idx = sync_manager->currentFrameInFlight();
         std::shared_ptr<RenderTarget> target = draw_context->targets[0]; // TODO handle multiple
 
-        prepareFrame(cmd, draw_context);
+        prepareFrame(draw_context, frame_idx);
 
         raytracing_renderer->writeRenderTarget(target);
-        raytracing_renderer->recordCommandBuffer(cmd, target);
+        VkCommandBuffer cmd = raytracing_renderer->recordCommandBuffer(frame_idx);
 
         finishFrame(cmd, draw_context, target, static_cast<uint32_t>(swapchain_image_idx), true);
     }
 
-    void Runner::prepareFrame(VkCommandBuffer cmd, const std::shared_ptr<DrawContext> &draw_context) {
-        raytracing_renderer->writeResources(draw_context, update_flags);
+    void Runner::prepareFrame(const std::shared_ptr<DrawContext> &draw_context, uint32_t frame_idx) {
+        raytracing_renderer->writeResources(draw_context, update_flags, frame_idx);
 
         if (update_flags->checkFlag(TARGET_RESET)) {
             for (const auto& target : draw_context->targets) {
@@ -96,8 +96,6 @@ namespace RtEngine {
             }
         }
         update_flags->resetFlags();
-
-        engine_context->rendering_manager->recordBeginCommandBuffer(cmd);
     }
 
     void Runner::finishFrame(VkCommandBuffer cmd,
@@ -105,8 +103,7 @@ namespace RtEngine {
                              const std::shared_ptr<RenderTarget> &target,
                              uint32_t swapchain_image_idx,
                              bool present) const {
-        engine_context->rendering_manager->recordEndCommandBuffer(cmd);
-        raytracing_renderer->submit(0);
+        submitRenderStage(cmd);
 
         if (present) {
             const bool swapchain_out_of_date = present_stage->submitAndPresent(1, target, swapchain_image_idx);
@@ -117,8 +114,16 @@ namespace RtEngine {
             sync_manager->skipStage(1);
         }
 
-        raytracing_renderer->nextFrame();
+        sync_manager->advanceFrame();
         draw_context->nextFrame();
+    }
+
+    void Runner::submitRenderStage(VkCommandBuffer cmd) const {
+        auto vulkan_context = engine_context->rendering_manager->getVulkanContext();
+        sync_manager->submitStage(
+            0,
+            vulkan_context->device_manager->getQueue(raytracing_renderer->queueType()),
+            cmd);
     }
 
     void Runner::handle_resize() const {

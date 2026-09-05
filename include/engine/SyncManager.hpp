@@ -7,6 +7,7 @@
 #include "DeletionQueue.hpp"
 #include "DeviceManager.hpp"
 #include "Swapchain.hpp"
+#include "SwapchainManager.hpp"
 
 namespace RtEngine
 {
@@ -15,7 +16,7 @@ namespace RtEngine
     public:
         SyncManager(uint32_t max_frames_in_flight,
                     std::shared_ptr<DeviceManager> device_manager,
-                    std::shared_ptr<Swapchain> swapchain);
+                    std::shared_ptr<SwapchainManager> swapchain_manager);
 
         void setStagesPerFrame(uint32_t stages_per_frame);
 
@@ -24,17 +25,6 @@ namespace RtEngine
 
         uint32_t currentFrameInFlight() const;
 
-        // Timeline access for stage boundaries.
-        VkSemaphore timeline() const;
-        uint64_t stageWaitValue(uint32_t stage_index) const;
-        uint64_t stageSignalValue(uint32_t stage_index) const;
-        bool stageHasPredecessor(uint32_t stage_index) const;
-
-        // Submit `command_buffer` as the given stage of the current frame.
-        // Waits on the timeline at stageWaitValue(stage_index) when stage_index > 0,
-        // and on any extra binary semaphores. Signals the timeline at
-        // stageSignalValue(stage_index) and any extra binary semaphores.
-        // The two extra_binary_waits vectors must be the same length.
         void submitStage(uint32_t stage_index,
                          VkQueue queue,
                          VkCommandBuffer command_buffer,
@@ -42,29 +32,29 @@ namespace RtEngine
                          const std::vector<VkPipelineStageFlags> &extra_binary_wait_stages = {},
                          const std::vector<VkSemaphore> &extra_binary_signals = {});
 
-        // Host-signal the timeline to stageSignalValue(stage_index) without a GPU
-        // submission. Use when a frame chooses not to run a stage but the frame-end
-        // timeline value still needs to be reached so the CPU wait doesn't hang.
         void skipStage(uint32_t stage_index);
 
-        // Swapchain binary semaphores.
         VkSemaphore imageAvailableSemaphore() const;
         VkSemaphore renderFinishedSemaphore(uint32_t swapchain_image_index) const;
-
-        // Rebuild the per-swapchain-image render-finished semaphores after a swapchain resize.
-        // Caller must have made sure the device is idle first.
-        void recreateSwapchainSemaphores();
 
         void destroy();
 
     private:
+        VkSemaphore timeline() const;
+        uint64_t stageWaitValue(uint32_t stage_index) const;
+        uint64_t stageSignalValue(uint32_t stage_index) const;
+        bool stageHasPredecessor(uint32_t stage_index) const;
+
+        void recreateSwapchainSemaphores();
+
         void createTimelineSemaphore();
         void createFrameSemaphores();
         void createSwapchainSemaphores();
         void destroySwapchainSemaphores();
 
         std::shared_ptr<DeviceManager> device_manager;
-        std::shared_ptr<Swapchain> swapchain;
+        std::shared_ptr<SwapchainManager> swapchain_manager;
+        SwapchainManager::RecreateCallbackHandle resize_callback_handle = 0;
 
         uint32_t max_frames_in_flight;
         uint32_t stages_per_frame = 1;

@@ -25,7 +25,7 @@ namespace RtEngine {
     protected:
         virtual void drawFrame(const std::shared_ptr<DrawContext> &draw_context);
 
-        virtual void prepareFrame(VkCommandBuffer cmd, const std::shared_ptr<DrawContext> &draw_context);
+        virtual void prepareFrame(const std::shared_ptr<DrawContext> &draw_context, uint32_t frame_idx);
         virtual void finishFrame(VkCommandBuffer cmd,
                                  const std::shared_ptr<DrawContext> &draw_context,
                                  const std::shared_ptr<RenderTarget> &target,
@@ -33,6 +33,9 @@ namespace RtEngine {
                                  bool present) const;
 
         void handle_resize() const;
+
+        // Submits `cmd` as stage 0 on the queue matching the renderer's queue type.
+        void submitRenderStage(VkCommandBuffer cmd) const;
 
         std::shared_ptr<DrawContext> createMainDrawContext() const;
 

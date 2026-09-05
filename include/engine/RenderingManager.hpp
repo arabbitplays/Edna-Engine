@@ -4,6 +4,7 @@
 
 #include "rendering/renderer/compute/ComputeRenderer.hpp"
 #include "PresentStage.hpp"
+#include "SwapchainManager.hpp"
 #include "SyncManager.hpp"
 #include "VulkanContext.hpp"
 #include "RaytracingRenderer.hpp"
@@ -21,13 +22,11 @@ namespace RtEngine {
         std::shared_ptr<RaytracingRenderer> getRaytracingRenderer() const;
         std::shared_ptr<GuiRenderer> getGuiRenderer() const;
         std::shared_ptr<PresentStage> getPresentStage() const;
+        std::shared_ptr<SwapchainManager> getSwapchainManager() const;
         std::shared_ptr<SyncManager> getSyncManager() const;
 
         std::shared_ptr<RenderTarget> createRenderTarget(uint32_t width, uint32_t height);
 
-        void recordBeginCommandBuffer(VkCommandBuffer &commandBuffer);
-
-        void recordEndCommandBuffer(VkCommandBuffer &commandBuffer);
         bool framebufferWasResized();
 
         void destroy();
@@ -44,6 +43,7 @@ namespace RtEngine {
 
         DeletionQueue deletion_queue;
         std::shared_ptr<VulkanContext> vulkan_context;
+        std::shared_ptr<SwapchainManager> swapchain_manager;
         std::shared_ptr<SyncManager> sync_manager;
 
         std::shared_ptr<RaytracingRenderer> raytracing_renderer;

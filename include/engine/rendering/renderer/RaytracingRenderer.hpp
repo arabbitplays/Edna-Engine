@@ -29,7 +29,6 @@ namespace RtEngine {
 	class RaytracingRenderer : public ISerializable, public Renderer {
 	public:
 		RaytracingRenderer(const std::shared_ptr<VulkanContext> &vulkan_context,
-			const std::shared_ptr<SyncManager> &sync_manager,
 			const std::string &resources_dir, const uint32_t max_frames_in_flight);
 
 		void init() override;
@@ -37,13 +36,13 @@ namespace RtEngine {
 
 		void loadScene(std::shared_ptr<IScene> scene);
 
-		void writeResources(const std::shared_ptr<DrawContext> &draw_context, UpdateFlagsHandle update_flags) override;
+		void writeResources(const std::shared_ptr<DrawContext> &draw_context, UpdateFlagsHandle update_flags, uint32_t frame_idx) override;
 		void writeRenderTarget(const std::shared_ptr<RenderTarget> &target) override;
 
 		void waitForIdle();
 
-		virtual void recordCommandBuffer(VkCommandBuffer commandBuffer, std::shared_ptr<RenderTarget> target);
-		void submit(uint32_t stage_index);
+		VkCommandBuffer recordCommandBuffer(uint32_t frame_idx) override;
+		QueueType queueType() const override { return GRAPHICS; }
 
 		void cleanup();
 
@@ -65,12 +64,13 @@ namespace RtEngine {
 		std::shared_ptr<MeshRepository> mesh_repository;
 
 		std::shared_ptr<SceneAdapter> scene_adapter;
+		std::shared_ptr<RenderTarget> current_target;
 
 		void createRepositories();
 
 		static bool hasStencilComponent(VkFormat format);
 
-		void recordRenderToImage(VkCommandBuffer commandBuffer, std::shared_ptr<RenderTarget> target);
+		void recordRenderToImage(VkCommandBuffer commandBuffer, uint32_t frame_idx);
 
 		void *createPushConstants(uint32_t *size, const std::shared_ptr<RenderTarget> &target);
 	};

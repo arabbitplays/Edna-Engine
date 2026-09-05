@@ -5,12 +5,12 @@
 
 namespace RtEngine {
     GlitchRenderer::GlitchRenderer(const std::shared_ptr<VulkanContext> &vulkan_context,
-                                   const std::shared_ptr<SyncManager> &sync_manager,
                                    const uint32_t max_frames_in_flight) : ComputeRenderer(
-        vulkan_context, sync_manager, max_frames_in_flight) {
+        vulkan_context, max_frames_in_flight) {
     }
 
     void GlitchRenderer::writeRenderTarget(const std::shared_ptr<RenderTarget> &target) {
+        current_target = target;
         vulkan_context->descriptor_allocator->writeImage(0, target->getCurrentTargetImage().imageView, VK_NULL_HANDLE,
                                                          VK_IMAGE_LAYOUT_GENERAL, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE);
 
@@ -19,7 +19,7 @@ namespace RtEngine {
     }
 
     void GlitchRenderer::writeResources(const std::shared_ptr<DrawContext> &draw_context,
-        UpdateFlagsHandle update_flags) {
+        UpdateFlagsHandle update_flags, uint32_t frame_idx) {
         // TODO find an abstract way to put stuff like this into a compute renderer
         for (const auto& entry : std::filesystem::directory_iterator(INPUT_DIR)) {
             if (!entry.is_regular_file()) {

@@ -19,6 +19,7 @@ namespace RtEngine {
         void recreate() const;
 
         VkExtent2D getSwapchainExtent() const;
+        std::shared_ptr<Swapchain> getSwapchain() const;
 
     private:
         std::shared_ptr<Swapchain> swapchain;
