@@ -10,6 +10,8 @@ src += files(
   'InputManager.cpp',
   'Window.cpp',
   'SwapchainManager.cpp',
+  'SyncManager.cpp',
   'Engine.cpp',
   'RenderingManager.cpp',
+  'PresentStage.cpp',
 )

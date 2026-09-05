@@ -11,7 +11,9 @@
 namespace RtEngine {
     class ComputeRenderer : public Renderer {
     public:
-        ComputeRenderer(const std::shared_ptr<VulkanContext>& vulkan_context, const uint32_t max_frames_in_flight = 1);
+        ComputeRenderer(const std::shared_ptr<VulkanContext>& vulkan_context,
+                        const std::shared_ptr<SyncManager>& sync_manager,
+                        const uint32_t max_frames_in_flight = 1);
 
         void init() override;
 
@@ -19,7 +21,7 @@ namespace RtEngine {
         void writeResources(const std::shared_ptr<DrawContext> &draw_context, UpdateFlagsHandle update_flags) override = 0;
 
         void recordCommandBuffer(VkCommandBuffer commandBuffer, std::shared_ptr<RenderTarget> target, uint32_t swapchain_image_idx);
-        void submitCommandBuffer(VkCommandBuffer &command_buffer);
+        void submitCommandBuffer(uint32_t stage_index = 0);
 
         void cleanup();
     protected:

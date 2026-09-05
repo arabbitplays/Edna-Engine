@@ -33,12 +33,18 @@ namespace RtEngine {
                 std::make_shared<Swapchain>(vulkan_context->device_manager, window->getHandle(), vulkan_context->resource_builder);
         vulkan_context->descriptor_allocator = createDescriptorAllocator();
 
+        sync_manager = std::make_shared<SyncManager>(max_frames_in_flight,
+                                                     vulkan_context->device_manager,
+                                                     vulkan_context->swapchain);
+
         deletion_queue.pushFunction([&]() {
             vulkan_context->descriptor_allocator->destroyPools(vulkan_context->device_manager->getDevice());
-            vulkan_context->swapchain->destroy();
-            raytracing_renderer->cleanup(); // TODO i think the sync objects still have to exist for swapchain destruction to work
+            raytracing_renderer->cleanup();
+            present_stage->cleanup();
             gui_renderer->cleanup();
             glitch_renderer->cleanup();
+            sync_manager->destroy();
+            vulkan_context->swapchain->destroy();
             vulkan_context->command_manager->destroy();
             vulkan_context->device_manager->destroy();
         });
@@ -60,9 +66,14 @@ namespace RtEngine {
     }
 
     void RenderingManager::createRenderer() {
-        raytracing_renderer = std::make_shared<RaytracingRenderer>(vulkan_context, resources_dir, max_frames_in_flight);
+        raytracing_renderer = std::make_shared<RaytracingRenderer>(vulkan_context, sync_manager, resources_dir, max_frames_in_flight);
         raytracing_renderer->init();
         gui_renderer = std::make_shared<GuiRenderer>(vulkan_context);
+        present_stage = std::make_shared<PresentStage>(vulkan_context, sync_manager, gui_renderer, max_frames_in_flight);
+        present_stage->init();
+
+        // Renderer stages + present stage.
+        sync_manager->setStagesPerFrame(2);
     }
 
     std::shared_ptr<VulkanContext> RenderingManager::getVulkanContext() const {
@@ -78,6 +89,16 @@ namespace RtEngine {
     std::shared_ptr<GuiRenderer> RenderingManager::getGuiRenderer() const {
         assert(gui_renderer != nullptr);
         return gui_renderer;
+    }
+
+    std::shared_ptr<PresentStage> RenderingManager::getPresentStage() const {
+        assert(present_stage != nullptr);
+        return present_stage;
+    }
+
+    std::shared_ptr<SyncManager> RenderingManager::getSyncManager() const {
+        assert(sync_manager != nullptr);
+        return sync_manager;
     }
 
     std::shared_ptr<RenderTarget> RenderingManager::createRenderTarget(uint32_t width, uint32_t height) {

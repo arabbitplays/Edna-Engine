@@ -29,6 +29,7 @@ namespace RtEngine {
 	class RaytracingRenderer : public ISerializable, public Renderer {
 	public:
 		RaytracingRenderer(const std::shared_ptr<VulkanContext> &vulkan_context,
+			const std::shared_ptr<SyncManager> &sync_manager,
 			const std::string &resources_dir, const uint32_t max_frames_in_flight);
 
 		void init() override;
@@ -41,9 +42,8 @@ namespace RtEngine {
 
 		void waitForIdle();
 
-		int32_t aquireNextSwapchainImage();
-		virtual void recordCommandBuffer(VkCommandBuffer commandBuffer, std::shared_ptr<RenderTarget> target, uint32_t swapchain_image_idx, bool present);
-		bool submitCommands(bool present, uint32_t swapchain_image_idx);
+		virtual void recordCommandBuffer(VkCommandBuffer commandBuffer, std::shared_ptr<RenderTarget> target);
+		void submit(uint32_t stage_index);
 
 		void cleanup();
 
@@ -66,23 +66,13 @@ namespace RtEngine {
 
 		std::shared_ptr<SceneAdapter> scene_adapter;
 
-		std::vector<VkSemaphore> imageAvailableSemaphores;
-		std::vector<VkSemaphore> renderFinishedSemaphores;
-
 		void createRepositories();
 
 		static bool hasStencilComponent(VkFormat format);
 
-		void createSyncObjects() override;
-
-		void submitCommandBuffer(const std::vector<VkSemaphore> &wait_semaphore, const std::vector<VkSemaphore> &signal_semaphore);
-		bool presentSwapchainImage(const std::vector<VkSemaphore>& wait_semaphore, uint32_t image_index);
-
 		void recordRenderToImage(VkCommandBuffer commandBuffer, std::shared_ptr<RenderTarget> target);
 
 		void *createPushConstants(uint32_t *size, const std::shared_ptr<RenderTarget> &target);
-
-		void recordBlitToSwapchain(VkCommandBuffer commandBuffer, const std::shared_ptr<RenderTarget> &render_target, uint32_t swapchain_image_index);
 	};
 
 } // namespace RtEngine

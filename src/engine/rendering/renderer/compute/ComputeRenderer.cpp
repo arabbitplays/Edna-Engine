@@ -5,8 +5,10 @@
 #include "DescriptorLayoutBuilder.hpp"
 
 namespace RtEngine {
-    ComputeRenderer::ComputeRenderer(const std::shared_ptr<VulkanContext> &vulkan_context, const uint32_t max_frames_in_flight)
-        : Renderer(vulkan_context, max_frames_in_flight) {
+    ComputeRenderer::ComputeRenderer(const std::shared_ptr<VulkanContext> &vulkan_context,
+                                     const std::shared_ptr<SyncManager> &sync_manager,
+                                     const uint32_t max_frames_in_flight)
+        : Renderer(vulkan_context, sync_manager, max_frames_in_flight) {
     }
 
     void ComputeRenderer::init() {
@@ -46,17 +48,8 @@ namespace RtEngine {
         recordDispatch(commandBuffer, target);
     }
 
-    void ComputeRenderer::submitCommandBuffer(VkCommandBuffer& command_buffer) {
-        VkSubmitInfo submitInfo{};
-        submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-
-        submitInfo.commandBufferCount = 1;
-        submitInfo.pCommandBuffers = &command_buffer;
-
-        if (vkQueueSubmit(vulkan_context->device_manager->getQueue(COMPUTE), 1, &submitInfo,
-                          in_flight_fences[current_frame]) != VK_SUCCESS) {
-            throw std::runtime_error("failed to submit draw command buffer!");
-        }
+    void ComputeRenderer::submitCommandBuffer(uint32_t stage_index) {
+        submitStage(stage_index, vulkan_context->device_manager->getQueue(COMPUTE));
     }
 
     void ComputeRenderer::cleanup() {

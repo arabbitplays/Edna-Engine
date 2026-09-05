@@ -5,8 +5,9 @@
 
 namespace RtEngine {
     GlitchRenderer::GlitchRenderer(const std::shared_ptr<VulkanContext> &vulkan_context,
+                                   const std::shared_ptr<SyncManager> &sync_manager,
                                    const uint32_t max_frames_in_flight) : ComputeRenderer(
-        vulkan_context, max_frames_in_flight) {
+        vulkan_context, sync_manager, max_frames_in_flight) {
     }
 
     void GlitchRenderer::writeRenderTarget(const std::shared_ptr<RenderTarget> &target) {

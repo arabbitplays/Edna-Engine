@@ -309,6 +309,11 @@ namespace RtEngine {
 		deviceAddressFeatures.bufferDeviceAddress = VK_TRUE;
 		deviceAddressFeatures.pNext = &rayTracingPipelineFeatures;
 
+		VkPhysicalDeviceTimelineSemaphoreFeatures timelineSemaphoreFeatures{};
+		timelineSemaphoreFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TIMELINE_SEMAPHORE_FEATURES;
+		timelineSemaphoreFeatures.timelineSemaphore = VK_TRUE;
+		timelineSemaphoreFeatures.pNext = &deviceAddressFeatures;
+
 		VkDeviceCreateInfo createInfo{};
 		createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
 		createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
@@ -322,7 +327,7 @@ namespace RtEngine {
 		} else {
 			createInfo.enabledLayerCount = 0;
 		}
-		createInfo.pNext = &deviceAddressFeatures;
+		createInfo.pNext = &timelineSemaphoreFeatures;
 
 		if (vkCreateDevice(physicalDevice, &createInfo, nullptr, &device) != VK_SUCCESS) {
 			throw std::runtime_error("failed to create logical device!");

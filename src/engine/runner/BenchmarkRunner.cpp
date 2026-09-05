@@ -68,7 +68,7 @@ namespace RtEngine {
 
 		int32_t swapchain_image_idx = 0;
 		if (present_image) {
-			swapchain_image_idx = raytracing_renderer->aquireNextSwapchainImage();
+			swapchain_image_idx = present_stage->acquireNextSwapchainImage();
 			if (swapchain_image_idx < 0) {
 				handle_resize();
 				return;
@@ -78,9 +78,9 @@ namespace RtEngine {
 		prepareFrame(cmd, draw_context);
 
 		raytracing_renderer->writeRenderTarget(target);
-		raytracing_renderer->recordCommandBuffer(cmd, target, swapchain_image_idx, present_image);
+		raytracing_renderer->recordCommandBuffer(cmd, target);
 
-		finishFrame(cmd, draw_context, static_cast<uint32_t>(swapchain_image_idx), present_image);
+		finishFrame(cmd, draw_context, target, static_cast<uint32_t>(swapchain_image_idx), present_image);
 	}
 
 
