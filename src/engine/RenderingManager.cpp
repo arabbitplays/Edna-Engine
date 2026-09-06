@@ -1,5 +1,6 @@
 #include "../../include/engine/RenderingManager.hpp"
 
+#include "compute/ComputeRenderer.hpp"
 #include "compute/GlitchRenderer.hpp"
 
 namespace RtEngine {
@@ -41,9 +42,16 @@ namespace RtEngine {
         deletion_queue.pushFunction([&]() {
             vulkan_context->descriptor_allocator->destroyPools(vulkan_context->device_manager->getDevice());
             raytracing_renderer->cleanup();
+            for (const auto& renderer : renderer_stack->getRenderers()) {
+                if (auto compute = std::dynamic_pointer_cast<ComputeRenderer>(renderer)) {
+                    compute->cleanup();
+                }
+            }
+            if (rt_target_connector) {
+                rt_target_connector->destroy();
+            }
             present_stage->cleanup();
             gui_renderer->cleanup();
-            glitch_renderer->cleanup();
             sync_manager->destroy();
             vulkan_context->swapchain->destroy();
             vulkan_context->command_manager->destroy();
@@ -67,14 +75,30 @@ namespace RtEngine {
     }
 
     void RenderingManager::createRenderer() {
+        VkExtent2D extent = vulkan_context->swapchain->extent;
+
         raytracing_renderer = std::make_shared<RaytracingRenderer>(vulkan_context, resources_dir, max_frames_in_flight);
         raytracing_renderer->init();
         gui_renderer = std::make_shared<GuiRenderer>(vulkan_context);
         present_stage = std::make_shared<PresentStage>(vulkan_context, sync_manager, gui_renderer, max_frames_in_flight);
         present_stage->init();
 
-        // Renderer stages + present stage.
-        sync_manager->setStagesPerFrame(2);
+        rt_target_connector = std::make_shared<ImageConnector>(
+            vulkan_context->resource_builder, extent, max_frames_in_flight,
+            VK_FORMAT_R32G32B32A32_SFLOAT, VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_STORAGE_BIT,
+            VK_IMAGE_ASPECT_COLOR_BIT);
+
+        auto glitch_renderer = std::make_shared<GlitchRenderer>(
+            vulkan_context, extent, rt_target_connector, max_frames_in_flight);
+        glitch_renderer->init();
+
+        renderer_stack = std::make_shared<RendererStack>();
+        renderer_stack->addRenderer(raytracing_renderer);
+        renderer_stack->addRenderer(glitch_renderer);
+        renderer_stack->setPresentStage(present_stage);
+        renderer_stack->setPresentConnector(glitch_renderer->getOutputConnector());
+
+        sync_manager->setStagesPerFrame(static_cast<uint32_t>(renderer_stack->getRenderers().size()) + 1);
     }
 
     std::shared_ptr<VulkanContext> RenderingManager::getVulkanContext() const {
@@ -97,6 +121,11 @@ namespace RtEngine {
         return present_stage;
     }
 
+    std::shared_ptr<RendererStack> RenderingManager::getRendererStack() const {
+        assert(renderer_stack != nullptr);
+        return renderer_stack;
+    }
+
     std::shared_ptr<SwapchainManager> RenderingManager::getSwapchainManager() const {
         assert(swapchain_manager != nullptr);
         return swapchain_manager;
@@ -109,7 +138,9 @@ namespace RtEngine {
 
     std::shared_ptr<RenderTarget> RenderingManager::createRenderTarget(uint32_t width, uint32_t height) {
         VkExtent2D extent(width, height);
-        return std::make_shared<RenderTarget>(vulkan_context->resource_builder, extent, max_frames_in_flight);
+        rt_target_connector->recreate(extent);
+        return std::make_shared<RenderTarget>(vulkan_context->resource_builder, extent, max_frames_in_flight,
+                                              rt_target_connector);
     }
 
     bool RenderingManager::framebufferWasResized()

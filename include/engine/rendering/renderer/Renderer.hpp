@@ -15,11 +15,6 @@ namespace RtEngine {
 
         virtual void init();
 
-        virtual void writeResources(const std::shared_ptr<DrawContext> &draw_context,
-                                    UpdateFlagsHandle update_flags,
-                                    uint32_t frame_idx) = 0;
-        virtual void writeRenderTarget(const std::shared_ptr<RenderTarget> &target) = 0;
-
         virtual VkCommandBuffer recordCommandBuffer(uint32_t frame_idx) = 0;
 
         virtual QueueType queueType() const = 0;
@@ -38,6 +33,8 @@ namespace RtEngine {
 
         std::vector<VkCommandBuffer> command_buffers;
     };
+
+    using RendererHandle = std::shared_ptr<Renderer>;
 } // RtEngine
 
 #endif //VULKAN_RAYTRACING_RENDERER_HPP

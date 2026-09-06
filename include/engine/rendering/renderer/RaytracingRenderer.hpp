@@ -36,8 +36,8 @@ namespace RtEngine {
 
 		void loadScene(std::shared_ptr<IScene> scene);
 
-		void writeResources(const std::shared_ptr<DrawContext> &draw_context, UpdateFlagsHandle update_flags, uint32_t frame_idx) override;
-		void writeRenderTarget(const std::shared_ptr<RenderTarget> &target) override;
+		void writeResources(const std::shared_ptr<DrawContext> &draw_context, UpdateFlagsHandle update_flags, uint32_t frame_idx);
+		void writeRenderTarget(const std::shared_ptr<RenderTarget> &target);
 
 		void waitForIdle();
 

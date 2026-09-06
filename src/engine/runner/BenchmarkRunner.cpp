@@ -79,9 +79,9 @@ namespace RtEngine {
 		prepareFrame(draw_context, frame_idx);
 
 		raytracing_renderer->writeRenderTarget(target);
-		VkCommandBuffer cmd = raytracing_renderer->recordCommandBuffer(frame_idx);
 
-		finishFrame(cmd, draw_context, target, static_cast<uint32_t>(swapchain_image_idx), present_image);
+		renderFrame(frame_idx, static_cast<uint32_t>(swapchain_image_idx), present_image);
+		finishFrame(draw_context);
 	}
 
 

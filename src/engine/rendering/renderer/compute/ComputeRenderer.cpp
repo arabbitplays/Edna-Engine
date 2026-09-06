@@ -1,14 +1,14 @@
 #include "compute/ComputeRenderer.hpp"
 
-#include <glitch.comp.spv.h>
+#include <cassert>
 #include <stdexcept>
-
-#include "DescriptorLayoutBuilder.hpp"
 
 namespace RtEngine {
     ComputeRenderer::ComputeRenderer(const std::shared_ptr<VulkanContext> &vulkan_context,
                                      const uint32_t max_frames_in_flight)
-        : Renderer(vulkan_context, max_frames_in_flight) {
+        : Renderer(vulkan_context, max_frames_in_flight),
+          connector_layout(std::make_shared<ConnectorLayout>(vulkan_context->device_manager,
+                                                             vulkan_context->descriptor_allocator)) {
     }
 
     void ComputeRenderer::init() {
@@ -16,17 +16,30 @@ namespace RtEngine {
         createPipeline();
     }
 
+    void ComputeRenderer::addConnector(uint32_t binding, ConnectorHandle connector) {
+        connector_layout->addConnector(binding, std::move(connector));
+    }
+
+    void ComputeRenderer::setDispatchSize(VkExtent3D size) {
+        dispatch_size_provider = [size]() { return size; };
+    }
+
+    void ComputeRenderer::setDispatchSize(DispatchSizeProvider provider) {
+        dispatch_size_provider = std::move(provider);
+    }
+
+    ConnectorHandle ComputeRenderer::getConnector(uint32_t binding) const {
+        return connector_layout->getConnectors()[binding];
+    }
+
     void ComputeRenderer::createPipeline() {
         pipeline = std::make_shared<ComputePipeline>(vulkan_context);
         VkDevice device = vulkan_context->device_manager->getDevice();
 
-        DescriptorLayoutBuilder layoutBuilder;
-        initDescriptorLayout(layoutBuilder);
-        descriptor_layout = layoutBuilder.build(device, VK_SHADER_STAGE_COMPUTE_BIT);
+        descriptor_layout = connector_layout->createLayout(VK_SHADER_STAGE_COMPUTE_BIT);
         deletion_queue.pushFunction([&]() {
             vkDestroyDescriptorSetLayout(vulkan_context->device_manager->getDevice(), descriptor_layout, nullptr);
         });
-        descriptor_set = vulkan_context->descriptor_allocator->allocate(vulkan_context->device_manager->getDevice(), descriptor_layout);
 
         std::vector<VkDescriptorSetLayout> descriptorSetLayouts{descriptor_layout};
         pipeline->setDescriptorSetLayouts(descriptorSetLayouts);
@@ -51,9 +64,14 @@ namespace RtEngine {
             throw std::runtime_error("ComputeRenderer: failed to begin command buffer");
         }
 
+        descriptor_set = connector_layout->writeConnectors(descriptor_layout);
+
         vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline->getHandle());
         vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline->getLayoutHandle(), 0, 1, &descriptor_set, 0, 0);
-        recordDispatch(cmd, current_target);
+
+        assert(dispatch_size_provider && "ComputeRenderer: dispatch size not set");
+        VkExtent3D dispatch_size = dispatch_size_provider();
+        vkCmdDispatch(cmd, dispatch_size.width, dispatch_size.height, dispatch_size.depth);
 
         if (vkEndCommandBuffer(cmd) != VK_SUCCESS) {
             throw std::runtime_error("ComputeRenderer: failed to end command buffer");

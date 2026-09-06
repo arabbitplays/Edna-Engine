@@ -1,23 +1,23 @@
 #ifndef VULKAN_RAYTRACING_GLITCHRENDERER_HPP
 #define VULKAN_RAYTRACING_GLITCHRENDERER_HPP
 #include "ComputeRenderer.hpp"
+#include "ImageConnector.hpp"
 
 namespace RtEngine {
     class GlitchRenderer : public ComputeRenderer {
     public:
         GlitchRenderer(const std::shared_ptr<VulkanContext>& vulkan_context,
+                       VkExtent2D image_extent,
+                       std::shared_ptr<ImageConnector> input_connector,
                        const uint32_t max_frames_in_flight = 1);
 
-        void writeRenderTarget(const std::shared_ptr<RenderTarget> &target) override;
-        void writeResources(const std::shared_ptr<DrawContext> &draw_context, UpdateFlagsHandle update_flags, uint32_t frame_idx) override;
+        std::shared_ptr<ImageConnector> getOutputConnector() const;
 
     protected:
-        void initDescriptorLayout(DescriptorLayoutBuilder &layout_builder) override;
-        void recordDispatch(VkCommandBuffer command_buffer, std::shared_ptr<RenderTarget> &target) override;
-
         VkShaderModule createShaderModule() override;
 
-        const std::string INPUT_DIR = "../resources/compute_in";
+    private:
+        std::shared_ptr<ImageConnector> output_connector;
     };
 }
 #endif //VULKAN_RAYTRACING_GLITCHRENDERER_HPP

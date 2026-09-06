@@ -35,12 +35,15 @@ namespace RtEngine {
     }
 
     bool PresentStage::submitAndPresent(const uint32_t stage_index,
-                                        const std::shared_ptr<RenderTarget> &source,
+                                        const std::shared_ptr<ImageConnector> &source,
                                         const uint32_t swapchain_image_idx) {
+        AllocatedImage source_image = source->getImageAt(0);
+        VkExtent2D source_extent = source->getExtent();
+
         VkCommandBuffer cmd = beginCommandBuffer();
-        recordBlit(cmd, source, swapchain_image_idx);
+        recordBlit(cmd, source_image, source_extent, swapchain_image_idx);
         transitionSwapchainForPresent(cmd, swapchain_image_idx);
-        transitionSourceBackToGeneral(cmd, source);
+        transitionSourceBackToGeneral(cmd, source_image);
         gui_renderer->recordGuiCommands(cmd, swapchain_image_idx);
         endCommandBuffer(cmd);
 
@@ -73,9 +76,9 @@ namespace RtEngine {
     }
 
     void PresentStage::recordBlit(VkCommandBuffer cmd,
-                                  const std::shared_ptr<RenderTarget> &source,
+                                  AllocatedImage source_image,
+                                  VkExtent2D source_extent,
                                   const uint32_t swapchain_image_idx) {
-        AllocatedImage src_image = source->getCurrentTargetImage();
         std::shared_ptr<ResourceBuilder> resource_builder = vulkan_context->resource_builder;
         std::shared_ptr<Swapchain> swapchain = vulkan_context->swapchain;
 
@@ -86,15 +89,15 @@ namespace RtEngine {
 
         // expects source to be in GENERAL
         // the timeline semaphoe handles execution ordering, this is only layout transition
-        resource_builder->transitionImageLayout(cmd, src_image.image,
+        resource_builder->transitionImageLayout(cmd, source_image.image,
                                                 VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT,
                                                 VK_ACCESS_NONE, VK_ACCESS_TRANSFER_READ_BIT,
                                                 VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
 
         const int32_t swapchain_width = swapchain->extent.width;
         const int32_t swapchain_height = swapchain->extent.height;
-        const int32_t target_width = source->getExtent().width;
-        const int32_t target_height = source->getExtent().height;
+        const int32_t target_width = source_extent.width;
+        const int32_t target_height = source_extent.height;
 
         VkImageBlit blit_region{};
         blit_region.srcSubresource = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1};
@@ -105,7 +108,7 @@ namespace RtEngine {
         blit_region.dstOffsets[1] = {swapchain_width, swapchain_height, 1};
 
         vkCmdBlitImage(cmd,
-                       src_image.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                       source_image.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
                        swapchain->images[swapchain_image_idx], VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                        1, &blit_region, VK_FILTER_NEAREST);
     }
@@ -119,11 +122,9 @@ namespace RtEngine {
                 VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
     }
 
-    void PresentStage::transitionSourceBackToGeneral(VkCommandBuffer cmd,
-                                                     const std::shared_ptr<RenderTarget> &source) {
-        AllocatedImage src_image = source->getCurrentTargetImage();
+    void PresentStage::transitionSourceBackToGeneral(VkCommandBuffer cmd, AllocatedImage source_image) {
         vulkan_context->resource_builder->transitionImageLayout(
-                cmd, src_image.image,
+                cmd, source_image.image,
                 VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
                 VK_ACCESS_TRANSFER_READ_BIT, VK_ACCESS_NONE,
                 VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_LAYOUT_GENERAL);

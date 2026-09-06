@@ -6,7 +6,7 @@
 
 #include "DeletionQueue.hpp"
 #include "GuiRenderer.hpp"
-#include "RenderTarget.hpp"
+#include "ImageConnector.hpp"
 #include "SyncManager.hpp"
 #include "VulkanContext.hpp"
 
@@ -23,7 +23,7 @@ namespace RtEngine {
         int32_t acquireNextSwapchainImage();
 
         bool submitAndPresent(uint32_t stage_index,
-                              const std::shared_ptr<RenderTarget> &source,
+                              const std::shared_ptr<ImageConnector> &source,
                               uint32_t swapchain_image_idx);
 
         void cleanup();
@@ -33,10 +33,11 @@ namespace RtEngine {
         void endCommandBuffer(VkCommandBuffer cmd);
 
         void recordBlit(VkCommandBuffer cmd,
-                        const std::shared_ptr<RenderTarget> &source,
+                        AllocatedImage source_image,
+                        VkExtent2D source_extent,
                         uint32_t swapchain_image_idx);
         void transitionSwapchainForPresent(VkCommandBuffer cmd, uint32_t swapchain_image_idx);
-        void transitionSourceBackToGeneral(VkCommandBuffer cmd, const std::shared_ptr<RenderTarget> &source);
+        void transitionSourceBackToGeneral(VkCommandBuffer cmd, AllocatedImage source_image);
 
         bool present(uint32_t swapchain_image_idx);
 

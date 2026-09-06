@@ -4,6 +4,7 @@ subdir('context')
 subdir('builders')
 subdir('resources')
 subdir('renderer')
+subdir('connectors')
 subdir('targets')
 subdir('vulkan_scene_representation')
 

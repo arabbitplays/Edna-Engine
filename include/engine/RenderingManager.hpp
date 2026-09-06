@@ -2,8 +2,8 @@
 #define VULKAN_RAYTRACING_RENDERINGMANAGER_HPP
 #include <memory>
 
-#include "rendering/renderer/compute/ComputeRenderer.hpp"
 #include "PresentStage.hpp"
+#include "RendererStack.hpp"
 #include "SwapchainManager.hpp"
 #include "SyncManager.hpp"
 #include "VulkanContext.hpp"
@@ -22,6 +22,7 @@ namespace RtEngine {
         std::shared_ptr<RaytracingRenderer> getRaytracingRenderer() const;
         std::shared_ptr<GuiRenderer> getGuiRenderer() const;
         std::shared_ptr<PresentStage> getPresentStage() const;
+        std::shared_ptr<RendererStack> getRendererStack() const;
         std::shared_ptr<SwapchainManager> getSwapchainManager() const;
         std::shared_ptr<SyncManager> getSyncManager() const;
 
@@ -48,8 +49,9 @@ namespace RtEngine {
 
         std::shared_ptr<RaytracingRenderer> raytracing_renderer;
         std::shared_ptr<GuiRenderer> gui_renderer;
-        std::shared_ptr<ComputeRenderer> glitch_renderer;
         std::shared_ptr<PresentStage> present_stage;
+        std::shared_ptr<RendererStack> renderer_stack;
+        std::shared_ptr<ImageConnector> rt_target_connector;
 
 		bool framebufferResized = false;
 
