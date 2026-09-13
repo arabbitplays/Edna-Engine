@@ -1,20 +1,16 @@
-//
-// Created by oschdi on 6/6/25.
-//
-
 #ifndef RENDERTARGET_HPP
 #define RENDERTARGET_HPP
 #include <memory>
+#include <ImageConnector.hpp>
 #include <ResourceBuilder.hpp>
 #include <Texture.hpp>
-#include <vector>
 
 namespace RtEngine
 {
     class RenderTarget {
     public:
-        RenderTarget() = default;
-        explicit RenderTarget(const std::shared_ptr<ResourceBuilder>& resource_builder, VkExtent2D image_extent, uint32_t max_frames_in_flight);
+        RenderTarget(const std::shared_ptr<ResourceBuilder>& resource_builder, VkExtent2D image_extent, uint32_t max_frames_in_flight,
+                     std::shared_ptr<ImageConnector> render_target_connector = nullptr);
 
         AllocatedImage getCurrentTargetImage() const;
 
@@ -37,16 +33,14 @@ namespace RtEngine
         void recreate(VkExtent2D new_image_extent);
 
         void destroy() const;
+
+        std::shared_ptr<ImageConnector> getRenderTargetConnector() const;
     private:
-        void createImages(uint32_t image_count);
-
-        std::shared_ptr<ResourceBuilder> resource_builder;
-
-        VkExtent2D image_extent;
+        bool owns_render_target_connector;
+        std::shared_ptr<ImageConnector> render_target_connector;
+        std::shared_ptr<ImageConnector> rng_connector;
 
         uint32_t current_image = 0;
-        std::vector<AllocatedImage> render_targets;
-        std::vector<AllocatedImage> rng_textures;
 
         uint32_t accumulated_frame_count = 0;
         uint32_t samples_per_frame = 8;

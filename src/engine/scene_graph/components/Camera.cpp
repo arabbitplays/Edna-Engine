@@ -14,13 +14,14 @@ namespace RtEngine {
 			image_width = swapchain_extent.width;
 			image_height = swapchain_extent.height;
 
-			context->swapchain_manager->addRecreateCallback([this] (uint32_t new_width, uint32_t new_height) {
-				image_width = new_width;
-				image_height = new_height;
-				if (render_target != nullptr) {
-					render_target->recreate(VkExtent2D{static_cast<uint32_t>(image_width), static_cast<uint32_t>(image_height)});
-				}
-			});
+			resize_callback_handle = context->swapchain_manager->addRecreateCallback(
+				[this] (uint32_t new_width, uint32_t new_height) {
+					image_width = new_width;
+					image_height = new_height;
+					if (render_target != nullptr) {
+						render_target->recreate(VkExtent2D{static_cast<uint32_t>(image_width), static_cast<uint32_t>(image_height)});
+					}
+				});
 		}
 
     	render_target = context->rendering_manager->createRenderTarget(image_width, image_height);
@@ -42,6 +43,10 @@ namespace RtEngine {
     }
 
     void Camera::OnDestroy() {
+    	if (resize_callback_handle != 0) {
+    		context->swapchain_manager->removeRecreateCallback(resize_callback_handle);
+    		resize_callback_handle = 0;
+    	}
     	render_target->destroy();
     }
 

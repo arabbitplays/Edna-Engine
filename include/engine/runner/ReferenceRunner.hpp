@@ -14,7 +14,7 @@ namespace RtEngine {
 		void drawFrame(const std::shared_ptr<DrawContext> &draw_context) override;
 
 	private:
-		void prepareFrame(VkCommandBuffer cmd, const std::shared_ptr<DrawContext> &draw_context) override;
+		void prepareFrame(const std::shared_ptr<DrawContext> &draw_context, uint32_t frame_idx) override;
 
 		void mergeImages(uint32_t width, uint32_t height);
 

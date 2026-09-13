@@ -202,10 +202,11 @@ namespace RtEngine {
 
 	Texture ResourceBuilder::loadTextureImage(std::string path, TextureType type) {
 		int texWidth, texHeight, texChannels;
-		uint8_t *pixels = loadImageData(resource_path + "/" + path, &texWidth, &texHeight, &texChannels);
+		std::string image_path = resource_path + "/" + path;
+		uint8_t *pixels = loadImageData(image_path, &texWidth, &texHeight, &texChannels);
 
 		if (!pixels) {
-			throw std::runtime_error("failed to load texture image!");
+			throw std::runtime_error("failed to load texture image " + image_path);
 		}
 
 		VkFormat format;
@@ -230,10 +231,11 @@ namespace RtEngine {
 
 	AllocatedImage ResourceBuilder::loadImage(std::string path, VkImageLayout layout) {
 		int texWidth, texHeight, texChannels;
-		uint8_t *pixels = loadImageData(resource_path + "/" + path, &texWidth, &texHeight, &texChannels);
+		std::string image_path = resource_path + "/" + path;
+		uint8_t *pixels = loadImageData(image_path, &texWidth, &texHeight, &texChannels);
 
 		if (!pixels) {
-			throw std::runtime_error("failed to load texture image!");
+			throw std::runtime_error("failed to load texture image " + image_path);
 		}
 
 		VkFormat format = VK_FORMAT_R8G8B8A8_UNORM;

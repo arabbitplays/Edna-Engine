@@ -1,8 +1,11 @@
 #ifndef VULKAN_RAYTRACING_RUNNER_HPP
 #define VULKAN_RAYTRACING_RUNNER_HPP
 #include "ISerializable.hpp"
+#include "PresentStage.hpp"
+#include "RendererStack.hpp"
 #include "SceneManager.hpp"
 #include "SceneReader.hpp"
+#include "SyncManager.hpp"
 #include "RaytracingRenderer.hpp"
 
 namespace RtEngine {
@@ -23,10 +26,14 @@ namespace RtEngine {
     protected:
         virtual void drawFrame(const std::shared_ptr<DrawContext> &draw_context);
 
-        virtual void prepareFrame(VkCommandBuffer cmd, const std::shared_ptr<DrawContext> &draw_context);
-        virtual void finishFrame(VkCommandBuffer cmd, const std::shared_ptr<DrawContext> &draw_context, uint32_t swapchain_image_idx, bool present) const;
+        virtual void prepareFrame(const std::shared_ptr<DrawContext> &draw_context, uint32_t frame_idx);
+        virtual void renderFrame(uint32_t frame_idx,
+                                 uint32_t swapchain_image_idx,
+                                 bool present) const;
+        virtual void finishFrame(const std::shared_ptr<DrawContext> &draw_context) const;
 
-        void handle_resize() const;
+        void handleResize() const;
+        void waitForIdle() const;
 
         std::shared_ptr<DrawContext> createMainDrawContext() const;
 
@@ -36,6 +43,9 @@ namespace RtEngine {
         std::shared_ptr<EngineContext> engine_context;
         std::shared_ptr<RaytracingRenderer> raytracing_renderer;
         std::shared_ptr<GuiRenderer> gui_renderer;
+        std::shared_ptr<RendererStack> renderer_stack;
+        std::shared_ptr<PresentStage> present_stage;
+        std::shared_ptr<SyncManager> sync_manager;
 
         std::shared_ptr<SceneReader> scene_reader;
         std::shared_ptr<SceneManager> scene_manager;

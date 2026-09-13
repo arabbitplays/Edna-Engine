@@ -50,12 +50,13 @@ namespace RtEngine {
         engine_context = std::make_shared<EngineContext>();
         engine_context->window = window;
         engine_context->rendering_manager = rendering_manager;
-        engine_context->texture_repository = rendering_manager->getRaytracingRenderer()->getTextureRepository();
-        engine_context->mesh_repository = rendering_manager->getRaytracingRenderer()->getMeshRepository();
+        engine_context->texture_repository = rendering_manager->getTextureRepository();
+        engine_context->mesh_repository = rendering_manager->getMeshRepository();
         scene_manager = std::make_shared<SceneManager>(options->resources_dir); // this is the non interfaced version
         engine_context->scene_manager = scene_manager; // this it the version for the components providing scene information
         engine_context->input_manager = std::make_shared<InputManager>(window);
-        engine_context->swapchain_manager = std::make_shared<SwapchainManager>(rendering_manager->getVulkanContext()->swapchain);
+        engine_context->swapchain_manager = rendering_manager->getSwapchainManager();
+        engine_context->sync_manager = rendering_manager->getSyncManager();
     }
 
     void Engine::createRunner() {
@@ -99,7 +100,7 @@ namespace RtEngine {
     }
 
     void Engine::cleanup() {
-        rendering_manager->getRaytracingRenderer()->waitForIdle();
+        rendering_manager->getVulkanContext()->device_manager->waitForIdle();
         scene_manager->destroy();
         rendering_manager->destroy();
 

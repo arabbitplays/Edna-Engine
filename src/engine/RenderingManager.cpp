@@ -8,6 +8,10 @@ namespace RtEngine {
 
         createVulkanContext();
         createRenderer();
+
+		window->addResizeCallback([this](uint32_t width, uint32_t height) {
+			framebufferResized = true;
+		});
     }
 
 
@@ -29,12 +33,32 @@ namespace RtEngine {
                 std::make_shared<Swapchain>(vulkan_context->device_manager, window->getHandle(), vulkan_context->resource_builder);
         vulkan_context->descriptor_allocator = createDescriptorAllocator();
 
+        swapchain_manager = std::make_shared<SwapchainManager>(vulkan_context->swapchain);
+        sync_manager = std::make_shared<SyncManager>(max_frames_in_flight,
+                                                     vulkan_context->device_manager,
+                                                     swapchain_manager);
+
         deletion_queue.pushFunction([&]() {
+            vulkan_context->device_manager->waitForIdle();
+
             vulkan_context->descriptor_allocator->destroyPools(vulkan_context->device_manager->getDevice());
-            vulkan_context->swapchain->destroy();
-            raytracing_renderer->cleanup(); // TODO i think the sync objects still have to exist for swapchain destruction to work
+            for (const auto& renderer : renderer_stack->getRenderers()) {
+                renderer->cleanup();
+            }
+
+            if (mesh_repository) {
+                mesh_repository->destroy();
+            }
+            if (texture_repository) {
+                texture_repository->destroy();
+            }
+            if (rt_target_connector) {
+                rt_target_connector->destroy();
+            }
+            present_stage->cleanup();
             gui_renderer->cleanup();
-            glitch_renderer->cleanup();
+            sync_manager->destroy();
+            vulkan_context->swapchain->destroy();
             vulkan_context->command_manager->destroy();
             vulkan_context->device_manager->destroy();
         });
@@ -56,9 +80,44 @@ namespace RtEngine {
     }
 
     void RenderingManager::createRenderer() {
-        raytracing_renderer = std::make_shared<RaytracingRenderer>(window, vulkan_context, resources_dir, max_frames_in_flight);
-        raytracing_renderer->init();
+        VkExtent2D extent = vulkan_context->swapchain->extent;
+
+        createRaytracingResources();
+
         gui_renderer = std::make_shared<GuiRenderer>(vulkan_context);
+        present_stage = std::make_shared<PresentStage>(vulkan_context, sync_manager, gui_renderer, max_frames_in_flight);
+        present_stage->init();
+
+        rt_target_connector = std::make_shared<ImageConnector>(
+            vulkan_context->resource_builder, extent, max_frames_in_flight,
+            VK_FORMAT_R32G32B32A32_SFLOAT, VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_STORAGE_BIT,
+            VK_IMAGE_ASPECT_COLOR_BIT);
+
+        auto glitch_renderer = std::make_shared<GlitchRenderer>(
+            vulkan_context, extent, rt_target_connector, max_frames_in_flight);
+        glitch_renderer->init();
+
+        renderer_stack = std::make_shared<RendererStack>();
+        raytracing_renderer = createAndAddRaytracingRenderer(renderer_stack);
+        renderer_stack->addRenderer(glitch_renderer);
+        renderer_stack->setPresentStage(present_stage);
+        renderer_stack->setPresentConnector(glitch_renderer->getOutputConnector());
+
+        sync_manager->setStagesPerFrame(static_cast<uint32_t>(renderer_stack->getRenderers().size()) + 1);
+    }
+
+    void RenderingManager::createRaytracingResources() {
+        mesh_repository = std::make_shared<MeshRepository>(vulkan_context, resources_dir);
+        texture_repository = std::make_shared<TextureRepository>(vulkan_context->resource_builder);
+    }
+
+    std::shared_ptr<RaytracingRenderer> RenderingManager::createAndAddRaytracingRenderer(const std::shared_ptr<RendererStack>& renderer_stack)
+    {
+        auto renderer = std::make_shared<RaytracingRenderer>(vulkan_context, mesh_repository, texture_repository,
+                                                             max_frames_in_flight);
+        renderer->init();
+        renderer_stack->addRenderer(renderer);
+        return renderer;
     }
 
     std::shared_ptr<VulkanContext> RenderingManager::getVulkanContext() const {
@@ -76,24 +135,48 @@ namespace RtEngine {
         return gui_renderer;
     }
 
+    std::shared_ptr<PresentStage> RenderingManager::getPresentStage() const {
+        assert(present_stage != nullptr);
+        return present_stage;
+    }
+
+    std::shared_ptr<RendererStack> RenderingManager::getRendererStack() const {
+        assert(renderer_stack != nullptr);
+        return renderer_stack;
+    }
+
+    std::shared_ptr<SwapchainManager> RenderingManager::getSwapchainManager() const {
+        assert(swapchain_manager != nullptr);
+        return swapchain_manager;
+    }
+
+    std::shared_ptr<SyncManager> RenderingManager::getSyncManager() const {
+        assert(sync_manager != nullptr);
+        return sync_manager;
+    }
+
+    std::shared_ptr<MeshRepository> RenderingManager::getMeshRepository() const {
+        assert(mesh_repository != nullptr);
+        return mesh_repository;
+    }
+
+    std::shared_ptr<TextureRepository> RenderingManager::getTextureRepository() const {
+        assert(texture_repository != nullptr);
+        return texture_repository;
+    }
+
     std::shared_ptr<RenderTarget> RenderingManager::createRenderTarget(uint32_t width, uint32_t height) {
         VkExtent2D extent(width, height);
-        return std::make_shared<RenderTarget>(vulkan_context->resource_builder, extent, max_frames_in_flight);
+        rt_target_connector->recreate(extent);
+        return std::make_shared<RenderTarget>(vulkan_context->resource_builder, extent, max_frames_in_flight,
+                                              rt_target_connector);
     }
 
-    void RenderingManager::recordBeginCommandBuffer(VkCommandBuffer& commandBuffer) {
-        VkCommandBufferBeginInfo beginInfo{};
-        beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-
-        if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS) {
-            throw std::runtime_error("failed to begin record command buffer!");
-        }
-    }
-
-    void RenderingManager::recordEndCommandBuffer(VkCommandBuffer& commandBuffer) {
-        if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) {
-            throw std::runtime_error("failed to record command buffer!");
-        }
+    bool RenderingManager::framebufferWasResized()
+    {
+        bool result = framebufferResized;
+        framebufferResized = false;
+        return result;
     }
 
     void RenderingManager::destroy() {

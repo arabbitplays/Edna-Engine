@@ -1,4 +1,4 @@
-project('Raytracing',
+project('Edna-Engine',
         ['cpp', 'c'],
         default_options : [
             'warning_level=3',
@@ -11,6 +11,7 @@ incdirs = [
     include_directories('include/engine'),
     include_directories('include/engine/rendering'),
     include_directories('include/engine/rendering/builders'),
+    include_directories('include/engine/rendering/connectors'),
     include_directories('include/engine/rendering/context'),
     include_directories('include/engine/rendering/renderer'),
     include_directories('include/engine/rendering/resources'),
@@ -35,7 +36,7 @@ glfw = dependency('glfw3', version: ['>=3.4.0'], fallback: ['glfw', 'glfw_dep'])
 glm = dependency('glm', fallback : ['glm', 'glm_dep'], version: ['>=0.9.9.8'])
 imgui = dependency('imgui', fallback: ['imgui', 'imgui_dep'])
 stb = dependency('stb', fallback: ['stb', 'stb_dep'], default_options : ['stb_libraries=[\'stb_image\', \'stb_image_write\']'])
-spdlog = dependency('spdlog')
+spdlog = dependency('spdlog', fallback: ['spdlog', 'spdlog_dep'])
 assimp = dependency('assimp')
 yaml = dependency('yaml-cpp')
 openmp = dependency('openmp', required: true)
@@ -86,7 +87,7 @@ subdir('src')
 subdir('shaders')
 
 exe = executable(
-    'renderer',
+    'Edna-Engine',
     sources: src,
     dependencies: [
         glfw,

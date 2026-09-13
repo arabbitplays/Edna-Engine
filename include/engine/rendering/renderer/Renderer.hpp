@@ -1,5 +1,6 @@
 #ifndef VULKAN_RAYTRACING_RENDERER_HPP
 #define VULKAN_RAYTRACING_RENDERER_HPP
+#include "DeviceManager.hpp"
 #include "IRenderable.hpp"
 #include "RenderTarget.hpp"
 #include "VulkanContext.hpp"
@@ -7,32 +8,34 @@
 namespace RtEngine {
     class Renderer {
     public:
-        Renderer(std::shared_ptr<VulkanContext> vulkan_context, const uint32_t max_frames_in_flight);
+        Renderer(std::shared_ptr<VulkanContext> vulkan_context,
+                 uint32_t max_frames_in_flight);
+
+        virtual ~Renderer() = default;
 
         virtual void init();
+        virtual void cleanup();
 
+        virtual VkCommandBuffer recordCommandBuffer(uint32_t frame_idx) = 0;
 
-		virtual void writeResources(const std::shared_ptr<DrawContext> &draw_context, UpdateFlagsHandle update_flags) = 0;
-        virtual void writeRenderTarget(const std::shared_ptr<RenderTarget> &target) = 0;
-
-        void waitForNextFrameStart();
-
-        VkCommandBuffer getNewCommandBuffer();
-
-        void nextFrame();
+        virtual QueueType queueType() const = 0;
 
     protected:
-        void createCommandBuffers();
-        virtual void createSyncObjects();
+        VkCommandBuffer getFreshCommandBuffer(uint32_t frame_idx);
+        static void recordBeginCommandBuffer(VkCommandBuffer& commandBuffer);
+        static void recordEndCommandBuffer(VkCommandBuffer& commandBuffer);
 
         std::shared_ptr<VulkanContext> vulkan_context;
-        uint32_t max_frames_in_flight, current_frame = 0;
+        uint32_t max_frames_in_flight;
+        DeletionQueue deletion_queue;
+
+    private:
+        void createCommandBuffers();
 
         std::vector<VkCommandBuffer> command_buffers;
-        std::vector<VkFence> in_flight_fences;
-
-        DeletionQueue deletion_queue;
     };
+
+    using RendererHandle = std::shared_ptr<Renderer>;
 } // RtEngine
 
 #endif //VULKAN_RAYTRACING_RENDERER_HPP

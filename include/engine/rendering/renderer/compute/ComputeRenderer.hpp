@@ -1,37 +1,42 @@
 #ifndef VULKAN_RAYTRACING_COMPUTERENDERER_HPP
 #define VULKAN_RAYTRACING_COMPUTERENDERER_HPP
+#include <functional>
 #include <memory>
 
 #include "ComputePipeline.hpp"
-#include "DescriptorLayoutBuilder.hpp"
+#include "ConnectorLayout.hpp"
 #include "../Renderer.hpp"
-#include "../../RenderTarget.hpp"
 #include "VulkanContext.hpp"
 
 namespace RtEngine {
     class ComputeRenderer : public Renderer {
     public:
-        ComputeRenderer(const std::shared_ptr<VulkanContext>& vulkan_context, const uint32_t max_frames_in_flight = 1);
+        using DispatchSizeProvider = std::function<VkExtent3D()>;
+
+        ComputeRenderer(const std::shared_ptr<VulkanContext>& vulkan_context,
+                        const uint32_t max_frames_in_flight = 1);
 
         void init() override;
 
-        void writeRenderTarget(const std::shared_ptr<RenderTarget> &target) override = 0;
-        void writeResources(const std::shared_ptr<DrawContext> &draw_context, UpdateFlagsHandle update_flags) override = 0;
+        void addConnector(uint32_t binding, ConnectorHandle connector);
+        void setDispatchSize(VkExtent3D size);
+        void setDispatchSize(DispatchSizeProvider provider);
 
-        void recordCommandBuffer(VkCommandBuffer commandBuffer, std::shared_ptr<RenderTarget> target, uint32_t swapchain_image_idx);
-        void submitCommandBuffer(VkCommandBuffer &command_buffer);
+        VkCommandBuffer recordCommandBuffer(uint32_t frame_idx) override;
+        QueueType queueType() const override { return COMPUTE; }
 
-        void cleanup();
     protected:
         void createPipeline();
-        virtual void initDescriptorLayout(DescriptorLayoutBuilder &layout_builder) = 0;
         virtual VkShaderModule createShaderModule() = 0;
 
-        virtual void recordDispatch(VkCommandBuffer command_buffer, std::shared_ptr<RenderTarget> &target) = 0;
+        ConnectorHandle getConnector(uint32_t binding) const;
 
         std::shared_ptr<ComputePipeline> pipeline;
+        std::shared_ptr<ConnectorLayout> connector_layout;
         VkDescriptorSetLayout descriptor_layout;
         VkDescriptorSet descriptor_set;
+
+        DispatchSizeProvider dispatch_size_provider;
     };
 } // RtEngine
 

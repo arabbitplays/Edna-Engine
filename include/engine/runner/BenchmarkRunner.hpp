@@ -15,7 +15,7 @@ namespace RtEngine {
 		//void initProperties() override;
 
 	private:
-		void prepareFrame(VkCommandBuffer cmd, const std::shared_ptr<DrawContext> &draw_context) override;
+		void prepareFrame(const std::shared_ptr<DrawContext> &draw_context, uint32_t frame_idx) override;
 
 		std::string getTmpImagePath(uint32_t samples);
 		std::string getOutputFilePath();

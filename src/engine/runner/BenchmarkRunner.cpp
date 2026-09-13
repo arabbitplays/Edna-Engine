@@ -5,6 +5,7 @@
 
 #include "ImageUtil.hpp"
 #include "PathUtil.hpp"
+#include "QuickTimer.hpp"
 #include "ReferenceRunner.hpp"
 
 namespace RtEngine {
@@ -42,7 +43,7 @@ namespace RtEngine {
 
 		// render one image and then output it if output path is defined
 		if (error_calculation_sample_count == static_cast<int32_t>(target->getTotalSampleCount())) {
-			raytracing_renderer->waitForIdle();
+			waitForIdle();
 			raytracing_renderer->outputRenderingTarget(target, getTmpImagePath(error_calculation_sample_count));
 
 			if (error_calculation_sample_count == final_sample_count) {
@@ -58,9 +59,8 @@ namespace RtEngine {
 
 
 	void BenchmarkRunner::drawFrame(const std::shared_ptr<DrawContext> &draw_context) {
-		raytracing_renderer->waitForNextFrameStart();
+		sync_manager->waitForNextFrameStart();
 
-		VkCommandBuffer cmd = raytracing_renderer->getNewCommandBuffer();
 		std::shared_ptr<RenderTarget> target = draw_context->targets[0];
 
 		uint32_t curr_sample_count = target->getTotalSampleCount();
@@ -68,25 +68,26 @@ namespace RtEngine {
 
 		int32_t swapchain_image_idx = 0;
 		if (present_image) {
-			swapchain_image_idx = raytracing_renderer->aquireNextSwapchainImage();
+			swapchain_image_idx = present_stage->acquireNextSwapchainImage();
 			if (swapchain_image_idx < 0) {
-				handle_resize();
+				handleResize();
 				return;
 			}
 		}
 
-		prepareFrame(cmd, draw_context);
+		const uint32_t frame_idx = sync_manager->currentFrameInFlight();
+
+		prepareFrame(draw_context, frame_idx);
 
 		raytracing_renderer->writeRenderTarget(target);
-		raytracing_renderer->recordCommandBuffer(cmd, target, swapchain_image_idx, present_image);
 
-		finishFrame(cmd, draw_context, static_cast<uint32_t>(swapchain_image_idx), present_image);
+		renderFrame(frame_idx, static_cast<uint32_t>(swapchain_image_idx), present_image);
+		finishFrame(draw_context);
 	}
 
 
-	void BenchmarkRunner::prepareFrame(VkCommandBuffer cmd, const std::shared_ptr<DrawContext> &draw_context) {
-		raytracing_renderer->writeResources(draw_context, update_flags);
-		engine_context->rendering_manager->recordBeginCommandBuffer(cmd);
+	void BenchmarkRunner::prepareFrame(const std::shared_ptr<DrawContext> &draw_context, uint32_t frame_idx) {
+		raytracing_renderer->writeResources(draw_context, update_flags, frame_idx);
 		update_flags->resetFlags();
 	}
 

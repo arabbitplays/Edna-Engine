@@ -1,11 +1,8 @@
-//
-// Created by oschdi on 18.01.26.
-//
-
 #ifndef VULKAN_RAYTRACING_CAMERA_HPP
 #define VULKAN_RAYTRACING_CAMERA_HPP
 #include "Component.hpp"
 #include "Node.hpp"
+#include "SwapchainManager.hpp"
 #include "Transform.hpp"
 
 namespace RtEngine {
@@ -52,6 +49,8 @@ namespace RtEngine {
         uint32_t image_height = 0;
 
         std::shared_ptr<RenderTarget> render_target;
+
+        SwapchainManager::RecreateCallbackHandle resize_callback_handle = 0;
 
         float fov = 45.0;
         bool is_interactive = false, follow_window = false;

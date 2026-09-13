@@ -1,80 +1,73 @@
-//
-// Created by oschdi on 6/6/25.
-//
-
 #include "RenderTarget.hpp"
 
 #include <RandomUtil.hpp>
 
 namespace RtEngine
 {
-    RenderTarget::RenderTarget(const std::shared_ptr<ResourceBuilder>& resource_builder, VkExtent2D image_extent, uint32_t max_frames_in_flight)
-        : resource_builder(resource_builder), image_extent(image_extent)
+    namespace
     {
-        createImages(max_frames_in_flight);
-    };
-
-    void RenderTarget::createImages(uint32_t image_count) {
-        render_targets.resize(image_count);
-        for (uint32_t i = 0; i < image_count; i++) {
-            render_targets[i] = resource_builder->createImage(
-                    VkExtent3D{image_extent.width, image_extent.height, 1}, VK_FORMAT_R32G32B32A32_SFLOAT,
-                    VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_STORAGE_BIT,
-                    VK_IMAGE_ASPECT_COLOR_BIT);
-
-            resource_builder->transitionImageLayout(
-                    render_targets[i].image, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
-                    VK_ACCESS_NONE, VK_ACCESS_NONE, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_GENERAL);
+        std::vector<uint8_t> generateRngPixels(VkExtent2D extent)
+        {
+            const size_t uint_count = static_cast<size_t>(extent.width) * extent.height * 4;
+            std::vector<uint8_t> pixels(uint_count * sizeof(uint32_t));
+            auto *ints = reinterpret_cast<uint32_t *>(pixels.data());
+            for (size_t i = 0; i < uint_count; i++) {
+                ints[i] = RandomUtil::generateInt();
+            }
+            return pixels;
         }
+    }
 
-        std::vector<uint32_t> pixels(image_extent.width * image_extent.height * 4);
-
-        for (uint32_t i = 0; i < image_extent.width * image_extent.height * 4; i++) {
-            pixels[i] = RandomUtil::generateInt();
-        }
-
-        rng_textures.resize(image_count);
-        for (uint32_t i = 0; i < image_count; i++) {
-            rng_textures[i] = resource_builder->createImage(
-                    pixels.data(), VkExtent3D{image_extent.width, image_extent.height, 1},
-                    VK_FORMAT_R32G32B32A32_UINT, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_STORAGE_BIT,
-                    VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_GENERAL);
-        }
+    RenderTarget::RenderTarget(const std::shared_ptr<ResourceBuilder>& resource_builder, VkExtent2D image_extent, uint32_t max_frames_in_flight,
+                               std::shared_ptr<ImageConnector> render_target_connector)
+        : owns_render_target_connector(render_target_connector == nullptr),
+          render_target_connector(render_target_connector
+              ? std::move(render_target_connector)
+              : std::make_shared<ImageConnector>(
+                  resource_builder, image_extent, max_frames_in_flight,
+                  VK_FORMAT_R32G32B32A32_SFLOAT,
+                  VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_STORAGE_BIT,
+                  VK_IMAGE_ASPECT_COLOR_BIT)),
+          rng_connector(std::make_shared<ImageConnector>(
+              resource_builder, image_extent, max_frames_in_flight, VK_FORMAT_R32G32B32A32_UINT,
+              VK_IMAGE_USAGE_STORAGE_BIT, VK_IMAGE_ASPECT_COLOR_BIT, &generateRngPixels))
+    {
     }
 
     void RenderTarget::recreate(const VkExtent2D new_image_extent)
     {
-        this->image_extent = new_image_extent;
-        uint32_t image_count = render_targets.size();
-        destroy();
-        createImages(image_count);
+        if (owns_render_target_connector) {
+            render_target_connector->recreate(new_image_extent);
+        }
+        rng_connector->recreate(new_image_extent);
         resetAccumulatedFrames();
     }
 
 
     AllocatedImage RenderTarget::getCurrentTargetImage() const
     {
-        return render_targets[current_image];
+        return render_target_connector->getImageAt(current_image);
     }
 
     AllocatedImage RenderTarget::getLastTargetImage() const {
-        uint32_t idx = current_image != 0 ? current_image - 1 : render_targets.size() - 1;
-        return render_targets[idx];
+        const uint32_t count = render_target_connector->getImageCount();
+        const uint32_t idx = current_image != 0 ? current_image - 1 : count - 1;
+        return render_target_connector->getImageAt(idx);
     }
 
 
     AllocatedImage RenderTarget::getCurrentRngImage() const
     {
-        return rng_textures[current_image];
+        return rng_connector->getImageAt(current_image);
     }
 
     void RenderTarget::nextImage()
     {
-        current_image = (current_image + 1) % render_targets.size();
+        current_image = (current_image + 1) % render_target_connector->getImageCount();
     }
 
     VkExtent2D RenderTarget::getExtent() const {
-        return image_extent;
+        return render_target_connector->getExtent();
     }
 
     uint32_t RenderTarget::getAccumulatedFrameCount() const {
@@ -102,14 +95,13 @@ namespace RtEngine
     }
 
     void RenderTarget::destroy() const {
-        for (auto &image: render_targets) {
-            resource_builder->destroyImage(image);
+        if (owns_render_target_connector) {
+            render_target_connector->destroy();
         }
-
-        for (auto &image: rng_textures) {
-            resource_builder->destroyImage(image);
-        }
+        rng_connector->destroy();
     }
 
-
+    std::shared_ptr<ImageConnector> RenderTarget::getRenderTargetConnector() const {
+        return render_target_connector;
+    }
 }
