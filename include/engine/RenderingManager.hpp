@@ -16,9 +16,11 @@ namespace RtEngine {
     public:
         RenderingManager() = default;
         RenderingManager(const std::shared_ptr<Window> &window, std::string resources_dir,
-                         bool enable_validation_layer);
+                         bool enable_validation_layer, bool enable_raytracing = true);
 
         void initRendererProperties(const std::shared_ptr<IProperties> &properties, const std::shared_ptr<UpdateFlags> &update_flags);
+
+        bool raytracingEnabled() const { return enable_raytracing; }
 
         std::shared_ptr<VulkanContext> getVulkanContext() const;
         std::shared_ptr<RaytracingRenderer> getRaytracingRenderer() const;
@@ -40,12 +42,11 @@ namespace RtEngine {
         std::shared_ptr<DescriptorAllocator> createDescriptorAllocator() const;
 
         void createRenderer();
-        void createRaytracingResources();
-        std::shared_ptr<RaytracingRenderer> createAndAddRaytracingRenderer(
-            const std::shared_ptr<RendererStack>& renderer_stack);
+        void createRepositories();
 
         std::shared_ptr<Window> window;
         bool validation_layers_enabled;
+        bool enable_raytracing = true;
         std::string resources_dir;
         uint32_t max_frames_in_flight = 1;
 
