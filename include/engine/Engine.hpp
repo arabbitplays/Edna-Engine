@@ -3,6 +3,7 @@
 #include <memory>
 
 #include "GuiManager.hpp"
+#include "IRunner.hpp"
 #include "RenderingManager.hpp"
 #include "Runner.hpp"
 #include "RaytracingRenderer.hpp"
@@ -14,6 +15,7 @@ namespace RtEngine {
         OFFLINE,
         REFERENCE,
         BENCHMARK,
+        COMPUTE_ONLY,
     };
 
     struct EngineOptions {
@@ -66,7 +68,7 @@ namespace RtEngine {
         std::shared_ptr<SceneManager> scene_manager;
         std::shared_ptr<GuiManager> gui_manager;
         std::shared_ptr<RenderingManager> rendering_manager;
-        std::shared_ptr<Runner> runner;
+        std::shared_ptr<IRunner> runner;
     };
 } // RtEngine
 

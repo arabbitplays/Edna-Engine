@@ -8,6 +8,7 @@ shaders = [
     'phong/phong_raygen.rgen',
     'metalRough/metal_rough_raygen.rgen',
     'compute/glitch.comp',
+    'compute/cellular_automaton.comp',
 ]
 
 foreach s : shaders

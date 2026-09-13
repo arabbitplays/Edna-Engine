@@ -29,6 +29,9 @@ namespace RtEngine {
         void createPipeline();
         virtual VkShaderModule createShaderModule() = 0;
 
+        virtual void configurePushConstants(ComputePipeline&) {}
+        virtual void recordPushConstants(VkCommandBuffer) {}
+
         ConnectorHandle getConnector(uint32_t binding) const;
 
         std::shared_ptr<ComputePipeline> pipeline;

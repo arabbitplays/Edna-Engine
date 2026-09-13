@@ -2,6 +2,7 @@
 
 #include "BenchmarkRunner.hpp"
 #include "CommandLineParser.hpp"
+#include "ComputeRunner.hpp"
 #include "HierarchyWindow.hpp"
 #include "InspectorWindow.hpp"
 #include "ReferenceRunner.hpp"
@@ -33,7 +34,8 @@ namespace RtEngine {
     }
 
     void Engine::createRenderer() {
-        rendering_manager = std::make_shared<RenderingManager>(window, options->resources_dir, true);
+        const bool enable_raytracing = options->runner_type != COMPUTE_ONLY;
+        rendering_manager = std::make_shared<RenderingManager>(window, options->resources_dir, true, enable_raytracing);
 
         auto update_flags = std::make_shared<UpdateFlags>();
         rendering_manager->initRendererProperties(config_properties, update_flags);
@@ -71,6 +73,9 @@ namespace RtEngine {
         } else if (options->runner_type == BENCHMARK) {
             runner = std::make_shared<BenchmarkRunner>(engine_context, scene_manager);
             SPDLOG_INFO("Benchmark runner created");
+        } else if (options->runner_type == COMPUTE_ONLY) {
+            runner = std::make_shared<ComputeRunner>(engine_context);
+            SPDLOG_INFO("Compute runner created");
         } else {
             SPDLOG_ERROR("No runner created");
             return;
@@ -83,7 +88,9 @@ namespace RtEngine {
 
     void Engine::setupGui() const {
         gui_manager->options_window->addSerializable(runner);
-        gui_manager->options_window->addSerializable(rendering_manager->getRaytracingRenderer());
+        if (rendering_manager->raytracingEnabled()) {
+            gui_manager->options_window->addSerializable(rendering_manager->getRaytracingRenderer());
+        }
     }
 
     void Engine::mainLoop() {
@@ -113,7 +120,7 @@ namespace RtEngine {
         CommandLineParser cli_parser = CommandLineParser();
 
         bool help = false;
-        bool reference = false, benchmark = false, realtime = false;
+        bool reference = false, benchmark = false, realtime = false, compute = false;
 
         cli_parser.addFlag("--help", &help, "Show this message.");
         cli_parser.addString("--resources", &options->resources_dir,
@@ -122,6 +129,7 @@ namespace RtEngine {
         cli_parser.addFlag("--ref", &reference, "Render a reference image.");
         cli_parser.addFlag("--benchmark", &benchmark, "Render an image and benchmark it against a reference.");
         cli_parser.addFlag("--realtime", &realtime, "Render an image in realtime.");
+        cli_parser.addFlag("--compute", &compute, "Run a stack of compute renderers with no scene or raytracing.");
         cli_parser.addFlag("-v", &options->verbose, "Display debug messages.");
         cli_parser.parse(cli_args.argc, cli_args.argv);
 
@@ -140,6 +148,8 @@ namespace RtEngine {
             options->runner_type = REFERENCE;
         } else if (realtime) {
             options->runner_type = REALTIME;
+        } else if (compute) {
+            options->runner_type = COMPUTE_ONLY;
         } else {
             options->runner_type = OFFLINE;
         }

@@ -1,10 +1,11 @@
 #include "../../include/engine/RenderingManager.hpp"
 
-#include "compute/GlitchRenderer.hpp"
+#include "RendererStackFactory.hpp"
 
 namespace RtEngine {
-    RenderingManager::RenderingManager(const std::shared_ptr<Window> &window, std::string resources_dir, const bool enable_validation_layer)
-        : window(window), validation_layers_enabled(enable_validation_layer), resources_dir(resources_dir) {
+    RenderingManager::RenderingManager(const std::shared_ptr<Window> &window, std::string resources_dir, const bool enable_validation_layer, const bool enable_raytracing)
+        : window(window), validation_layers_enabled(enable_validation_layer),
+          enable_raytracing(enable_raytracing), resources_dir(resources_dir) {
 
         createVulkanContext();
         createRenderer();
@@ -16,7 +17,9 @@ namespace RtEngine {
 
 
     void RenderingManager::initRendererProperties(const std::shared_ptr<IProperties> &properties, const std::shared_ptr<UpdateFlags> &update_flags) {
-        raytracing_renderer->initProperties(properties, update_flags);
+        if (raytracing_renderer) {
+            raytracing_renderer->initProperties(properties, update_flags);
+        }
     }
 
     void RenderingManager::createVulkanContext() {
@@ -80,44 +83,26 @@ namespace RtEngine {
     }
 
     void RenderingManager::createRenderer() {
-        VkExtent2D extent = vulkan_context->swapchain->extent;
-
-        createRaytracingResources();
-
         gui_renderer = std::make_shared<GuiRenderer>(vulkan_context);
         present_stage = std::make_shared<PresentStage>(vulkan_context, sync_manager, gui_renderer, max_frames_in_flight);
         present_stage->init();
 
-        rt_target_connector = std::make_shared<ImageConnector>(
-            vulkan_context->resource_builder, extent, max_frames_in_flight,
-            VK_FORMAT_R32G32B32A32_SFLOAT, VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_STORAGE_BIT,
-            VK_IMAGE_ASPECT_COLOR_BIT);
+        createRepositories();
 
-        auto glitch_renderer = std::make_shared<GlitchRenderer>(
-            vulkan_context, extent, rt_target_connector, max_frames_in_flight);
-        glitch_renderer->init();
+        RendererStackFactory factory(vulkan_context, present_stage, mesh_repository, texture_repository,
+                                     max_frames_in_flight);
+        auto result = enable_raytracing ? factory.createRaytracingStack() : factory.createComputeStack();
 
-        renderer_stack = std::make_shared<RendererStack>();
-        raytracing_renderer = createAndAddRaytracingRenderer(renderer_stack);
-        renderer_stack->addRenderer(glitch_renderer);
-        renderer_stack->setPresentStage(present_stage);
-        renderer_stack->setPresentConnector(glitch_renderer->getOutputConnector());
+        renderer_stack = result.stack;
+        raytracing_renderer = result.raytracing_renderer;
+        rt_target_connector = result.raytracing_target_connector;
 
         sync_manager->setStagesPerFrame(static_cast<uint32_t>(renderer_stack->getRenderers().size()) + 1);
     }
 
-    void RenderingManager::createRaytracingResources() {
+    void RenderingManager::createRepositories() {
         mesh_repository = std::make_shared<MeshRepository>(vulkan_context, resources_dir);
         texture_repository = std::make_shared<TextureRepository>(vulkan_context->resource_builder);
-    }
-
-    std::shared_ptr<RaytracingRenderer> RenderingManager::createAndAddRaytracingRenderer(const std::shared_ptr<RendererStack>& renderer_stack)
-    {
-        auto renderer = std::make_shared<RaytracingRenderer>(vulkan_context, mesh_repository, texture_repository,
-                                                             max_frames_in_flight);
-        renderer->init();
-        renderer_stack->addRenderer(renderer);
-        return renderer;
     }
 
     std::shared_ptr<VulkanContext> RenderingManager::getVulkanContext() const {
