@@ -149,10 +149,6 @@ namespace RtEngine {
 		return push_constants.data();
 	}
 
-	void RaytracingRenderer::cleanup() {
-		deletion_queue.flush();
-	}
-
 	float* RaytracingRenderer::downloadRenderTarget(const std::shared_ptr<RenderTarget> &target) const {
 		AllocatedImage image = target->getLastTargetImage();
 		uint8_t *data = vulkan_context->resource_builder->downloadImage(image, sizeof(float));

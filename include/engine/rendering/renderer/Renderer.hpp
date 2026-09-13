@@ -14,6 +14,7 @@ namespace RtEngine {
         virtual ~Renderer() = default;
 
         virtual void init();
+        virtual void cleanup();
 
         virtual VkCommandBuffer recordCommandBuffer(uint32_t frame_idx) = 0;
 

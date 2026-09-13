@@ -44,8 +44,6 @@ namespace RtEngine {
 		VkCommandBuffer recordCommandBuffer(uint32_t frame_idx) override;
 		QueueType queueType() const override { return GRAPHICS; }
 
-		void cleanup();
-
 		void outputRenderingTarget(const std::shared_ptr<RenderTarget> &target, const std::string &output_path);
 		float *downloadRenderTarget(const std::shared_ptr<RenderTarget> &target) const;
 		uint8_t *fixImageFormatForStorage(void *image_data, size_t pixel_count, VkFormat originalFormat);

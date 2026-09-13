@@ -1,6 +1,5 @@
 #include "../../include/engine/RenderingManager.hpp"
 
-#include "compute/ComputeRenderer.hpp"
 #include "compute/GlitchRenderer.hpp"
 
 namespace RtEngine {
@@ -40,12 +39,11 @@ namespace RtEngine {
                                                      swapchain_manager);
 
         deletion_queue.pushFunction([&]() {
+            vkDeviceWaitIdle(vulkan_context->device_manager->getDevice());
+
             vulkan_context->descriptor_allocator->destroyPools(vulkan_context->device_manager->getDevice());
-            raytracing_renderer->cleanup();
             for (const auto& renderer : renderer_stack->getRenderers()) {
-                if (auto compute = std::dynamic_pointer_cast<ComputeRenderer>(renderer)) {
-                    compute->cleanup();
-                }
+                renderer->cleanup();
             }
             if (rt_target_connector) {
                 rt_target_connector->destroy();
@@ -77,8 +75,6 @@ namespace RtEngine {
     void RenderingManager::createRenderer() {
         VkExtent2D extent = vulkan_context->swapchain->extent;
 
-        raytracing_renderer = std::make_shared<RaytracingRenderer>(vulkan_context, resources_dir, max_frames_in_flight);
-        raytracing_renderer->init();
         gui_renderer = std::make_shared<GuiRenderer>(vulkan_context);
         present_stage = std::make_shared<PresentStage>(vulkan_context, sync_manager, gui_renderer, max_frames_in_flight);
         present_stage->init();
@@ -93,12 +89,21 @@ namespace RtEngine {
         glitch_renderer->init();
 
         renderer_stack = std::make_shared<RendererStack>();
-        renderer_stack->addRenderer(raytracing_renderer);
+        raytracing_renderer = createAndAddRaytracingRenderer(renderer_stack);
         renderer_stack->addRenderer(glitch_renderer);
         renderer_stack->setPresentStage(present_stage);
         renderer_stack->setPresentConnector(glitch_renderer->getOutputConnector());
 
         sync_manager->setStagesPerFrame(static_cast<uint32_t>(renderer_stack->getRenderers().size()) + 1);
+    }
+
+    std::shared_ptr<RaytracingRenderer> RenderingManager::createAndAddRaytracingRenderer(const std::shared_ptr<RendererStack>& renderer_stack)
+    {
+
+        auto renderer = std::make_shared<RaytracingRenderer>(vulkan_context, resources_dir, max_frames_in_flight);
+        renderer->init();
+        renderer_stack->addRenderer(renderer);
+        return renderer;
     }
 
     std::shared_ptr<VulkanContext> RenderingManager::getVulkanContext() const {

@@ -78,8 +78,4 @@ namespace RtEngine {
         }
         return cmd;
     }
-
-    void ComputeRenderer::cleanup() {
-        deletion_queue.flush();
-    }
 } // RtEngine

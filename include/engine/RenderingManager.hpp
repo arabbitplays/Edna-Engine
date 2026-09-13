@@ -36,6 +36,8 @@ namespace RtEngine {
         std::shared_ptr<DescriptorAllocator> createDescriptorAllocator() const;
 
         void createRenderer();
+        std::shared_ptr<RaytracingRenderer> createAndAddRaytracingRenderer(
+            const std::shared_ptr<RendererStack>& renderer_stack);
 
         std::shared_ptr<Window> window;
         bool validation_layers_enabled;

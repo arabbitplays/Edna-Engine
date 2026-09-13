@@ -18,6 +18,11 @@ namespace RtEngine
         createCommandBuffers();
     }
 
+    void Renderer::cleanup()
+    {
+        deletion_queue.flush();
+    }
+
     void Renderer::createCommandBuffers()
     {
         command_buffers = vulkan_context->command_manager->allocatePrimaryCommandBuffers(max_frames_in_flight);

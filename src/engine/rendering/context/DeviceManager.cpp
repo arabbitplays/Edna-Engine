@@ -5,6 +5,7 @@
 #include <DeviceManager.hpp>
 #include <Swapchain.hpp>
 #include <VulkanUtil.hpp>
+#include <cassert>
 #include <cstring>
 #include <set>
 
@@ -235,7 +236,10 @@ namespace RtEngine {
 				VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PIPELINE_FEATURES_KHR};
 		VkPhysicalDeviceAccelerationStructureFeaturesKHR accelerationStructureFeatures{
 				VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ACCELERATION_STRUCTURE_FEATURES_KHR};
+		VkPhysicalDeviceTimelineSemaphoreFeatures timelineSemaphoreFeatures{
+				VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TIMELINE_SEMAPHORE_FEATURES};
 		raytracingPipelineFeatures.pNext = &accelerationStructureFeatures;
+		accelerationStructureFeatures.pNext = &timelineSemaphoreFeatures;
 		VkPhysicalDeviceFeatures2 deviceFeatures2;
 		deviceFeatures2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
 		deviceFeatures2.pNext = &raytracingPipelineFeatures;
@@ -254,7 +258,8 @@ namespace RtEngine {
 
 		return extensionsSupported && indices.isComplete() && swapChainAdequate && deviceFeatures.samplerAnisotropy &&
 			   deviceFeatures.shaderInt64 && deviceFeatures.shaderFloat64 &&
-			   raytracingPipelineFeatures.rayTracingPipeline && accelerationStructureFeatures.accelerationStructure;
+			   raytracingPipelineFeatures.rayTracingPipeline && accelerationStructureFeatures.accelerationStructure &&
+			   timelineSemaphoreFeatures.timelineSemaphore;
 	}
 
 	bool DeviceManager::checkDeviceExtensionSupport(VkPhysicalDevice device) {
@@ -338,6 +343,11 @@ namespace RtEngine {
 		vkGetDeviceQueue(device, queue_indices.graphicsAndComputeFamily.value(), 0, &graphics_queue);
 		vkGetDeviceQueue(device, queue_indices.presentFamily.value(), 0, &present_queue);
 		vkGetDeviceQueue(device, queue_indices.graphicsAndComputeFamily.value(), 0, &compute_queue);
+
+		// The renderer stack submits per-renderer to getQueue(renderer->queueType()) and relies on the
+		// timeline semaphore for ordering. If GRAPHICS and COMPUTE ever resolve to different queue families,
+		// storage-image handoff between renderers needs an explicit ownership transfer or CONCURRENT sharing.
+		assert(graphics_queue == compute_queue && "GRAPHICS and COMPUTE queues must be the same queue");
 	}
 
 	void DeviceManager::destroy() { deletion_queue.flush(); }

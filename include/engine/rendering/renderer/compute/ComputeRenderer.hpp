@@ -25,7 +25,6 @@ namespace RtEngine {
         VkCommandBuffer recordCommandBuffer(uint32_t frame_idx) override;
         QueueType queueType() const override { return COMPUTE; }
 
-        void cleanup();
     protected:
         void createPipeline();
         virtual VkShaderModule createShaderModule() = 0;

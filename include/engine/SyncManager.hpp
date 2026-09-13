@@ -25,6 +25,10 @@ namespace RtEngine
 
         uint32_t currentFrameInFlight() const;
 
+        // Invariant: within a single frame, every stage in [0, stages_per_frame) must be handled
+        // exactly once via either submitStage or skipStage, in ascending stage_index order.
+        // The timeline value advances by stages_per_frame per frame; waitForNextFrameStart relies
+        // on this to compute when a frame slot is safe to reuse.
         void submitStage(uint32_t stage_index,
                          VkQueue queue,
                          VkCommandBuffer command_buffer,
@@ -32,6 +36,8 @@ namespace RtEngine
                          const std::vector<VkPipelineStageFlags> &extra_binary_wait_stages = {},
                          const std::vector<VkSemaphore> &extra_binary_signals = {});
 
+        // Signals the stage's timeline value without submitting any work. Must be called for any
+        // stage that submitStage would otherwise cover this frame - see submitStage invariant.
         void skipStage(uint32_t stage_index);
 
         VkSemaphore imageAvailableSemaphore() const;

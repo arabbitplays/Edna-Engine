@@ -37,7 +37,7 @@ namespace RtEngine {
     bool PresentStage::submitAndPresent(const uint32_t stage_index,
                                         const std::shared_ptr<ImageConnector> &source,
                                         const uint32_t swapchain_image_idx) {
-        AllocatedImage source_image = source->getImageAt(0);
+        AllocatedImage source_image = source->getImageAt(currentFrameSlot());
         VkExtent2D source_extent = source->getExtent();
 
         VkCommandBuffer cmd = beginCommandBuffer();
