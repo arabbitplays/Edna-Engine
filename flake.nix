@@ -14,6 +14,8 @@
         inherit system;
       };
     in pkgs.mkShell {
+      hardeningDisable = [ "fortify" "fortify3" ];
+
       packages = with pkgs; [
         meson
         cmake
