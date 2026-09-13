@@ -45,6 +45,13 @@ namespace RtEngine {
             for (const auto& renderer : renderer_stack->getRenderers()) {
                 renderer->cleanup();
             }
+
+            if (mesh_repository) {
+                mesh_repository->destroy();
+            }
+            if (texture_repository) {
+                texture_repository->destroy();
+            }
             if (rt_target_connector) {
                 rt_target_connector->destroy();
             }
@@ -75,6 +82,8 @@ namespace RtEngine {
     void RenderingManager::createRenderer() {
         VkExtent2D extent = vulkan_context->swapchain->extent;
 
+        createRaytracingResources();
+
         gui_renderer = std::make_shared<GuiRenderer>(vulkan_context);
         present_stage = std::make_shared<PresentStage>(vulkan_context, sync_manager, gui_renderer, max_frames_in_flight);
         present_stage->init();
@@ -97,10 +106,15 @@ namespace RtEngine {
         sync_manager->setStagesPerFrame(static_cast<uint32_t>(renderer_stack->getRenderers().size()) + 1);
     }
 
+    void RenderingManager::createRaytracingResources() {
+        mesh_repository = std::make_shared<MeshRepository>(vulkan_context, resources_dir);
+        texture_repository = std::make_shared<TextureRepository>(vulkan_context->resource_builder);
+    }
+
     std::shared_ptr<RaytracingRenderer> RenderingManager::createAndAddRaytracingRenderer(const std::shared_ptr<RendererStack>& renderer_stack)
     {
-
-        auto renderer = std::make_shared<RaytracingRenderer>(vulkan_context, resources_dir, max_frames_in_flight);
+        auto renderer = std::make_shared<RaytracingRenderer>(vulkan_context, mesh_repository, texture_repository,
+                                                             max_frames_in_flight);
         renderer->init();
         renderer_stack->addRenderer(renderer);
         return renderer;
@@ -139,6 +153,16 @@ namespace RtEngine {
     std::shared_ptr<SyncManager> RenderingManager::getSyncManager() const {
         assert(sync_manager != nullptr);
         return sync_manager;
+    }
+
+    std::shared_ptr<MeshRepository> RenderingManager::getMeshRepository() const {
+        assert(mesh_repository != nullptr);
+        return mesh_repository;
+    }
+
+    std::shared_ptr<TextureRepository> RenderingManager::getTextureRepository() const {
+        assert(texture_repository != nullptr);
+        return texture_repository;
     }
 
     std::shared_ptr<RenderTarget> RenderingManager::createRenderTarget(uint32_t width, uint32_t height) {

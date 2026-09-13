@@ -50,8 +50,8 @@ namespace RtEngine {
         engine_context = std::make_shared<EngineContext>();
         engine_context->window = window;
         engine_context->rendering_manager = rendering_manager;
-        engine_context->texture_repository = rendering_manager->getRaytracingRenderer()->getTextureRepository();
-        engine_context->mesh_repository = rendering_manager->getRaytracingRenderer()->getMeshRepository();
+        engine_context->texture_repository = rendering_manager->getTextureRepository();
+        engine_context->mesh_repository = rendering_manager->getMeshRepository();
         scene_manager = std::make_shared<SceneManager>(options->resources_dir); // this is the non interfaced version
         engine_context->scene_manager = scene_manager; // this it the version for the components providing scene information
         engine_context->input_manager = std::make_shared<InputManager>(window);

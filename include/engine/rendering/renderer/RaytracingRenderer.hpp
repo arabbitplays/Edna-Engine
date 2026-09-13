@@ -29,7 +29,9 @@ namespace RtEngine {
 	class RaytracingRenderer : public ISerializable, public Renderer {
 	public:
 		RaytracingRenderer(const std::shared_ptr<VulkanContext> &vulkan_context,
-			const std::string &resources_dir, const uint32_t max_frames_in_flight);
+			const std::shared_ptr<MeshRepository> &mesh_repository,
+			const std::shared_ptr<TextureRepository> &texture_repository,
+			const uint32_t max_frames_in_flight);
 
 		void init() override;
 		void initProperties(const std::shared_ptr<IProperties> &config, const UpdateFlagsHandle &update_flags) override;
@@ -48,23 +50,17 @@ namespace RtEngine {
 		float *downloadRenderTarget(const std::shared_ptr<RenderTarget> &target) const;
 		uint8_t *fixImageFormatForStorage(void *image_data, size_t pixel_count, VkFormat originalFormat);
 
-		std::shared_ptr<TextureRepository> getTextureRepository();
-		std::shared_ptr<MeshRepository> getMeshRepository();
 		std::unordered_map<std::string, std::shared_ptr<Material>> getMaterials() const;
 
 	protected:
-		std::string resources_dir;
-
 		uint32_t recursion_depth = 5;
 		std::vector<int32_t> push_constants{};
 
-		std::shared_ptr<TextureRepository> texture_repository;
 		std::shared_ptr<MeshRepository> mesh_repository;
+		std::shared_ptr<TextureRepository> texture_repository;
 
 		std::shared_ptr<SceneAdapter> scene_adapter;
 		std::shared_ptr<RenderTarget> current_target;
-
-		void createRepositories();
 
 		static bool hasStencilComponent(VkFormat format);
 

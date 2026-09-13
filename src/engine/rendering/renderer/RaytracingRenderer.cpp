@@ -27,28 +27,20 @@ namespace RtEngine {
 	}
 
 	RaytracingRenderer::RaytracingRenderer(const std::shared_ptr<VulkanContext> &vulkan_context,
-		const std::string &resources_dir, const uint32_t max_frames_in_flight)
-		: Renderer(vulkan_context, max_frames_in_flight), resources_dir(resources_dir) {
+		const std::shared_ptr<MeshRepository> &mesh_repository,
+		const std::shared_ptr<TextureRepository> &texture_repository,
+		const uint32_t max_frames_in_flight)
+		: Renderer(vulkan_context, max_frames_in_flight),
+		  mesh_repository(mesh_repository),
+		  texture_repository(texture_repository) {
 	}
 
 	void RaytracingRenderer::init() {
-		createRepositories();
-
 		scene_adapter = std::make_shared<SceneAdapter>(vulkan_context, texture_repository, max_frames_in_flight,
 													   DeviceManager::RAYTRACING_PROPERTIES);
 		deletion_queue.pushFunction([&]() { scene_adapter->clearResources(); });
 
 		Renderer::init();
-	}
-
-	void RaytracingRenderer::createRepositories() {
-		mesh_repository = std::make_shared<MeshRepository>(vulkan_context, resources_dir);
-		texture_repository = std::make_shared<TextureRepository>(vulkan_context->resource_builder);
-
-		deletion_queue.pushFunction([&]() {
-			mesh_repository->destroy();
-			texture_repository->destroy();
-		});
 	}
 
 	bool RaytracingRenderer::hasStencilComponent(const VkFormat format) {
@@ -211,14 +203,6 @@ namespace RtEngine {
 		for (auto [name, material] : scene_adapter->defaultMaterials) {
 			material->initProperties(config, update_flags);
 		}
-	}
-
-	std::shared_ptr<TextureRepository> RaytracingRenderer::getTextureRepository() {
-		return texture_repository;
-	}
-
-	std::shared_ptr<MeshRepository> RaytracingRenderer::getMeshRepository() {
-		return mesh_repository;
 	}
 
 	std::unordered_map<std::string, std::shared_ptr<Material>> RaytracingRenderer::getMaterials() const {
