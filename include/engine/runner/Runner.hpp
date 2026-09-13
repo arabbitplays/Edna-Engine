@@ -33,6 +33,7 @@ namespace RtEngine {
         virtual void finishFrame(const std::shared_ptr<DrawContext> &draw_context) const;
 
         void handle_resize() const;
+        void waitForIdle() const;
 
         std::shared_ptr<DrawContext> createMainDrawContext() const;
 

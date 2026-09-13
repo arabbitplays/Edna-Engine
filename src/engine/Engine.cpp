@@ -100,7 +100,7 @@ namespace RtEngine {
     }
 
     void Engine::cleanup() {
-        rendering_manager->getRaytracingRenderer()->waitForIdle();
+        rendering_manager->getVulkanContext()->device_manager->waitForIdle();
         scene_manager->destroy();
         rendering_manager->destroy();
 

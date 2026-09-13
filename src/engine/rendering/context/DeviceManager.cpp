@@ -350,6 +350,8 @@ namespace RtEngine {
 		assert(graphics_queue == compute_queue && "GRAPHICS and COMPUTE queues must be the same queue");
 	}
 
+	void DeviceManager::waitForIdle() const { vkDeviceWaitIdle(device); }
+
 	void DeviceManager::destroy() { deletion_queue.flush(); }
 
 } // namespace RtEngine

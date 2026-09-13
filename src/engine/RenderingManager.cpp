@@ -39,7 +39,7 @@ namespace RtEngine {
                                                      swapchain_manager);
 
         deletion_queue.pushFunction([&]() {
-            vkDeviceWaitIdle(vulkan_context->device_manager->getDevice());
+            vulkan_context->device_manager->waitForIdle();
 
             vulkan_context->descriptor_allocator->destroyPools(vulkan_context->device_manager->getDevice());
             for (const auto& renderer : renderer_stack->getRenderers()) {

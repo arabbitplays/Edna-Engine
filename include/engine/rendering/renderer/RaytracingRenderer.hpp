@@ -41,8 +41,6 @@ namespace RtEngine {
 		void writeResources(const std::shared_ptr<DrawContext> &draw_context, UpdateFlagsHandle update_flags, uint32_t frame_idx);
 		void writeRenderTarget(const std::shared_ptr<RenderTarget> &target);
 
-		void waitForIdle();
-
 		VkCommandBuffer recordCommandBuffer(uint32_t frame_idx) override;
 		QueueType queueType() const override { return GRAPHICS; }
 

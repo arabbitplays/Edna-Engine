@@ -60,10 +60,6 @@ namespace RtEngine {
 		scene_adapter->updateRenderTarget(target);
 	}
 
-	void RaytracingRenderer::waitForIdle() {
-		vkDeviceWaitIdle(vulkan_context->device_manager->getDevice());
-	}
-
 	VkCommandBuffer RaytracingRenderer::recordCommandBuffer(uint32_t frame_idx) {
 		VkCommandBuffer cmd = getFreshCommandBuffer(frame_idx);
 

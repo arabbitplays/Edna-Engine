@@ -40,6 +40,8 @@ namespace RtEngine {
 		QueueFamilyIndices getQueueIndices() const;
 		VkQueue getQueue(QueueType type) const;
 
+		void waitForIdle() const;
+
 	private:
 		void createInstance(bool enable_validation_layers);
 		bool checkValidationLayerSupport();

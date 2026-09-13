@@ -28,7 +28,7 @@ namespace RtEngine {
         std::shared_ptr<Scene> new_scene = scene_reader->readScene(scene_path, raytracing_renderer->getMaterials());
         scene_manager->setScene(new_scene);
 
-        raytracing_renderer->waitForIdle();
+        waitForIdle();
         if (old_scene != nullptr) {
             old_scene->destroy();
         }
@@ -130,8 +130,12 @@ namespace RtEngine {
         draw_context->nextFrame();
     }
 
+    void Runner::waitForIdle() const {
+        engine_context->rendering_manager->getVulkanContext()->device_manager->waitForIdle();
+    }
+
     void Runner::handle_resize() const {
-        raytracing_renderer->waitForIdle();
+        waitForIdle();
         engine_context->swapchain_manager->recreate();
         gui_renderer->recreateFramebuffer();
     }

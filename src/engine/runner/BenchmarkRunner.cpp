@@ -42,7 +42,7 @@ namespace RtEngine {
 
 		// render one image and then output it if output path is defined
 		if (error_calculation_sample_count == static_cast<int32_t>(target->getTotalSampleCount())) {
-			raytracing_renderer->waitForIdle();
+			waitForIdle();
 			raytracing_renderer->outputRenderingTarget(target, getTmpImagePath(error_calculation_sample_count));
 
 			if (error_calculation_sample_count == final_sample_count) {

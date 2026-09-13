@@ -37,7 +37,7 @@ namespace RtEngine {
 		std::shared_ptr<RenderTarget> target = draw_context->targets[0];
 
 		if (samples_per_image == static_cast<int32_t>(target->getTotalSampleCount())) {
-			raytracing_renderer->waitForIdle();
+			waitForIdle();
 
 			float *data = raytracing_renderer->downloadRenderTarget(target);
 			done_images.push_back(data);
