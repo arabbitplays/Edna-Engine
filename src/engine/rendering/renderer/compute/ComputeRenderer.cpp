@@ -47,6 +47,8 @@ namespace RtEngine {
         VkShaderModule compute_shader_module = createShaderModule();
         pipeline->setShaderStage(compute_shader_module);
 
+        configurePushConstants(*pipeline);
+
         pipeline->build();
 
         deletion_queue.pushFunction([&]() { pipeline->destroy(); });
@@ -68,6 +70,8 @@ namespace RtEngine {
 
         vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline->getHandle());
         vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline->getLayoutHandle(), 0, 1, &descriptor_set, 0, 0);
+
+        recordPushConstants(cmd);
 
         assert(dispatch_size_provider && "ComputeRenderer: dispatch size not set");
         VkExtent3D dispatch_size = dispatch_size_provider();
