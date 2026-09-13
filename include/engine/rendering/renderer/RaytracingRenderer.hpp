@@ -2,27 +2,23 @@
 #define BASICS_VULKANENGINE_HPP
 
 #include <vector>
+
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEFAULT_ALIGNED_GENTYPES
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
-#include <chrono>
+
 #define TINYOBJLOADER_IMPLEMENTATION
-#include <AccelerationStructure.hpp>
+
 #include <GuiRenderer.hpp>
 #include <GuiWindow.hpp>
 #include <memory>
 #include <RenderTarget.hpp>
 #include <../rendering/vulkan_scene_representation/SceneAdapter.hpp>
-#include "../../../util/QuickTimer.hpp"
-#include "../DescriptorAllocator.hpp"
-#include "SceneAdapter.hpp"
 
 #include <VulkanContext.hpp>
-#include "DeletionQueue.hpp"
 #include "MeshRepository.hpp"
 #include "Renderer.hpp"
 #include "UpdateFlagValue.hpp"
-#include "../../Window.hpp"
 
 namespace RtEngine {
 

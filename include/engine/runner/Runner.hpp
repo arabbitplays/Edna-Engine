@@ -32,7 +32,7 @@ namespace RtEngine {
                                  bool present) const;
         virtual void finishFrame(const std::shared_ptr<DrawContext> &draw_context) const;
 
-        void handle_resize() const;
+        void handleResize() const;
         void waitForIdle() const;
 
         std::shared_ptr<DrawContext> createMainDrawContext() const;

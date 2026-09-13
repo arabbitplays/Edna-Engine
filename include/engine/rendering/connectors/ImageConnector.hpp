@@ -21,7 +21,7 @@ namespace RtEngine
         VkExtent2D getExtent() const;
 
         void recreate(VkExtent2D new_extent);
-        void destroy() const;
+        void destroy();
 
         void write(DescriptorAllocator& allocator, uint32_t binding) override;
 

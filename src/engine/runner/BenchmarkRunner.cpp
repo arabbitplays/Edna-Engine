@@ -5,6 +5,7 @@
 
 #include "ImageUtil.hpp"
 #include "PathUtil.hpp"
+#include "QuickTimer.hpp"
 #include "ReferenceRunner.hpp"
 
 namespace RtEngine {
@@ -69,7 +70,7 @@ namespace RtEngine {
 		if (present_image) {
 			swapchain_image_idx = present_stage->acquireNextSwapchainImage();
 			if (swapchain_image_idx < 0) {
-				handle_resize();
+				handleResize();
 				return;
 			}
 		}

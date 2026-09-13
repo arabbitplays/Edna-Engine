@@ -68,7 +68,7 @@ namespace RtEngine {
 		if (present_image) {
 			swapchain_image_idx = present_stage->acquireNextSwapchainImage();
 			if (swapchain_image_idx < 0) {
-				handle_resize();
+				handleResize();
 				return;
 			}
 			present_sample_count *= 2;

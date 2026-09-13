@@ -51,7 +51,7 @@ namespace RtEngine {
                                   vulkan_context->device_manager->getQueue(GRAPHICS),
                                   cmd,
                                   /*binary waits*/       {sync_manager->imageAvailableSemaphore()},
-                                  /*binary wait stages*/ {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT},
+                                  /*binary wait stages*/ {VK_PIPELINE_STAGE_TRANSFER_BIT},
                                   /*binary signals*/     {sync_manager->renderFinishedSemaphore(swapchain_image_idx)});
 
         return present(swapchain_image_idx);

@@ -66,10 +66,11 @@ namespace RtEngine
         createImages();
     }
 
-    void ImageConnector::destroy() const
+    void ImageConnector::destroy()
     {
         for (const auto &image : images) {
             resource_builder->destroyImage(image);
         }
+        images.clear();
     }
 } // RtEngine

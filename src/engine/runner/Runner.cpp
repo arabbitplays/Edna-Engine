@@ -73,7 +73,7 @@ namespace RtEngine {
 
         const int32_t swapchain_image_idx = present_stage->acquireNextSwapchainImage();
         if (swapchain_image_idx < 0) {
-            handle_resize();
+            handleResize();
             return;
         }
 
@@ -117,7 +117,7 @@ namespace RtEngine {
             const bool swapchain_out_of_date = renderer_stack->getPresentStage()->submitAndPresent(
                 present_stage_idx, renderer_stack->getPresentConnector(), swapchain_image_idx);
             if (engine_context->rendering_manager->framebufferWasResized() || swapchain_out_of_date) {
-                handle_resize();
+                handleResize();
             }
         } else {
             sync_manager->skipStage(present_stage_idx);
@@ -134,7 +134,7 @@ namespace RtEngine {
         engine_context->rendering_manager->getVulkanContext()->device_manager->waitForIdle();
     }
 
-    void Runner::handle_resize() const {
+    void Runner::handleResize() const {
         waitForIdle();
         engine_context->swapchain_manager->recreate();
         gui_renderer->recreateFramebuffer();

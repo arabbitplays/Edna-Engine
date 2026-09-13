@@ -9,6 +9,7 @@
 #include <glm/gtc/packing.hpp>
 
 #include "ImageUtil.hpp"
+#include "QuickTimer.hpp"
 #include "UpdateFlagValue.hpp"
 
 namespace RtEngine {
