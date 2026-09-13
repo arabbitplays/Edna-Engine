@@ -1,6 +1,6 @@
 #ifndef VULKAN_RAYTRACING_RUNNER_HPP
 #define VULKAN_RAYTRACING_RUNNER_HPP
-#include "ISerializable.hpp"
+#include "IRunner.hpp"
 #include "PresentStage.hpp"
 #include "RendererStack.hpp"
 #include "SceneManager.hpp"
@@ -9,17 +9,17 @@
 #include "RaytracingRenderer.hpp"
 
 namespace RtEngine {
-    class Runner : public ISerializable {
+    class Runner : public IRunner {
     public:
         Runner(std::shared_ptr<EngineContext> engine_context, const std::shared_ptr<SceneManager> &scene_manager);
 
         std::string getScenePath() const;
         virtual void loadScene(const std::string &scene_path);
-        virtual void renderScene();
+        void renderScene() override;
 
-        void setUpdateFlags(const UpdateFlagsHandle &new_flags) const;
+        void setUpdateFlags(const UpdateFlagsHandle &new_flags) const override;
 
-        bool isRunning() const;
+        bool isRunning() const override;
 
         void initProperties(const std::shared_ptr<IProperties> &config, const UpdateFlagsHandle& update_flags) override;
 
