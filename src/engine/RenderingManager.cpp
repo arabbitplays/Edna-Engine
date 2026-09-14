@@ -97,7 +97,7 @@ namespace RtEngine {
         raytracing_renderer = result.raytracing_renderer;
         rt_target_connector = result.raytracing_target_connector;
 
-        sync_manager->setStagesPerFrame(static_cast<uint32_t>(renderer_stack->getRenderers().size()) + 1);
+        sync_manager->reconfigureStagesPerFrame(static_cast<uint32_t>(renderer_stack->getRenderers().size()) + 1);
     }
 
     void RenderingManager::createRepositories() {
@@ -148,6 +148,22 @@ namespace RtEngine {
     std::shared_ptr<TextureRepository> RenderingManager::getTextureRepository() const {
         assert(texture_repository != nullptr);
         return texture_repository;
+    }
+
+    void RenderingManager::addComputeRenderer(std::shared_ptr<ComputeRenderer> renderer,
+                                              std::shared_ptr<ImageConnector> new_present_connector) {
+        assert(renderer != nullptr);
+        assert(renderer_stack != nullptr);
+
+        vulkan_context->device_manager->waitForIdle();
+
+        renderer_stack->addRenderer(renderer);
+        if (new_present_connector) {
+            renderer_stack->setPresentConnector(std::move(new_present_connector));
+        }
+
+        sync_manager->reconfigureStagesPerFrame(
+            static_cast<uint32_t>(renderer_stack->getRenderers().size()) + 1);
     }
 
     std::shared_ptr<RenderTarget> RenderingManager::createRenderTarget(uint32_t width, uint32_t height) {
