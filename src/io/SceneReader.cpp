@@ -1,5 +1,6 @@
 #include "SceneReader.hpp"
 
+#include <CyclicalCellularAutomaton.hpp>
 #include <MeshRenderer.hpp>
 #include <Node.hpp>
 #include <QuickTimer.hpp>
@@ -8,6 +9,7 @@
 #include <YAML_glm.hpp>
 #include <glm/gtx/quaternion.hpp>
 #include <spdlog/spdlog.h>
+#include "EngineContext.hpp"
 #include "Material.hpp"
 #include "YamlLoadProperties.hpp"
 #include "components/Camera.hpp"
@@ -15,35 +17,55 @@
 #include "resources/EnvironmentMap.hpp"
 
 namespace RtEngine {
+	std::shared_ptr<EngineContext> SceneReader::lockContext() const {
+		auto ctx = engine_context.lock();
+		if (!ctx) {
+			throw std::runtime_error("SceneReader: EngineContext has expired");
+		}
+		return ctx;
+	}
+
 	std::shared_ptr<Scene>
 	SceneReader::readScene(const std::string &file_path,
 						   std::unordered_map<std::string, std::shared_ptr<Material>> materials) {
 		QuickTimer quick_timer("Reading scene from file");
 
+		auto ctx = lockContext();
+
 		try {
 			YAML::Node config = YAML::LoadFile(file_path);
 			YAML::Node scene_node = config["scene"];
 
-			auto material_name = scene_node["material_name"].as<std::string>();
-			if (!materials.contains(material_name))
-				throw std::runtime_error("Material " + material_name + " does not exist");
+			std::shared_ptr<Material> scene_material = nullptr;
+			if (scene_node["material_name"]) {
+				auto material_name = scene_node["material_name"].as<std::string>();
+				if (!materials.contains(material_name))
+					throw std::runtime_error("Material " + material_name + " does not exist");
+				scene_material = materials[material_name];
+			}
 
 			std::shared_ptr<Scene> scene =
-					std::make_shared<Scene>(file_path, materials[material_name]);
-			scene->environment_map = std::make_shared<EnvironmentMap>(engine_context->texture_repository);
+					std::make_shared<Scene>(file_path, scene_material);
+			scene->environment_map = std::make_shared<EnvironmentMap>(ctx->texture_repository);
 
-			loadSceneLights(scene_node["lights"], scene);
+			if (scene_node["lights"]) {
+				loadSceneLights(scene_node["lights"], scene);
+			}
 
 			if (scene_node["environment_map"]) {
 				scene->environment_map->loadFromYaml(scene_node["environment_map"]);
 			}
 
-			for (const auto &mesh_node: scene_node["meshes"]) {
-				std::string mesh_path = mesh_node["path"].as<std::string>();
-				engine_context->mesh_repository->addMesh(mesh_path);
+			if (scene_node["meshes"]) {
+				for (const auto &mesh_node: scene_node["meshes"]) {
+					std::string mesh_path = mesh_node["path"].as<std::string>();
+					ctx->mesh_repository->addMesh(mesh_path);
+				}
 			}
 
-			initializeMaterial(scene_node["materials"], materials[material_name]);
+			if (scene_material && scene_node["materials"]) {
+				initializeMaterial(scene_node["materials"], scene_material);
+			}
 
 			std::shared_ptr<Node> scene_graph_node = std::make_shared<Node>();
 			scene_graph_node->name = "root";
@@ -99,6 +121,7 @@ namespace RtEngine {
 	}
 
 	void SceneReader::readComponents(const YAML::Node &yaml_node, std::shared_ptr<Node> &scene_node) {
+		auto ctx = lockContext();
 		auto update_flags = std::make_shared<UpdateFlags>();
 		std::shared_ptr<YamlLoadProperties> properties = std::make_shared<YamlLoadProperties>(yaml_node["components"]);
 
@@ -108,7 +131,7 @@ namespace RtEngine {
 				scene_node->transform->initProperties(properties, update_flags);
 			} else if (comp_name == MeshRenderer::COMPONENT_NAME) {
 				std::shared_ptr<MeshRenderer> mesh_component =
-						std::make_shared<MeshRenderer>(engine_context, scene_node);
+						std::make_shared<MeshRenderer>(ctx, scene_node);
 				mesh_component->initProperties(properties, update_flags);
 				scene_node->addComponent(mesh_component);
 			} else if (comp_name == Rigidbody::COMPONENT_NAME) {
@@ -116,9 +139,13 @@ namespace RtEngine {
 				rb->initProperties(properties, update_flags);
 				scene_node->addComponent(rb);
 			} else if (comp_name == Camera::COMPONENT_NAME) {
-				auto cam = std::make_shared<Camera>(engine_context, scene_node);
+				auto cam = std::make_shared<Camera>(ctx, scene_node);
 				cam->initProperties(properties, update_flags);
 				scene_node->addComponent(cam);
+			} else if (comp_name == CyclicalCellularAutomaton::COMPONENT_NAME) {
+				auto ca = std::make_shared<CyclicalCellularAutomaton>(ctx, scene_node);
+				ca->initProperties(properties, update_flags);
+				scene_node->addComponent(ca);
 			}
 		}
 	}

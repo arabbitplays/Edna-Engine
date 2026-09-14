@@ -12,8 +12,6 @@ namespace RtEngine {
           renderer_stack(engine_context->rendering_manager->getRendererStack()),
           present_stage(engine_context->rendering_manager->getPresentStage()),
           sync_manager(engine_context->sync_manager) {
-
-        scene_reader = std::make_shared<SceneReader>(engine_context);
         update_flags = std::make_shared<UpdateFlags>();
     }
 
@@ -22,17 +20,9 @@ namespace RtEngine {
     }
 
     void Runner::loadScene(const std::string &scene_path) {
-        assert(!scene_path.empty());
+        std::shared_ptr<Scene> new_scene =
+                scene_manager->loadScene(scene_path, raytracing_renderer->getMaterials());
 
-        std::shared_ptr<Scene> old_scene = scene_manager->getCurrentScene(); // hold until it can be safely destroyed
-        std::shared_ptr<Scene> new_scene = scene_reader->readScene(scene_path, raytracing_renderer->getMaterials());
-        scene_manager->setScene(new_scene);
-
-        waitForIdle();
-        if (old_scene != nullptr) {
-            old_scene->destroy();
-        }
-        new_scene->start();
         raytracing_renderer->loadScene(new_scene);
 
         SceneWriter writer;

@@ -10,6 +10,7 @@
 #include "TextureRepository.hpp"
 #include "VulkanContext.hpp"
 #include "RaytracingRenderer.hpp"
+#include "compute/ComputeRenderer.hpp"
 
 namespace RtEngine {
     class RenderingManager {
@@ -33,6 +34,9 @@ namespace RtEngine {
         std::shared_ptr<TextureRepository> getTextureRepository() const;
 
         std::shared_ptr<RenderTarget> createRenderTarget(uint32_t width, uint32_t height);
+
+        void addComputeRenderer(std::shared_ptr<ComputeRenderer> renderer,
+                                std::shared_ptr<ImageConnector> new_present_connector = nullptr);
 
         bool framebufferWasResized();
 

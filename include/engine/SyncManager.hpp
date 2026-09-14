@@ -18,7 +18,8 @@ namespace RtEngine
                     std::shared_ptr<DeviceManager> device_manager,
                     std::shared_ptr<SwapchainManager> swapchain_manager);
 
-        void setStagesPerFrame(uint32_t stages_per_frame);
+        // Caller must ensure the device is idle before calling.
+        void reconfigureStagesPerFrame(uint32_t stages_per_frame);
 
         void waitForNextFrameStart();
         void advanceFrame();

@@ -16,6 +16,11 @@ namespace RtEngine {
         virtual void init();
         virtual void cleanup();
 
+        // Called when a bound connector's underlying resources are recreated (e.g. an
+        // ImageConnector is resized) so subclasses can re-write their descriptor sets.
+        // No-op by default.
+        virtual void invalidateDescriptors() {}
+
         virtual VkCommandBuffer recordCommandBuffer(uint32_t frame_idx) = 0;
 
         virtual QueueType queueType() const = 0;

@@ -1,0 +1,8 @@
+scene:
+  nodes:
+    - name: CyclicalCA
+      components:
+        CyclicalCellularAutomaton:
+          {}
+      children:
+        []

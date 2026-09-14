@@ -4,7 +4,6 @@
 #include "PresentStage.hpp"
 #include "RendererStack.hpp"
 #include "SceneManager.hpp"
-#include "SceneReader.hpp"
 #include "SyncManager.hpp"
 #include "RaytracingRenderer.hpp"
 
@@ -47,7 +46,6 @@ namespace RtEngine {
         std::shared_ptr<PresentStage> present_stage;
         std::shared_ptr<SyncManager> sync_manager;
 
-        std::shared_ptr<SceneReader> scene_reader;
         std::shared_ptr<SceneManager> scene_manager;
 
         UpdateFlagsHandle update_flags;

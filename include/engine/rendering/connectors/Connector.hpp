@@ -13,6 +13,7 @@ namespace RtEngine
         virtual ~Connector() = default;
 
         VkDescriptorType getDescriptorType() const { return type; }
+        virtual uint32_t getDescriptorCount() const { return 1; }
 
         virtual void write(DescriptorAllocator& allocator, uint32_t binding) = 0;
 

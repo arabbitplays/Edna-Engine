@@ -16,12 +16,9 @@ namespace RtEngine
 
     void ImageConnector::write(DescriptorAllocator& allocator, uint32_t binding)
     {
-        std::vector<VkImageView> views;
-        views.reserve(images.size());
-        for (const auto& image : images) {
-            views.push_back(image.imageView);
-        }
-        allocator.writeImages(binding, views, VK_NULL_HANDLE, VK_IMAGE_LAYOUT_GENERAL, getDescriptorType());
+        // TODO the multiple images are currently for frames in flight. Allow for multiple images per descriptor, with multiple sets of them for multiple frames in flight
+        allocator.writeImage(binding, images[0].imageView, VK_NULL_HANDLE, VK_IMAGE_LAYOUT_GENERAL,
+                             getDescriptorType());
     }
 
     void ImageConnector::createImages()

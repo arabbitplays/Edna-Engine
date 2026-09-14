@@ -40,6 +40,11 @@ namespace RtEngine {
 		AllocatedImage createImage(void *data, VkExtent3D extent, VkFormat format, VkImageTiling tiling,
 								   VkImageUsageFlags usage, VkImageAspectFlags aspectFlags,
 								   VkImageLayout target_layout);
+
+		void uploadImageData(AllocatedImage image, VkExtent3D extent, const void *data, VkDeviceSize size,
+							  VkImageLayout initial_layout = VK_IMAGE_LAYOUT_GENERAL,
+							  VkImageLayout final_layout = VK_IMAGE_LAYOUT_GENERAL);
+
 		Texture loadTextureImage(std::string path, TextureType type = PARAMETER);
 
 		AllocatedImage loadImage(std::string path, VkImageLayout layout);

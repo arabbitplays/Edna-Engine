@@ -175,29 +175,37 @@ namespace RtEngine {
 			throw std::invalid_argument("Image format not supported!");
 		}
 
+		AllocatedImage image =
+				createImage(extent, format, tiling, usage | VK_IMAGE_USAGE_TRANSFER_DST_BIT, aspectFlags);
+		uploadImageData(image, extent, data, imageSize, VK_IMAGE_LAYOUT_UNDEFINED, target_layout);
+		return image;
+	}
+
+	void ResourceBuilder::uploadImageData(AllocatedImage image, VkExtent3D extent, const void *data,
+										   VkDeviceSize size,
+										   VkImageLayout initial_layout, VkImageLayout final_layout) {
+		VkDevice device = device_manager->getDevice();
+
 		AllocatedBuffer stagingBuffer =
-				createBuffer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+				createBuffer(size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
 							 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
-		VkDevice device = device_manager->getDevice();
-		void *imageData;
-		vkMapMemory(device, stagingBuffer.bufferMemory, 0, imageSize, 0, &imageData);
-		memcpy(imageData, data, static_cast<size_t>(imageSize));
+		void *mapped;
+		vkMapMemory(device, stagingBuffer.bufferMemory, 0, size, 0, &mapped);
+		memcpy(mapped, data, static_cast<size_t>(size));
 		vkUnmapMemory(device, stagingBuffer.bufferMemory);
 
-		AllocatedImage image =
-				createImage(extent, format, tiling, VK_BUFFER_USAGE_2_TRANSFER_DST_BIT_KHR | usage, aspectFlags);
-
-		transitionImageLayout(image.image, VK_PIPELINE_STAGE_2_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT,
-							  VK_ACCESS_NONE, VK_ACCESS_TRANSFER_WRITE_BIT, VK_IMAGE_LAYOUT_UNDEFINED,
-							  VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+		transitionImageLayout(image.image,
+							  VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT,
+							  VK_ACCESS_NONE, VK_ACCESS_TRANSFER_WRITE_BIT,
+							  initial_layout, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 		copyBufferToImage(stagingBuffer.handle, image.image, extent);
-		transitionImageLayout(image.image, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_RAY_TRACING_SHADER_BIT_KHR,
-							  VK_ACCESS_TRANSFER_WRITE_BIT, VK_ACCESS_SHADER_READ_BIT,
-							  VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, target_layout);
+		transitionImageLayout(image.image,
+							  VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+							  VK_ACCESS_TRANSFER_WRITE_BIT, VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT,
+							  VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, final_layout);
 
 		destroyBuffer(stagingBuffer);
-		return image;
 	}
 
 	Texture ResourceBuilder::loadTextureImage(std::string path, TextureType type) {

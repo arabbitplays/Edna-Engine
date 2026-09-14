@@ -3,6 +3,7 @@
 
 src += files(
   'Rigidbody.cpp',
+  'CyclicalCellularAutomaton.cpp',
   'Transform.cpp',
   'Camera.cpp',
   'MeshRenderer.cpp',

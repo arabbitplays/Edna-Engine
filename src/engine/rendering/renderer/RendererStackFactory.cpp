@@ -2,7 +2,7 @@
 
 #include <utility>
 
-#include "compute/CellularAutomatonRenderer.hpp"
+#include "ImageConnectorFactory.hpp"
 #include "compute/GlitchRenderer.hpp"
 
 namespace RtEngine {
@@ -24,33 +24,15 @@ namespace RtEngine {
         return stack;
     }
 
-    RendererStackFactory::Result RendererStackFactory::createComputeStack() {
-        const VkExtent2D extent = vulkan_context->swapchain->extent;
-        const std::vector<glm::vec4> colors = {
-            {1.0f, 0.0f, 0.0f, 1.0f},
-            {0.0f, 1.0f, 0.0f, 1.0f},
-            {0.0f, 0.0f, 1.0f, 1.0f},
-            {1.0f, 1.0f, 0.0f, 1.0f},
-        };
-
-        auto ca_renderer = std::make_shared<CellularAutomatonRenderer>(
-            vulkan_context, extent, colors, max_frames_in_flight);
-        ca_renderer->init();
-
-        auto stack = makeStack();
-        stack->addRenderer(ca_renderer);
-        stack->setPresentConnector(ca_renderer->getOutputConnector());
-
-        return {stack, /*raytracing_renderer*/ nullptr, /*raytracing_target_connector*/ nullptr};
+    RendererStackFactory::Result RendererStackFactory::createEmptyStack() {
+        return {makeStack(), /*raytracing_renderer*/ nullptr, /*raytracing_target_connector*/ nullptr};
     }
 
     RendererStackFactory::Result RendererStackFactory::createRaytracingStack() {
         const VkExtent2D extent = vulkan_context->swapchain->extent;
 
-        auto rt_target_connector = std::make_shared<ImageConnector>(
-            vulkan_context->resource_builder, extent, max_frames_in_flight,
-            VK_FORMAT_R32G32B32A32_SFLOAT, VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_STORAGE_BIT,
-            VK_IMAGE_ASPECT_COLOR_BIT);
+        auto rt_target_connector = ImageConnectorFactory::createRenderTargetConnector(
+            vulkan_context->resource_builder, extent, max_frames_in_flight);
 
         auto glitch_renderer = std::make_shared<GlitchRenderer>(
             vulkan_context, extent, rt_target_connector, max_frames_in_flight);

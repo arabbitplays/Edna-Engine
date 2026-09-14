@@ -91,13 +91,13 @@ namespace RtEngine {
 
         RendererStackFactory factory(vulkan_context, present_stage, mesh_repository, texture_repository,
                                      max_frames_in_flight);
-        auto result = enable_raytracing ? factory.createRaytracingStack() : factory.createComputeStack();
+        auto result = enable_raytracing ? factory.createRaytracingStack() : factory.createEmptyStack();
 
         renderer_stack = result.stack;
         raytracing_renderer = result.raytracing_renderer;
         rt_target_connector = result.raytracing_target_connector;
 
-        sync_manager->setStagesPerFrame(static_cast<uint32_t>(renderer_stack->getRenderers().size()) + 1);
+        sync_manager->reconfigureStagesPerFrame(static_cast<uint32_t>(renderer_stack->getRenderers().size()) + 1);
     }
 
     void RenderingManager::createRepositories() {
@@ -150,9 +150,31 @@ namespace RtEngine {
         return texture_repository;
     }
 
+    void RenderingManager::addComputeRenderer(std::shared_ptr<ComputeRenderer> renderer,
+                                              std::shared_ptr<ImageConnector> new_present_connector) {
+        assert(renderer != nullptr);
+        assert(renderer_stack != nullptr);
+
+        vulkan_context->device_manager->waitForIdle();
+
+        renderer_stack->addRenderer(renderer);
+        if (new_present_connector) {
+            renderer_stack->setPresentConnector(std::move(new_present_connector));
+        }
+
+        sync_manager->reconfigureStagesPerFrame(
+            static_cast<uint32_t>(renderer_stack->getRenderers().size()) + 1);
+    }
+
     std::shared_ptr<RenderTarget> RenderingManager::createRenderTarget(uint32_t width, uint32_t height) {
         VkExtent2D extent(width, height);
+        vulkan_context->device_manager->waitForIdle();
         rt_target_connector->recreate(extent);
+        // Downstream renderers (e.g. GlitchRenderer) hold a descriptor set that references
+        // the now-destroyed image views. Re-write them against the freshly recreated ones.
+        for (const auto& renderer : renderer_stack->getRenderers()) {
+            renderer->invalidateDescriptors();
+        }
         return std::make_shared<RenderTarget>(vulkan_context->resource_builder, extent, max_frames_in_flight,
                                               rt_target_connector);
     }
