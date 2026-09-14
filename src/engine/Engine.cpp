@@ -6,6 +6,7 @@
 #include "HierarchyWindow.hpp"
 #include "InspectorWindow.hpp"
 #include "ReferenceRunner.hpp"
+#include "SceneReader.hpp"
 #include "YamlLoadProperties.hpp"
 
 namespace RtEngine {
@@ -54,8 +55,9 @@ namespace RtEngine {
         engine_context->rendering_manager = rendering_manager;
         engine_context->texture_repository = rendering_manager->getTextureRepository();
         engine_context->mesh_repository = rendering_manager->getMeshRepository();
-        scene_manager = std::make_shared<SceneManager>(options->resources_dir); // this is the non interfaced version
-        engine_context->scene_manager = scene_manager; // this it the version for the components providing scene information
+        auto scene_reader = std::make_shared<SceneReader>(engine_context);
+        scene_manager = std::make_shared<SceneManager>(options->resources_dir, rendering_manager->getVulkanContext()->device_manager, scene_reader); // non-interfaced version
+        engine_context->scene_manager = scene_manager; // interfaced version for components providing scene information
         engine_context->input_manager = std::make_shared<InputManager>(window);
         engine_context->swapchain_manager = rendering_manager->getSwapchainManager();
         engine_context->sync_manager = rendering_manager->getSyncManager();
