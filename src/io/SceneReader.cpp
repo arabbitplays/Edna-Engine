@@ -130,6 +130,10 @@ namespace RtEngine {
 				auto cam = std::make_shared<Camera>(engine_context, scene_node);
 				cam->initProperties(properties, update_flags);
 				scene_node->addComponent(cam);
+			} else if (comp_name == CyclicalCellularAutomaton::COMPONENT_NAME) {
+				auto ca = std::make_shared<CyclicalCellularAutomaton>(engine_context, scene_node);
+				ca->initProperties(properties, update_flags);
+				scene_node->addComponent(ca);
 			}
 		}
 	}

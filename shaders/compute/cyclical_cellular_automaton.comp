@@ -1,0 +1,42 @@
+#version 450
+
+const uint STATE_COUNT = 16;
+
+layout (binding = 0, r32ui) uniform uimage2D stateImage;
+layout (binding = 1, rgba32f) uniform writeonly image2D targetImage;
+layout (binding = 2) uniform ColorPalette {
+    vec4 colors[STATE_COUNT];
+} palette;
+
+layout (push_constant) uniform PushConstants {
+    uint threshold;
+    uint update;
+} push;
+
+layout (local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
+
+void main()
+{
+    ivec2 pixel = ivec2(gl_GlobalInvocationID.xy);
+    ivec2 size = imageSize(stateImage);
+    if (pixel.x >= size.x || pixel.y >= size.y) return;
+
+    uint current = imageLoad(stateImage, pixel).r;
+    uint new_state = current;
+
+    if (push.update != 0u) {
+        uint next = (current + 1u) % STATE_COUNT;
+        uint matches = 0u;
+        for (int dy = -1; dy <= 1; dy++) {
+            for (int dx = -1; dx <= 1; dx++) {
+                if (dx == 0 && dy == 0) continue;
+                ivec2 npos = (pixel + ivec2(dx, dy) + size) % size;
+                if (imageLoad(stateImage, npos).r == next) matches++;
+            }
+        }
+        if (matches >= push.threshold) new_state = next;
+        imageStore(stateImage, pixel, uvec4(new_state, 0, 0, 0));
+    }
+
+    imageStore(targetImage, pixel, palette.colors[new_state]);
+}
