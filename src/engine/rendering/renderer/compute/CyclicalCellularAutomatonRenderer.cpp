@@ -3,22 +3,11 @@
 #include <cyclical_cellular_automaton.comp.spv.h>
 #include <random>
 
-#include "RandomUtil.hpp"
+#include "BufferConnectorFactory.hpp"
+#include "ImageConnectorFactory.hpp"
 #include "VulkanUtil.hpp"
 
 namespace RtEngine {
-    namespace {
-        std::vector<uint8_t> generateRngPixels(VkExtent2D extent) {
-            const size_t uint_count = static_cast<size_t>(extent.width) * extent.height * 4;
-            std::vector<uint8_t> pixels(uint_count * sizeof(uint32_t));
-            auto* ints = reinterpret_cast<uint32_t*>(pixels.data());
-            for (size_t i = 0; i < uint_count; i++) {
-                ints[i] = RandomUtil::generateInt();
-            }
-            return pixels;
-        }
-    }
-
     CyclicalCellularAutomatonRenderer::CyclicalCellularAutomatonRenderer(
         const std::shared_ptr<VulkanContext>& vulkan_context,
         VkExtent2D image_extent,
@@ -33,25 +22,15 @@ namespace RtEngine {
             VK_IMAGE_USAGE_STORAGE_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT,
             VK_IMAGE_ASPECT_COLOR_BIT);
 
-        target_connector = std::make_shared<ImageConnector>(
-            vulkan_context->resource_builder, image_extent, max_frames_in_flight,
-            VK_FORMAT_R32G32B32A32_SFLOAT,
-            VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_STORAGE_BIT,
-            VK_IMAGE_ASPECT_COLOR_BIT);
+        target_connector = ImageConnectorFactory::createRenderTargetConnector(
+            vulkan_context->resource_builder, image_extent, max_frames_in_flight);
 
-        rng_connector = std::make_shared<ImageConnector>(
-            vulkan_context->resource_builder, image_extent, 1,
-            VK_FORMAT_R32G32B32A32_UINT,
-            VK_IMAGE_USAGE_STORAGE_BIT,
-            VK_IMAGE_ASPECT_COLOR_BIT,
-            &generateRngPixels);
+        rng_connector = ImageConnectorFactory::createRngTextureConnector(
+            vulkan_context->resource_builder, image_extent, 1);
 
         const VkDeviceSize palette_size = sizeof(glm::vec4) * colors.size();
-        palette_connector = std::make_shared<BufferConnector>(
-            vulkan_context->resource_builder, vulkan_context->device_manager,
-            VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, palette_size, 1,
-            VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+        palette_connector = BufferConnectorFactory::createUniformBuffer(
+            vulkan_context->resource_builder, vulkan_context->device_manager, palette_size, 1);
         palette_connector->uploadData(0, this->colors.data(), palette_size);
 
         addConnector(0, state_connector);

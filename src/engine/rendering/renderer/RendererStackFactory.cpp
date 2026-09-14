@@ -2,6 +2,7 @@
 
 #include <utility>
 
+#include "ImageConnectorFactory.hpp"
 #include "compute/GlitchRenderer.hpp"
 
 namespace RtEngine {
@@ -30,10 +31,8 @@ namespace RtEngine {
     RendererStackFactory::Result RendererStackFactory::createRaytracingStack() {
         const VkExtent2D extent = vulkan_context->swapchain->extent;
 
-        auto rt_target_connector = std::make_shared<ImageConnector>(
-            vulkan_context->resource_builder, extent, max_frames_in_flight,
-            VK_FORMAT_R32G32B32A32_SFLOAT, VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_STORAGE_BIT,
-            VK_IMAGE_ASPECT_COLOR_BIT);
+        auto rt_target_connector = ImageConnectorFactory::createRenderTargetConnector(
+            vulkan_context->resource_builder, extent, max_frames_in_flight);
 
         auto glitch_renderer = std::make_shared<GlitchRenderer>(
             vulkan_context, extent, rt_target_connector, max_frames_in_flight);
