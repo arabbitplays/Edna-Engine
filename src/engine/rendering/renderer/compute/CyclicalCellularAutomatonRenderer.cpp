@@ -3,9 +3,22 @@
 #include <cyclical_cellular_automaton.comp.spv.h>
 #include <random>
 
+#include "RandomUtil.hpp"
 #include "VulkanUtil.hpp"
 
 namespace RtEngine {
+    namespace {
+        std::vector<uint8_t> generateRngPixels(VkExtent2D extent) {
+            const size_t uint_count = static_cast<size_t>(extent.width) * extent.height * 4;
+            std::vector<uint8_t> pixels(uint_count * sizeof(uint32_t));
+            auto* ints = reinterpret_cast<uint32_t*>(pixels.data());
+            for (size_t i = 0; i < uint_count; i++) {
+                ints[i] = RandomUtil::generateInt();
+            }
+            return pixels;
+        }
+    }
+
     CyclicalCellularAutomatonRenderer::CyclicalCellularAutomatonRenderer(
         const std::shared_ptr<VulkanContext>& vulkan_context,
         VkExtent2D image_extent,
@@ -26,6 +39,13 @@ namespace RtEngine {
             VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_STORAGE_BIT,
             VK_IMAGE_ASPECT_COLOR_BIT);
 
+        rng_connector = std::make_shared<ImageConnector>(
+            vulkan_context->resource_builder, image_extent, 1,
+            VK_FORMAT_R32G32B32A32_UINT,
+            VK_IMAGE_USAGE_STORAGE_BIT,
+            VK_IMAGE_ASPECT_COLOR_BIT,
+            &generateRngPixels);
+
         const VkDeviceSize palette_size = sizeof(glm::vec4) * colors.size();
         palette_connector = std::make_shared<BufferConnector>(
             vulkan_context->resource_builder, vulkan_context->device_manager,
@@ -37,6 +57,7 @@ namespace RtEngine {
         addConnector(0, state_connector);
         addConnector(1, target_connector);
         addConnector(2, palette_connector);
+        addConnector(3, rng_connector);
 
         setDispatchSize([this]() {
             const VkExtent2D extent = target_connector->getExtent();
@@ -48,6 +69,7 @@ namespace RtEngine {
         deletion_queue.pushFunction([this]() {
             state_connector->destroy();
             target_connector->destroy();
+            rng_connector->destroy();
             palette_connector->destroy();
         });
     }
@@ -70,6 +92,7 @@ namespace RtEngine {
         image_extent = new_extent;
         state_connector->recreate(new_extent);
         target_connector->recreate(new_extent);
+        rng_connector->recreate(new_extent);
         initializeState();
     }
 

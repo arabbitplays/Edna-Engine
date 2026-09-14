@@ -27,7 +27,13 @@ namespace RtEngine {
 
     private:
         static constexpr uint32_t DEFAULT_THRESHOLD = 1;
+        static constexpr float DEFAULT_UPDATE_CHANCE = 1;
+        static constexpr float DEFAULT_MUTATION_CHANCE = 0.01f;
         static constexpr double UPDATE_INTERVAL_SECONDS = 1.0 / 30.0;
+
+        uint32_t threshold = DEFAULT_THRESHOLD;
+        float update_chance = DEFAULT_UPDATE_CHANCE;
+        float mutation_chance = DEFAULT_MUTATION_CHANCE;
 
         std::shared_ptr<CyclicalCellularAutomatonRenderer> renderer;
         std::chrono::steady_clock::time_point last_update;

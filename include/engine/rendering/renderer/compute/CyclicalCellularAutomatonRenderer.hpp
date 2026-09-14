@@ -19,6 +19,8 @@ namespace RtEngine {
 
         void setThreshold(uint32_t threshold) { push.threshold = threshold; }
         void setUpdate(bool update) { push.update = update ? 1u : 0u; }
+        void setUpdateChance(float chance) { push.update_chance = chance; }
+        void setMutationChance(float chance) { push.mutation_chance = chance; }
 
         void handleResize(VkExtent2D new_extent);
 
@@ -32,6 +34,8 @@ namespace RtEngine {
         struct PushConstants {
             uint32_t threshold;
             uint32_t update;
+            float    update_chance;
+            float    mutation_chance;
         };
 
         void initializeState();
@@ -39,10 +43,11 @@ namespace RtEngine {
         VkExtent2D image_extent;
         std::vector<glm::vec4> colors;
 
-        PushConstants push{3u, 0u};
+        PushConstants push{1u, 0u, 1.0f, 0.0f};
 
         std::shared_ptr<ImageConnector> state_connector;
         std::shared_ptr<ImageConnector> target_connector;
+        std::shared_ptr<ImageConnector> rng_connector;
         std::shared_ptr<BufferConnector> palette_connector;
     };
 } // RtEngine
