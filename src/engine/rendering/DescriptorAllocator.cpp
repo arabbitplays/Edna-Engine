@@ -125,22 +125,31 @@ namespace RtEngine {
 
 	void DescriptorAllocator::writeBuffer(uint32_t binding, VkBuffer buffer, VkDeviceSize size, uint32_t offset,
 										  VkDescriptorType type) {
-		VkDescriptorBufferInfo &bufferInfo =
-				bufferInfos.emplace_back(VkDescriptorBufferInfo{.buffer = buffer, .offset = offset, .range = size});
+		writeBuffers(binding, {buffer}, size, offset, type);
+	}
+
+	void DescriptorAllocator::writeBuffer(uint32_t binding, VkBuffer buffer, uint32_t offset, VkDescriptorType type) {
+		writeBuffer(binding, buffer, VK_WHOLE_SIZE, offset, type);
+	}
+
+	void DescriptorAllocator::writeBuffers(const uint32_t binding, const std::vector<VkBuffer>& buffers,
+										   const VkDeviceSize size, const uint32_t offset, const VkDescriptorType type) {
+		BufferInfoWrapper wrapper{};
+		wrapper.buffer_infos.resize(buffers.size());
+		for (size_t i = 0; i < buffers.size(); i++) {
+			wrapper.buffer_infos[i] = VkDescriptorBufferInfo{.buffer = buffers[i], .offset = offset, .range = size};
+		}
+		bufferInfos.push_back(wrapper);
 
 		VkWriteDescriptorSet write{};
 		write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 		write.dstBinding = binding;
 		write.dstArrayElement = 0;
-		write.descriptorCount = 1;
+		write.descriptorCount = static_cast<uint32_t>(buffers.size());
 		write.descriptorType = type;
-		write.pBufferInfo = &bufferInfo;
+		write.pBufferInfo = bufferInfos.back().buffer_infos.data();
 
 		writes.push_back(write);
-	}
-
-	void DescriptorAllocator::writeBuffer(uint32_t binding, VkBuffer buffer, uint32_t offset, VkDescriptorType type) {
-		writeBuffer(binding, buffer, VK_WHOLE_SIZE, offset, type);
 	}
 
 	void DescriptorAllocator::writeImage(uint32_t binding, VkImageView imageView, VkSampler sampler,

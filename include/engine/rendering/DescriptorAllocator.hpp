@@ -19,6 +19,11 @@ namespace RtEngine {
 			std::vector<VkDescriptorImageInfo> image_infos;
 		};
 
+		struct BufferInfoWrapper
+		{
+			std::vector<VkDescriptorBufferInfo> buffer_infos;
+		};
+
 		struct AccelerationStructureInfoWrapper {
 			VkAccelerationStructureKHR structure;
 			VkWriteDescriptorSetAccelerationStructureKHR info;
@@ -33,6 +38,8 @@ namespace RtEngine {
 
 		void writeBuffer(uint32_t binding, VkBuffer buffer, VkDeviceSize size, uint32_t offset, VkDescriptorType type);
 		void writeBuffer(uint32_t binding, VkBuffer buffer, uint32_t offset, VkDescriptorType type);
+		void writeBuffers(uint32_t binding, const std::vector<VkBuffer>& buffers, VkDeviceSize size, uint32_t offset,
+						  VkDescriptorType type);
 		void writeImage(uint32_t binding, VkImageView imageView, VkSampler sampler, VkImageLayout layout,
 						VkDescriptorType type);
 		void writeImages(uint32_t binding, const std::vector<VkImageView>& imageViews, VkSampler sampler, VkImageLayout layout,
@@ -54,7 +61,7 @@ namespace RtEngine {
 		uint32_t setsPerPool;
 
 		std::list<ImageInfoWrapper> imageInfos{};
-		std::list<VkDescriptorBufferInfo> bufferInfos;
+		std::list<BufferInfoWrapper> bufferInfos{};
 		std::list<AccelerationStructureInfoWrapper> accelerationStructureInfos;
 		std::vector<VkWriteDescriptorSet> writes;
 

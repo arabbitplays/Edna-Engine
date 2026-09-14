@@ -20,6 +20,8 @@ namespace RtEngine
         uint32_t getImageCount() const;
         VkExtent2D getExtent() const;
 
+        uint32_t getDescriptorCount() const override { return image_count; }
+
         void recreate(VkExtent2D new_extent);
         void destroy();
 

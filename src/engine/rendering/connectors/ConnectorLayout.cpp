@@ -35,7 +35,8 @@ namespace RtEngine
         for (uint32_t binding = 0; binding < connectors.size(); binding++)
         {
             assert(connectors[binding] != nullptr && "ConnectorLayout has nullptr connector at binding");
-            builder.addBinding(binding, connectors[binding]->getDescriptorType());
+            builder.addBinding(binding, connectors[binding]->getDescriptorType(),
+                               connectors[binding]->getDescriptorCount());
         }
         return builder.build(device_manager->getDevice(), stage_flags);
     }
