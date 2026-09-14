@@ -168,7 +168,13 @@ namespace RtEngine {
 
     std::shared_ptr<RenderTarget> RenderingManager::createRenderTarget(uint32_t width, uint32_t height) {
         VkExtent2D extent(width, height);
+        vulkan_context->device_manager->waitForIdle();
         rt_target_connector->recreate(extent);
+        // Downstream renderers (e.g. GlitchRenderer) hold a descriptor set that references
+        // the now-destroyed image views. Re-write them against the freshly recreated ones.
+        for (const auto& renderer : renderer_stack->getRenderers()) {
+            renderer->invalidateDescriptors();
+        }
         return std::make_shared<RenderTarget>(vulkan_context->resource_builder, extent, max_frames_in_flight,
                                               rt_target_connector);
     }

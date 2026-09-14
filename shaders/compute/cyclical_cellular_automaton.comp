@@ -1,15 +1,16 @@
 #version 450
 
-const uint STATE_COUNT = 16;
+const uint MAX_STATE_COUNT = 64;
 
 layout (binding = 0, r32ui)     uniform uimage2D stateImage;
 layout (binding = 1, rgba32f)   uniform writeonly image2D targetImage;
 layout (binding = 2)            uniform ColorPalette {
-    vec4 colors[STATE_COUNT];
+    vec4 colors[MAX_STATE_COUNT];
 } palette;
 layout (binding = 3, rgba32ui)  uniform uimage2D rngImage;
 
 layout (push_constant) uniform PushConstants {
+    uint  state_count;
     uint  threshold;
     uint  update;
     float update_chance;
@@ -47,7 +48,7 @@ void main()
         uint  rng_state = rng.x;
 
         if (rand01(rng_state) < push.update_chance) {
-            uint next = (current + 1u) % STATE_COUNT;
+            uint next = (current + 1u) % push.state_count;
             uint matches = 0u;
             for (int dy = -1; dy <= 1; dy++) {
                 for (int dx = -1; dx <= 1; dx++) {
@@ -60,7 +61,7 @@ void main()
             if (matches >= push.threshold) {
                 new_state = next;
                 if (rand01(rng_state) < push.mutation_chance) {
-                    new_state = uint(rand01(rng_state) * float(STATE_COUNT)) % STATE_COUNT;
+                    new_state = uint(rand01(rng_state) * float(push.state_count)) % push.state_count;
                 }
             }
         }

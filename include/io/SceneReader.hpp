@@ -21,7 +21,10 @@ namespace RtEngine {
 														const std::shared_ptr<Scene> &scene);
 		void readComponents(const YAML::Node &yaml_node, std::shared_ptr<Node> &scene_node);
 
-		std::shared_ptr<EngineContext> engine_context;
+		std::shared_ptr<EngineContext> lockContext() const;
+
+		// weak_ptr to break the EngineContext -> SceneManager -> SceneReader -> EngineContext cycle.
+		std::weak_ptr<EngineContext> engine_context;
 	};
 
 } // namespace RtEngine

@@ -25,7 +25,7 @@ namespace RtEngine {
         // Rewrite the cached descriptor set. Call after any of this renderer's
         // connectors have been recreated (their images/buffers changed). The
         // device must be idle w.r.t. this set at call time.
-        void invalidateDescriptors();
+        void invalidateDescriptors() override;
 
         VkCommandBuffer recordCommandBuffer(uint32_t frame_idx) override;
         QueueType queueType() const override { return COMPUTE; }

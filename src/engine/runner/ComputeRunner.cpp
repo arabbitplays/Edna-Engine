@@ -42,6 +42,7 @@ namespace RtEngine {
     void ComputeRunner::renderScene() {
         if (update_flags->checkFlag(SCENE_UPDATE)) {
             loadScene(scene_manager->getScenePath(scene_name));
+            update_flags->resetFlags();
         }
         if (const auto scene = scene_manager->getCurrentScene()) {
             scene->update();

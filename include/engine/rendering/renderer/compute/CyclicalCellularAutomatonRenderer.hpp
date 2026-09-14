@@ -10,6 +10,8 @@
 namespace RtEngine {
     class CyclicalCellularAutomatonRenderer : public ComputeRenderer {
     public:
+        static constexpr uint32_t MAX_STATE_COUNT = 64;
+
         CyclicalCellularAutomatonRenderer(const std::shared_ptr<VulkanContext>& vulkan_context,
                                           VkExtent2D image_extent,
                                           const std::vector<glm::vec4>& colors,
@@ -32,6 +34,7 @@ namespace RtEngine {
 
     private:
         struct PushConstants {
+            uint32_t state_count;
             uint32_t threshold;
             uint32_t update;
             float    update_chance;
@@ -43,7 +46,7 @@ namespace RtEngine {
         VkExtent2D image_extent;
         std::vector<glm::vec4> colors;
 
-        PushConstants push{1u, 0u, 1.0f, 0.0f};
+        PushConstants push{0u, 1u, 0u, 1.0f, 0.0f};
 
         std::shared_ptr<ImageConnector> state_connector;
         std::shared_ptr<ImageConnector> target_connector;

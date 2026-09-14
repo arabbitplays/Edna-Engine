@@ -1,5 +1,6 @@
 #include "compute/CyclicalCellularAutomatonRenderer.hpp"
 
+#include <cassert>
 #include <cyclical_cellular_automaton.comp.spv.h>
 #include <random>
 
@@ -15,6 +16,12 @@ namespace RtEngine {
         const uint32_t max_frames_in_flight)
         : ComputeRenderer(vulkan_context, max_frames_in_flight),
           image_extent(image_extent), colors(colors) {
+        assert(!colors.empty()
+               && "CyclicalCellularAutomatonRenderer: colors must not be empty");
+        assert(colors.size() <= MAX_STATE_COUNT
+               && "CyclicalCellularAutomatonRenderer: colors.size() must not exceed MAX_STATE_COUNT (palette UBO capacity)");
+
+        push.state_count = static_cast<uint32_t>(colors.size());
 
         state_connector = std::make_shared<ImageConnector>(
             vulkan_context->resource_builder, image_extent, 1,
@@ -28,10 +35,11 @@ namespace RtEngine {
         rng_connector = ImageConnectorFactory::createRngTextureConnector(
             vulkan_context->resource_builder, image_extent, 1);
 
-        const VkDeviceSize palette_size = sizeof(glm::vec4) * colors.size();
+        const VkDeviceSize palette_size = sizeof(glm::vec4) * MAX_STATE_COUNT;
+        const VkDeviceSize upload_size = sizeof(glm::vec4) * colors.size();
         palette_connector = BufferConnectorFactory::createUniformBuffer(
             vulkan_context->resource_builder, vulkan_context->device_manager, palette_size, 1);
-        palette_connector->uploadData(0, this->colors.data(), palette_size);
+        palette_connector->uploadData(0, this->colors.data(), upload_size);
 
         addConnector(0, state_connector);
         addConnector(1, target_connector);
