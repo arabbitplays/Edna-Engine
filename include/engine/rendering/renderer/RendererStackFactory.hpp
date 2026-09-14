@@ -29,7 +29,7 @@ namespace RtEngine {
                              std::shared_ptr<TextureRepository> texture_repository,
                              uint32_t max_frames_in_flight);
 
-        Result createComputeStack();
+        Result createEmptyStack();
         Result createRaytracingStack();
 
     private:

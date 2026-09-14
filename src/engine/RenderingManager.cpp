@@ -91,7 +91,7 @@ namespace RtEngine {
 
         RendererStackFactory factory(vulkan_context, present_stage, mesh_repository, texture_repository,
                                      max_frames_in_flight);
-        auto result = enable_raytracing ? factory.createRaytracingStack() : factory.createComputeStack();
+        auto result = enable_raytracing ? factory.createRaytracingStack() : factory.createEmptyStack();
 
         renderer_stack = result.stack;
         raytracing_renderer = result.raytracing_renderer;

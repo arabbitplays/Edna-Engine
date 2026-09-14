@@ -2,7 +2,6 @@
 
 #include <utility>
 
-#include "compute/CellularAutomatonRenderer.hpp"
 #include "compute/GlitchRenderer.hpp"
 
 namespace RtEngine {
@@ -24,24 +23,8 @@ namespace RtEngine {
         return stack;
     }
 
-    RendererStackFactory::Result RendererStackFactory::createComputeStack() {
-        const VkExtent2D extent = vulkan_context->swapchain->extent;
-        const std::vector<glm::vec4> colors = {
-            {1.0f, 0.0f, 0.0f, 1.0f},
-            {0.0f, 1.0f, 0.0f, 1.0f},
-            {0.0f, 0.0f, 1.0f, 1.0f},
-            {1.0f, 1.0f, 0.0f, 1.0f},
-        };
-
-        auto ca_renderer = std::make_shared<CellularAutomatonRenderer>(
-            vulkan_context, extent, colors, max_frames_in_flight);
-        ca_renderer->init();
-
-        auto stack = makeStack();
-        stack->addRenderer(ca_renderer);
-        stack->setPresentConnector(ca_renderer->getOutputConnector());
-
-        return {stack, /*raytracing_renderer*/ nullptr, /*raytracing_target_connector*/ nullptr};
+    RendererStackFactory::Result RendererStackFactory::createEmptyStack() {
+        return {makeStack(), /*raytracing_renderer*/ nullptr, /*raytracing_target_connector*/ nullptr};
     }
 
     RendererStackFactory::Result RendererStackFactory::createRaytracingStack() {

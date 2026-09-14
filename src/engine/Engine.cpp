@@ -76,7 +76,7 @@ namespace RtEngine {
             runner = std::make_shared<BenchmarkRunner>(engine_context, scene_manager);
             SPDLOG_INFO("Benchmark runner created");
         } else if (options->runner_type == COMPUTE_ONLY) {
-            runner = std::make_shared<ComputeRunner>(engine_context);
+            runner = std::make_shared<ComputeRunner>(engine_context, scene_manager);
             SPDLOG_INFO("Compute runner created");
         } else {
             SPDLOG_ERROR("No runner created");
