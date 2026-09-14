@@ -18,7 +18,8 @@ namespace RtEngine
         void addConnector(uint32_t binding, ConnectorHandle connector);
 
         VkDescriptorSetLayout createLayout(VkShaderStageFlags stage_flags);
-        VkDescriptorSet writeConnectors(VkDescriptorSetLayout layout);
+        VkDescriptorSet allocateSet(VkDescriptorSetLayout layout);
+        void writeInto(VkDescriptorSet set);
 
         std::vector<ConnectorHandle> getConnectors();
     private:

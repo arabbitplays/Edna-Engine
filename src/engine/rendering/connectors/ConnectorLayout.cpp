@@ -41,7 +41,12 @@ namespace RtEngine
         return builder.build(device_manager->getDevice(), stage_flags);
     }
 
-    VkDescriptorSet ConnectorLayout::writeConnectors(VkDescriptorSetLayout layout)
+    VkDescriptorSet ConnectorLayout::allocateSet(VkDescriptorSetLayout layout)
+    {
+        return descriptor_allocator->allocate(device_manager->getDevice(), layout);
+    }
+
+    void ConnectorLayout::writeInto(VkDescriptorSet set)
     {
         for (uint32_t binding = 0; binding < connectors.size(); binding++)
         {
@@ -52,10 +57,8 @@ namespace RtEngine
             connectors[binding]->write(*descriptor_allocator, binding);
         }
 
-        VkDescriptorSet set = descriptor_allocator->allocate(device_manager->getDevice(), layout);
         descriptor_allocator->updateSet(device_manager->getDevice(), set);
         descriptor_allocator->clearWrites();
-        return set;
     }
 
     std::vector<ConnectorHandle> ConnectorLayout::getConnectors()

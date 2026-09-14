@@ -14,6 +14,13 @@ namespace RtEngine {
     void ComputeRenderer::init() {
         Renderer::init();
         createPipeline();
+
+        descriptor_set = connector_layout->allocateSet(descriptor_layout);
+        connector_layout->writeInto(descriptor_set);
+    }
+
+    void ComputeRenderer::invalidateDescriptors() {
+        connector_layout->writeInto(descriptor_set);
     }
 
     void ComputeRenderer::addConnector(uint32_t binding, ConnectorHandle connector) {
@@ -65,8 +72,6 @@ namespace RtEngine {
         if (vkBeginCommandBuffer(cmd, &begin_info) != VK_SUCCESS) {
             throw std::runtime_error("ComputeRenderer: failed to begin command buffer");
         }
-
-        descriptor_set = connector_layout->writeConnectors(descriptor_layout);
 
         vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline->getHandle());
         vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline->getLayoutHandle(), 0, 1, &descriptor_set, 0, 0);

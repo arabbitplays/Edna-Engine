@@ -73,6 +73,7 @@ namespace RtEngine {
         target_connector->recreate(new_extent);
         rng_connector->recreate(new_extent);
         initializeState();
+        invalidateDescriptors();
     }
 
     std::shared_ptr<ImageConnector> CyclicalCellularAutomatonRenderer::getOutputConnector() const {
