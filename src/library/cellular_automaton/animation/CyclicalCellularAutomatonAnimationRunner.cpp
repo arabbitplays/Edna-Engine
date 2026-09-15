@@ -1,50 +1,78 @@
 #include <library/cellular_automaton/animation/CyclicalCellularAutomatonAnimationRunner.hpp>
 
-#include <algorithm>
+#include <cstdint>
+#include <limits>
 #include <utility>
 
-#include <library/animation/animations/FloatAnimation.hpp>
-#include <library/cellular_automaton/colors/ColorPaletteAnimation.hpp>
+#include <util/RandomUtil.hpp>
 
 namespace cellular_automaton
 {
+    namespace
+    {
+        float randomCooldown()
+        {
+            using Runner = CyclicalCellularAutomatonAnimationRunner;
+            const float t = static_cast<float>(RtEngine::RandomUtil::generateInt()) /
+                            static_cast<float>(std::numeric_limits<uint32_t>::max());
+            return Runner::COOLDOWN_MIN_SECONDS +
+                   t * (Runner::COOLDOWN_MAX_SECONDS - Runner::COOLDOWN_MIN_SECONDS);
+        }
+    }
+
     CyclicalCellularAutomatonAnimationRunner::CyclicalCellularAutomatonAnimationRunner(
         CyclicalCellularAutomatonAnimationGenerator generator,
         float initial_mutation_chance,
         ColorPalette initial_palette)
         : generator_(std::move(generator)),
-          current_mutation_chance_(initial_mutation_chance),
-          current_palette_(std::move(initial_palette))
+          mutation_current_(initial_mutation_chance),
+          palette_current_(std::move(initial_palette)),
+          last_tick_(std::chrono::steady_clock::now())
     {
-        regenerate();
+        startMutation();
+        startPalette();
     }
 
     void CyclicalCellularAutomatonAnimationRunner::update()
     {
-        for (auto& animation : animations_) animation->step();
+        const auto now = std::chrono::steady_clock::now();
+        const float dt = std::chrono::duration<float>(now - last_tick_).count();
+        last_tick_ = now;
 
-        if (allFinished()) {
-            animations_.clear();
-            regenerate();
+        tick(mutation_track_, dt, &CyclicalCellularAutomatonAnimationRunner::startMutation);
+        tick(palette_track_,  dt, &CyclicalCellularAutomatonAnimationRunner::startPalette);
+    }
+
+    void CyclicalCellularAutomatonAnimationRunner::tick(
+        Track& track, float dt, void (CyclicalCellularAutomatonAnimationRunner::*start)())
+    {
+        if (track.animation) {
+            track.animation->step();
+            if (track.animation->finished()) {
+                track.animation.reset();
+                track.cooldown_seconds = randomCooldown();
+            }
+            return;
+        }
+
+        track.cooldown_seconds -= dt;
+        if (track.cooldown_seconds <= 0.0f) {
+            track.cooldown_seconds = 0.0f;
+            (this->*start)();
         }
     }
 
-    bool CyclicalCellularAutomatonAnimationRunner::allFinished() const
+    void CyclicalCellularAutomatonAnimationRunner::startMutation()
     {
-        if (animations_.empty()) return true;
-        return std::all_of(animations_.begin(), animations_.end(),
-                           [](const auto& animation) { return animation->finished(); });
+        auto mutation = generator_.generateMutationChanceAnimation(mutation_current_);
+        mutation_current_ = mutation.target;
+        mutation_track_.animation = std::move(mutation.animation);
     }
 
-    void CyclicalCellularAutomatonAnimationRunner::regenerate()
+    void CyclicalCellularAutomatonAnimationRunner::startPalette()
     {
-        auto mutation = generator_.generateMutationChanceAnimation(current_mutation_chance_);
-        current_mutation_chance_ = mutation.target;
-        // unique_ptr<Animation<T>> converts to shared_ptr<IAnimation> via move.
-        animations_.push_back(std::move(mutation.animation));
-
-        auto palette = generator_.generatePaletteAnimation(current_palette_);
-        current_palette_ = std::move(palette.target);
-        animations_.push_back(std::move(palette.animation));
+        auto palette = generator_.generatePaletteAnimation(palette_current_);
+        palette_current_ = std::move(palette.target);
+        palette_track_.animation = std::move(palette.animation);
     }
 }

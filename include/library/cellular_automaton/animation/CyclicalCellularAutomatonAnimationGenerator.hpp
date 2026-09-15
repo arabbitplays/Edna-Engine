@@ -13,7 +13,8 @@ namespace cellular_automaton
     class CyclicalCellularAutomatonAnimationGenerator
     {
     public:
-        static constexpr int   STEP_COUNT           = 1500;
+        static constexpr int   STEP_COUNT_MIN       = 2000;
+        static constexpr int   STEP_COUNT_MAX       = 10000;
         static constexpr float MUTATION_CHANCE_MIN  = 0.0f;
         static constexpr float MUTATION_CHANCE_MAX  = 0.1f;
 
