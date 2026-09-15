@@ -38,3 +38,6 @@
 subprojects/*/
 
 resources/benchmarks/
+
+# clang-tidy
+.cache/

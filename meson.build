@@ -103,3 +103,37 @@ exe = executable(
     include_directories: incdirs,
     install : true
 )
+
+clang_format = find_program('clang-format', required: false)
+if clang_format.found()
+    run_target('format',
+        command: [
+            find_program('bash'),
+            meson.project_source_root() / 'scripts' / 'format.sh',
+            meson.project_source_root(),
+            clang_format.full_path(),
+        ]
+    )
+endif
+
+clang_tidy = find_program('clang-tidy', required: false)
+if clang_tidy.found()
+    run_target('tidy',
+        command: [
+            find_program('bash'),
+            meson.project_source_root() / 'scripts' / 'tidy.sh',
+            meson.project_source_root(),
+            meson.project_build_root(),
+            clang_tidy.full_path(),
+        ]
+    )
+    run_target('fix',
+        command: [
+            find_program('bash'),
+            meson.project_source_root() / 'scripts' / 'fix.sh',
+            meson.project_source_root(),
+            meson.project_build_root(),
+            clang_tidy.full_path(),
+        ]
+    )
+endif

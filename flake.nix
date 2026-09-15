@@ -26,6 +26,7 @@
         vulkan-tools
         vulkan-validation-layers
         pkg-config
+        clang-tools # clang-format, clang-tidy and run-clang-tidy
         doxygen
         python3
         (pkgs.python3.withPackages (python-pkgs: with python-pkgs; [
