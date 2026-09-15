@@ -6,12 +6,13 @@
 #include <memory>
 #include <utility>
 
+#include <library/animation/animations/IAnimation.hpp>
 #include <library/animation/easing_functions/EasingFunction.hpp>
 
 namespace Animation
 {
     template <typename T>
-    class Animation
+    class Animation : public IAnimation
     {
     public:
         Animation(T start,
@@ -20,11 +21,9 @@ namespace Animation
                   std::function<void(const T&)> on_update,
                   std::shared_ptr<EasingFunction> easing = std::make_shared<Linear>());
 
-        virtual ~Animation() = default;
-
-        void step();
-        void reset();
-        bool finished() const;
+        void step() override;
+        void reset() override;
+        bool finished() const override;
 
     protected:
         virtual T interpolate(float t) const = 0;
