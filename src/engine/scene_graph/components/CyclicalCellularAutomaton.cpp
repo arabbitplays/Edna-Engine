@@ -2,6 +2,7 @@
 
 #include <glm/glm.hpp>
 
+#include <library/cellular_automaton/animation/CyclicalCellularAutomatonAnimationGenerator.hpp>
 #include <library/cellular_automaton/colors/ColorPaletteFactory.hpp>
 #include <library/cellular_automaton/neighborhoods/NeighborhoodFactory.hpp>
 
@@ -43,6 +44,20 @@ namespace RtEngine {
 
         rendering_manager->addComputeRenderer(renderer, renderer->getOutputConnector());
 
+        // The runner drives mutation_chance + palette via the injected setters.
+        // OnUpdate skips the manual re-sync of those two fields while `animate` is on.
+        std::weak_ptr<CyclicalCellularAutomatonRenderer> weak_renderer = renderer;
+        CyclicalCellularAutomatonAnimationGenerator generator{
+            [weak_renderer](float value) {
+                if (const auto r = weak_renderer.lock()) r->setMutationChance(value);
+            },
+            [weak_renderer](const ColorPalette& palette) {
+                if (const auto r = weak_renderer.lock()) r->setPalette(palette.colors);
+            }};
+
+        animation_runner = std::make_unique<CyclicalCellularAutomatonAnimationRunner>(
+            std::move(generator), mutation_chance, ColorPalette{colors});
+
         resize_callback_handle = context->swapchain_manager->addRecreateCallback(
             [this](uint32_t width, uint32_t height) {
                 renderer->handleResize(VkExtent2D{width, height});
@@ -62,14 +77,20 @@ namespace RtEngine {
         if (!renderer) return;
 
         // Re-sync every frame so ImGui / YAML edits to the properties reach the shader
-        // on the next dispatch without needing to touch the state texture.
+        // on the next dispatch without needing to touch the state texture. When the
+        // runner is driving, we let its on_update lambdas own mutation_chance + palette.
         renderer->setThreshold(threshold);
         renderer->setUpdateChance(update_chance);
-        renderer->setMutationChance(mutation_chance);
 
-        if (palette_name != applied_palette_name) {
-            renderer->setPalette(loadPaletteColors(palette_name));
-            applied_palette_name = palette_name;
+        if (animate && animation_runner) {
+            animation_runner->update();
+        } else {
+            renderer->setMutationChance(mutation_chance);
+
+            if (palette_name != applied_palette_name) {
+                renderer->setPalette(loadPaletteColors(palette_name));
+                applied_palette_name = palette_name;
+            }
         }
 
         if (neighborhood_shape != applied_neighborhood_shape || neighborhood_size != applied_neighborhood_size) {
@@ -101,6 +122,7 @@ namespace RtEngine {
             config->addSelection("neighborhood_shape", &neighborhood_shape,
                                  cellular_automaton::NeighborhoodShape::getAllNames());
             config->addUint("neighborhood_size", &neighborhood_size, 1u, MAX_NEIGHBORHOOD_SIZE);
+            config->addBool("animate", &animate);
             config->endChild();
         }
     }

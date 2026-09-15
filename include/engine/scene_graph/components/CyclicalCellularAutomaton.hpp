@@ -1,7 +1,10 @@
 #ifndef EDNA_ENGINE_CYCLICALCELLULARAUTOMATON_HPP
 #define EDNA_ENGINE_CYCLICALCELLULARAUTOMATON_HPP
 #include <chrono>
+#include <memory>
 #include <string>
+
+#include <library/cellular_automaton/animation/CyclicalCellularAutomatonAnimationRunner.hpp>
 
 #include "Component.hpp"
 #include "SwapchainManager.hpp"
@@ -45,8 +48,10 @@ namespace RtEngine {
         std::string applied_neighborhood_shape;
         uint32_t neighborhood_size = DEFAULT_NEIGHBORHOOD_SIZE;
         uint32_t applied_neighborhood_size = 0;
+        bool animate = false;
 
         std::shared_ptr<CyclicalCellularAutomatonRenderer> renderer;
+        std::unique_ptr<cellular_automaton::CyclicalCellularAutomatonAnimationRunner> animation_runner;
         std::chrono::steady_clock::time_point last_update;
 
         SwapchainManager::RecreateCallbackHandle resize_callback_handle = 0;
