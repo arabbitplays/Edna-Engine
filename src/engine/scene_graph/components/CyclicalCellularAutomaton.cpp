@@ -3,9 +3,19 @@
 #include <array>
 #include <glm/glm.hpp>
 
+#include <library/cellular_automaton/neighborhoods/NeighborhoodFactory.hpp>
+
 #include "compute/CyclicalCellularAutomatonRenderer.hpp"
 
 namespace RtEngine {
+    namespace {
+        std::vector<glm::ivec2> loadNeighborhoodOffsets(const std::string& shape_name, uint32_t size) {
+            const auto shape = cellular_automaton::NeighborhoodShape::fromString(
+                shape_name, cellular_automaton::NeighborhoodShape::Box);
+            return cellular_automaton::NeighborhoodFactory::create(shape, static_cast<int>(size)).offsets;
+        }
+    }
+
     void CyclicalCellularAutomaton::OnStart() {
         const std::shared_ptr<RenderingManager> rendering_manager = context->rendering_manager;
         const std::shared_ptr<VulkanContext> vulkan_context = rendering_manager->getVulkanContext();
@@ -30,7 +40,11 @@ namespace RtEngine {
             glm::vec4{1.000f, 1.000f, 0.620f, 1.0f}, // #ffff9e
         };
 
-        renderer = std::make_shared<CyclicalCellularAutomatonRenderer>(vulkan_context, extent, colors);
+        const std::vector<glm::ivec2> offsets = loadNeighborhoodOffsets(neighborhood_shape, neighborhood_size);
+        applied_neighborhood_shape = neighborhood_shape;
+        applied_neighborhood_size = neighborhood_size;
+
+        renderer = std::make_shared<CyclicalCellularAutomatonRenderer>(vulkan_context, extent, colors, offsets);
         renderer->init();
         renderer->setThreshold(threshold);
         renderer->setUpdateChance(update_chance);
@@ -63,6 +77,12 @@ namespace RtEngine {
         renderer->setUpdateChance(update_chance);
         renderer->setMutationChance(mutation_chance);
 
+        if (neighborhood_shape != applied_neighborhood_shape || neighborhood_size != applied_neighborhood_size) {
+            renderer->setNeighborhood(loadNeighborhoodOffsets(neighborhood_shape, neighborhood_size));
+            applied_neighborhood_shape = neighborhood_shape;
+            applied_neighborhood_size = neighborhood_size;
+        }
+
         const auto now = std::chrono::steady_clock::now();
         const double elapsed = std::chrono::duration<double>(now - last_update).count();
         const bool should_update = elapsed >= UPDATE_INTERVAL_SECONDS;
@@ -82,6 +102,9 @@ namespace RtEngine {
             config->addUint("threshold", &threshold, 1u, 8u);
             config->addFloat("update_chance", &update_chance, 0.0f, 1.0f);
             config->addFloat("mutation_chance", &mutation_chance, 0.0f, 1.0f);
+            config->addSelection("neighborhood_shape", &neighborhood_shape,
+                                 cellular_automaton::NeighborhoodShape::getAllNames());
+            config->addUint("neighborhood_size", &neighborhood_size, 1u, MAX_NEIGHBORHOOD_SIZE);
             config->endChild();
         }
     }

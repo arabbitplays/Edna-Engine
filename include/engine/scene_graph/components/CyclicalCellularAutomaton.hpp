@@ -1,6 +1,7 @@
 #ifndef EDNA_ENGINE_CYCLICALCELLULARAUTOMATON_HPP
 #define EDNA_ENGINE_CYCLICALCELLULARAUTOMATON_HPP
 #include <chrono>
+#include <string>
 
 #include "Component.hpp"
 #include "SwapchainManager.hpp"
@@ -30,10 +31,17 @@ namespace RtEngine {
         static constexpr float DEFAULT_UPDATE_CHANCE = 1;
         static constexpr float DEFAULT_MUTATION_CHANCE = 0.01f;
         static constexpr double UPDATE_INTERVAL_SECONDS = 1.0 / 30.0;
+        static constexpr uint32_t DEFAULT_NEIGHBORHOOD_SIZE = 1;
+        static constexpr uint32_t MAX_NEIGHBORHOOD_SIZE = 6;
+        static inline const std::string DEFAULT_NEIGHBORHOOD_SHAPE = "Box";
 
         uint32_t threshold = DEFAULT_THRESHOLD;
         float update_chance = DEFAULT_UPDATE_CHANCE;
         float mutation_chance = DEFAULT_MUTATION_CHANCE;
+        std::string neighborhood_shape = DEFAULT_NEIGHBORHOOD_SHAPE;
+        std::string applied_neighborhood_shape;
+        uint32_t neighborhood_size = DEFAULT_NEIGHBORHOOD_SIZE;
+        uint32_t applied_neighborhood_size = 0;
 
         std::shared_ptr<CyclicalCellularAutomatonRenderer> renderer;
         std::chrono::steady_clock::time_point last_update;
