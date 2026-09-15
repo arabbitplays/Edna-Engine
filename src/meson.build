@@ -2,6 +2,7 @@
 
 subdir('engine')
 subdir('properties')
+subdir('library')
 subdir('io')
 
 src += files(

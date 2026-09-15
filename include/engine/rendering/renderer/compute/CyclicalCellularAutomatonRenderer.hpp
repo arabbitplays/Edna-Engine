@@ -26,6 +26,7 @@ namespace RtEngine {
         void setUpdateChance(float chance) { push.update_chance = chance; }
         void setMutationChance(float chance) { push.mutation_chance = chance; }
 
+        void setPalette(const std::vector<glm::vec4>& new_colors);
         void setNeighborhood(const std::vector<glm::ivec2>& new_offsets);
 
         void handleResize(VkExtent2D new_extent);

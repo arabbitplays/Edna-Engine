@@ -112,6 +112,24 @@ namespace RtEngine {
         neighborhood_connector->uploadData(0, &count, sizeof(count), count_offset);
     }
 
+    void CyclicalCellularAutomatonRenderer::setPalette(const std::vector<glm::vec4>& new_colors) {
+        assert(!new_colors.empty()
+               && "CyclicalCellularAutomatonRenderer::setPalette: colors must not be empty");
+        assert(new_colors.size() <= MAX_STATE_COUNT
+               && "CyclicalCellularAutomatonRenderer::setPalette: colors.size() must not exceed MAX_STATE_COUNT");
+
+        const bool state_count_changed = colors.size() != new_colors.size();
+        colors = new_colors;
+        push.state_count = static_cast<uint32_t>(colors.size());
+
+        const VkDeviceSize upload_size = sizeof(glm::vec4) * colors.size();
+        palette_connector->uploadData(0, colors.data(), upload_size);
+
+        if (state_count_changed) {
+            initializeState();
+        }
+    }
+
     void CyclicalCellularAutomatonRenderer::handleResize(VkExtent2D new_extent) {
         image_extent = new_extent;
         state_connector->recreate(new_extent);
