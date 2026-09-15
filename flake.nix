@@ -26,6 +26,8 @@
         vulkan-tools
         vulkan-validation-layers
         pkg-config
+        clang-tools # clang-format, clang-tidy
+        llvmPackages.clang-unwrapped # run-clang-tidy driver
         doxygen
         python3
         (pkgs.python3.withPackages (python-pkgs: with python-pkgs; [
