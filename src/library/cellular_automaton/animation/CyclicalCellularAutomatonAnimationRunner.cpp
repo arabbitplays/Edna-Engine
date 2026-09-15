@@ -31,6 +31,8 @@ namespace cellular_automaton
     {
         startMutation();
         startPalette();
+        generator_.applyRandomNeighborhood();
+        neighborhood_cooldown_seconds_ = randomCooldown();
     }
 
     void CyclicalCellularAutomatonAnimationRunner::update()
@@ -41,6 +43,12 @@ namespace cellular_automaton
 
         tick(mutation_track_, dt, &CyclicalCellularAutomatonAnimationRunner::startMutation);
         tick(palette_track_,  dt, &CyclicalCellularAutomatonAnimationRunner::startPalette);
+
+        neighborhood_cooldown_seconds_ -= dt;
+        if (neighborhood_cooldown_seconds_ <= 0.0f) {
+            generator_.applyRandomNeighborhood();
+            neighborhood_cooldown_seconds_ = randomCooldown();
+        }
     }
 
     void CyclicalCellularAutomatonAnimationRunner::tick(

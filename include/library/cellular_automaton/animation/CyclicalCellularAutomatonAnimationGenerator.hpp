@@ -1,8 +1,12 @@
 #ifndef EDNA_ENGINE_CCA_ANIMATIONGENERATOR_HPP
 #define EDNA_ENGINE_CCA_ANIMATIONGENERATOR_HPP
 
+#include <cstdint>
 #include <functional>
 #include <memory>
+#include <vector>
+
+#include <glm/vec2.hpp>
 
 #include <library/animation/animations/FloatAnimation.hpp>
 #include <library/cellular_automaton/colors/ColorPalette.hpp>
@@ -20,7 +24,9 @@ namespace cellular_automaton
 
         CyclicalCellularAutomatonAnimationGenerator(
             std::function<void(float)> set_mutation_chance,
-            std::function<void(const ColorPalette&)> set_palette);
+            std::function<void(const ColorPalette&)> set_palette,
+            std::function<void(const std::vector<glm::ivec2>&)> set_neighborhood,
+            std::function<void(uint32_t)> set_threshold);
 
         struct MutationChanceAnimation
         {
@@ -37,11 +43,25 @@ namespace cellular_automaton
         MutationChanceAnimation generateMutationChanceAnimation(float current);
         PaletteAnimation        generatePaletteAnimation(const ColorPalette& current);
 
+        // Neighborhood + threshold are re-rolled together but not interpolated;
+        // the setters fire once with the newly-chosen values.
+        void applyRandomNeighborhood();
+
     private:
-        ColorPalette pickRandomPalette();
+        struct NeighborhoodPick
+        {
+            std::vector<glm::ivec2> offsets;
+            uint32_t threshold;
+        };
+
+        float             pickRandomMutationChance();
+        ColorPalette      pickRandomPalette();
+        NeighborhoodPick  pickRandomNeighborhood();
 
         std::function<void(float)> set_mutation_chance_;
         std::function<void(const ColorPalette&)> set_palette_;
+        std::function<void(const std::vector<glm::ivec2>&)> set_neighborhood_;
+        std::function<void(uint32_t)> set_threshold_;
     };
 }
 

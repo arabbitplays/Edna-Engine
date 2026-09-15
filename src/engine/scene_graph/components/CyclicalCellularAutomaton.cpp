@@ -44,8 +44,6 @@ namespace RtEngine {
 
         rendering_manager->addComputeRenderer(renderer, renderer->getOutputConnector());
 
-        // The runner drives mutation_chance + palette via the injected setters.
-        // OnUpdate skips the manual re-sync of those two fields while `animate` is on.
         std::weak_ptr<CyclicalCellularAutomatonRenderer> weak_renderer = renderer;
         CyclicalCellularAutomatonAnimationGenerator generator{
             [weak_renderer](float value) {
@@ -53,6 +51,12 @@ namespace RtEngine {
             },
             [weak_renderer](const ColorPalette& palette) {
                 if (const auto r = weak_renderer.lock()) r->setPalette(palette.colors);
+            },
+            [weak_renderer](const std::vector<glm::ivec2>& offsets) {
+                if (const auto r = weak_renderer.lock()) r->setNeighborhood(offsets);
+            },
+            [weak_renderer](uint32_t value) {
+                if (const auto r = weak_renderer.lock()) r->setThreshold(value);
             }};
 
         animation_runner = std::make_unique<CyclicalCellularAutomatonAnimationRunner>(
@@ -76,27 +80,24 @@ namespace RtEngine {
     void CyclicalCellularAutomaton::OnUpdate() {
         if (!renderer) return;
 
-        // Re-sync every frame so ImGui / YAML edits to the properties reach the shader
-        // on the next dispatch without needing to touch the state texture. When the
-        // runner is driving, we let its on_update lambdas own mutation_chance + palette.
-        renderer->setThreshold(threshold);
         renderer->setUpdateChance(update_chance);
 
         if (animate && animation_runner) {
             animation_runner->update();
         } else {
+            renderer->setThreshold(threshold);
             renderer->setMutationChance(mutation_chance);
 
             if (palette_name != applied_palette_name) {
                 renderer->setPalette(loadPaletteColors(palette_name));
                 applied_palette_name = palette_name;
             }
-        }
 
-        if (neighborhood_shape != applied_neighborhood_shape || neighborhood_size != applied_neighborhood_size) {
-            renderer->setNeighborhood(loadNeighborhoodOffsets(neighborhood_shape, neighborhood_size));
-            applied_neighborhood_shape = neighborhood_shape;
-            applied_neighborhood_size = neighborhood_size;
+            if (neighborhood_shape != applied_neighborhood_shape || neighborhood_size != applied_neighborhood_size) {
+                renderer->setNeighborhood(loadNeighborhoodOffsets(neighborhood_shape, neighborhood_size));
+                applied_neighborhood_shape = neighborhood_shape;
+                applied_neighborhood_size = neighborhood_size;
+            }
         }
 
         const auto now = std::chrono::steady_clock::now();
@@ -112,9 +113,6 @@ namespace RtEngine {
     void CyclicalCellularAutomaton::initProperties(const std::shared_ptr<IProperties>& config,
                                                     const UpdateFlagsHandle&) {
         if (config->startChild(COMPONENT_NAME)) {
-            // Deliberately do not raise any update flag when these change — the setters are
-            // re-applied every frame in OnUpdate, so mutating them just tweaks the next
-            // dispatch, leaving the current state texture intact.
             config->addUint("threshold", &threshold, 1u, 8u);
             config->addFloat("update_chance", &update_chance, 0.0f, 1.0f);
             config->addFloat("mutation_chance", &mutation_chance, 0.0f, 1.0f);

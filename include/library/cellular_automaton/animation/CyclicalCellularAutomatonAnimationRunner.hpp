@@ -46,6 +46,8 @@ namespace cellular_automaton
         Track        palette_track_;
         ColorPalette palette_current_;
 
+        float neighborhood_cooldown_seconds_ = 0.0f;
+
         std::chrono::steady_clock::time_point last_tick_;
     };
 }
