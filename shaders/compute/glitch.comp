@@ -1,36 +1,73 @@
 #version 450
-#extension GL_GOOGLE_include_directive : enable
 
-#include "../common/random.glsl"
+// Ported from Yui Kinomoto's "Glitch Effect Shader" (MIT), originally
+// written for Godot's canvas_item shader stage:
+//   https://godotshaders.com/shader/glitch-effect-shader/
+//
+// Layout is a 2D compute dispatch over the output image. Each invocation
+// writes one pixel by sampling the source image with a per-row horizontal
+// shift and, when the row is "glitching", additional chromatic aberration
+// on the red and blue channels.
 
 layout (binding = 0, rgba32f) uniform writeonly image2D target;
-layout (binding = 1, rgba32f) uniform readonly image2D src;
+layout (binding = 1, rgba32f) uniform readonly  image2D src;
 
-layout (local_size_x = 1, local_size_y = 256, local_size_z = 1) in;
+layout (push_constant) uniform PushConstants {
+    float time;
+    float shake_power;
+    float shake_rate;
+    float shake_speed;
+    float shake_block_size;
+    float shake_color_rate;
+} push;
 
-void main()
-{
-    uint line_strength = 2;
-    uint max_dist = 6;
+layout (local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
 
-    int row = int(gl_GlobalInvocationID.y);
-    ivec2 size = imageSize(target);
+float random(float seed) {
+    // fp32 sin() loses precision once its argument grows past ~2^24, and the
+    // fract() output biases toward small values — the glitch would fire more
+    // and more often the longer the app has been running. Wrap the seed into
+    // a safe range first.
+    seed = mod(seed, 4096.0);
+    return fract(543.2543 * sin(dot(vec2(seed, seed), vec2(3525.46, -54.3415))));
+}
 
-    if (row >= size.y)
-        return;
+vec3 sampleSrc(vec2 uv, ivec2 size) {
+    ivec2 pos = ivec2(floor(uv * vec2(size)));
+    pos = clamp(pos, ivec2(0), size - ivec2(1));
+    return imageLoad(src, pos).rgb;
+}
 
-    uint seed = 1385743257;
-    uvec4 rng_state = uvec4(seed, seed * 2, seed * 3, seed * 4) + 5378947 * (row / line_strength);
+void main() {
+    ivec2 pixel = ivec2(gl_GlobalInvocationID.xy);
+    ivec2 size  = imageSize(target);
+    if (pixel.x >= size.x || pixel.y >= size.y) return;
 
-    float rand = stepAndOutputRNGFloat(rng_state);
+    vec2 screen_uv = (vec2(pixel) + vec2(0.5)) / vec2(size);
 
-    int dist = int(round(rand * float(2 * max_dist))) - int(max_dist);
+    float enable_shift = float(
+        random(trunc(push.time * push.shake_speed)) < push.shake_rate
+    );
 
-    for (int i = 0; i < size.x; i++) {
-        ivec2 pixel = ivec2(i, row);
-        ivec2 src_pos = pixel - ivec2(dist, 0);
-        src_pos.x = clamp(src_pos.x, 0, size.x - 1);
-        vec3 c = imageLoad(src, src_pos).xyz;
-        imageStore(target, pixel, vec4(c, 1));
-    }
+    vec2 fixed_uv = screen_uv;
+    fixed_uv.x += (
+        random(
+            (trunc(screen_uv.y * push.shake_block_size) / push.shake_block_size)
+          + push.time
+        ) - 0.5
+    ) * push.shake_power * enable_shift;
+
+    vec3 color = sampleSrc(fixed_uv, size);
+    color.r = mix(
+        color.r,
+        sampleSrc(fixed_uv + vec2( push.shake_color_rate, 0.0), size).r,
+        enable_shift
+    );
+    color.b = mix(
+        color.b,
+        sampleSrc(fixed_uv + vec2(-push.shake_color_rate, 0.0), size).b,
+        enable_shift
+    );
+
+    imageStore(target, pixel, vec4(color, 1.0));
 }
