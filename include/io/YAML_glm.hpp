@@ -11,6 +11,25 @@
 // Custom emitter to serialize glm::vec3
 namespace YAML {
 	template<>
+	struct convert<glm::vec2> {
+		static Node encode(const glm::vec2 &v) {
+			Node node;
+			node.push_back(v.x);
+			node.push_back(v.y);
+			return node;
+		}
+
+		static bool decode(const Node &node, glm::vec2 &v) {
+			if (!node.IsSequence() || node.size() != 2) {
+				return false;
+			}
+			v.x = node[0].as<float>();
+			v.y = node[1].as<float>();
+			return true;
+		}
+	};
+
+	template<>
 	struct convert<glm::vec3> {
 		static Node encode(const glm::vec3 &v) {
 			Node node;
