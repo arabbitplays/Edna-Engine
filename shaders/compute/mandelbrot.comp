@@ -56,11 +56,15 @@ void main()
         zy = push.initial_y;
     }
     uint   iter = 0u;
-    const double escape_sq = 4.0lf;
+    // Bailout well above 2 so the log-log smoothing formula stays accurate;
+    // any |z| > 2 escapes, larger radius just gives cleaner fractional counts.
+    const double escape_sq = 65536.0lf;
+    double zx2 = 0.0lf;
+    double zy2 = 0.0lf;
 
     while (iter < push.max_iterations) {
-        double zx2 = zx * zx;
-        double zy2 = zy * zy;
+        zx2 = zx * zx;
+        zy2 = zy * zy;
         if (zx2 + zy2 > escape_sq) break;
         double new_zx = zx2 - zy2 + cx;
         zy = 2.0lf * zx * zy + cy;
@@ -72,7 +76,14 @@ void main()
     if (iter >= push.max_iterations) {
         color = palette.colors[push.color_count - 1u];
     } else {
-        float t = float(iter) / float(push.max_iterations);
+        // Continuous escape time: mu = n + 1 - log2(log2(|z|)) removes the
+        // integer-iteration banding by resolving the fractional escape point.
+        float log_mod_sq = log(float(zx2 + zy2));
+        float nu         = log(0.5 * log_mod_sq / log(2.0)) / log(2.0);
+        float mu         = float(iter) + 1.0 - nu;
+        // Non-linear remap: sqrt stretches high-iteration detail near the
+        // set boundary and compresses the low-iteration outskirts.
+        float t = sqrt(clamp(mu / float(push.max_iterations), 0.0, 1.0));
         color = samplePalette(t);
     }
 
