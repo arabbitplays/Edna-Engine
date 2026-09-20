@@ -5,6 +5,8 @@
 
 #include <glm/glm.hpp>
 
+#include <library/mandelbrot/animation/MandelbrotAnimationRunner.hpp>
+
 #include "Component.hpp"
 #include "SwapchainManager.hpp"
 
@@ -38,16 +40,18 @@ namespace RtEngine {
         static constexpr float    INITIAL_BOUND = 2.0f;
         static inline const std::string DEFAULT_PALETTE_NAME = "Sunburn";
 
-        glm::vec2 origin = glm::vec2(0.0f);
+        glm::vec2 origin = glm::vec2(-1.0, .0f);
         glm::vec2 offset = glm::vec2(0.0f);
         float    step_size = DEFAULT_STEP_SIZE;
         uint32_t max_iterations = DEFAULT_MAX_ITERATIONS;
         glm::vec2 initial_number = glm::vec2(0.0f);
         bool     julia_mode = false;
+        bool     animate = false;
         std::string palette_name = DEFAULT_PALETTE_NAME;
         std::string applied_palette_name;
 
         std::shared_ptr<MandelbrotRenderer> renderer;
+        std::unique_ptr<::mandelbrot::MandelbrotAnimationRunner> animation_runner;
 
         float    last_entropy = 0.0f;
 
