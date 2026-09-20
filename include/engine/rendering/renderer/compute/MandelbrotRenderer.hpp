@@ -11,6 +11,7 @@ namespace RtEngine {
     class MandelbrotRenderer : public ComputeRenderer {
     public:
         static constexpr uint32_t MAX_COLOR_COUNT = 256;
+        static constexpr uint32_t HISTOGRAM_BIN_COUNT = 64;
 
         MandelbrotRenderer(const std::shared_ptr<VulkanContext>& vulkan_context,
                            VkExtent2D image_extent,
@@ -43,11 +44,19 @@ namespace RtEngine {
 
         void handleResize(VkExtent2D new_extent);
 
+        // Shannon entropy (in bits, 0..log2(HISTOGRAM_BIN_COUNT)) over the
+        // fractional-iteration histogram written by the last completed dispatch.
+        // Higher values mean the frame contains a wider spread of escape
+        // depths, i.e. more visible detail. Returns 0 if no frame has been
+        // dispatched yet.
+        float readEntropy() const;
+
     protected:
         VkShaderModule createShaderModule() override;
 
         void configurePushConstants(ComputePipeline& pipeline) override;
         void recordPushConstants(VkCommandBuffer cmd) override;
+        void recordPreDispatch(VkCommandBuffer cmd) override;
 
     private:
         struct PushConstants {
@@ -74,6 +83,7 @@ namespace RtEngine {
 
         std::shared_ptr<ImageConnector>  target_connector;
         std::shared_ptr<BufferConnector> palette_connector;
+        std::shared_ptr<BufferConnector> histogram_connector;
     };
 } // RtEngine
 

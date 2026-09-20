@@ -49,6 +49,8 @@ namespace RtEngine {
 
         std::shared_ptr<MandelbrotRenderer> renderer;
 
+        float    last_entropy = 0.0f;
+
         SwapchainManager::RecreateCallbackHandle resize_callback_handle = 0;
     };
 } // RtEngine

@@ -36,6 +36,7 @@ namespace RtEngine {
 
         virtual void configurePushConstants(ComputePipeline&) {}
         virtual void recordPushConstants(VkCommandBuffer) {}
+        virtual void recordPreDispatch(VkCommandBuffer) {}
 
         ConnectorHandle getConnector(uint32_t binding) const;
 

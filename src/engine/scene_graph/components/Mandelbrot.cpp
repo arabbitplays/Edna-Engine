@@ -1,6 +1,9 @@
 #include "Mandelbrot.hpp"
 
+#include <cmath>
+
 #include <glm/glm.hpp>
+#include <spdlog/spdlog.h>
 
 #include <library/cellular_automaton/colors/ColorPaletteFactory.hpp>
 
@@ -66,6 +69,10 @@ namespace RtEngine {
             renderer->setPalette(loadPaletteColors(palette_name));
             applied_palette_name = palette_name;
         }
+
+        last_entropy = renderer->readEntropy();
+        SPDLOG_INFO("Mandelbrot entropy: {:.3f} bits (max {:.3f})",
+            last_entropy, std::log2(static_cast<float>(MandelbrotRenderer::HISTOGRAM_BIN_COUNT)));
     }
 
     void Mandelbrot::initProperties(const std::shared_ptr<IProperties>& config,

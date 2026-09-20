@@ -77,6 +77,7 @@ namespace RtEngine {
         vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline->getLayoutHandle(), 0, 1, &descriptor_set, 0, 0);
 
         recordPushConstants(cmd);
+        recordPreDispatch(cmd);
 
         assert(dispatch_size_provider && "ComputeRenderer: dispatch size not set");
         VkExtent3D dispatch_size = dispatch_size_provider();
