@@ -1,0 +1,31 @@
+#version 450
+
+layout (binding = 0, rgba32f) uniform writeonly image2D target;
+layout (binding = 1, rgba32f) uniform readonly image2D input_a;
+layout (binding = 2, rgba32f) uniform readonly image2D input_b;
+
+layout (push_constant) uniform PushConstants {
+    // 0 = pure input_a, 1 = pure input_b, linear crossfade in between.
+    float fade;
+    uint  invert_color;
+} pc;
+
+layout (local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
+
+void main()
+{
+    ivec2 pixel = ivec2(gl_GlobalInvocationID.xy);
+    ivec2 size  = imageSize(target);
+    if (pixel.x >= size.x || pixel.y >= size.y) return;
+
+    vec4 a = imageLoad(input_a, pixel);
+    vec4 b = imageLoad(input_b, pixel);
+
+    vec4 blended = mix(a, b, clamp(pc.fade, 0.0, 1.0));
+
+    if (pc.invert_color != 0u) {
+        blended.rgb = vec3(1.0) - blended.rgb;
+    }
+
+    imageStore(target, pixel, blended);
+}
