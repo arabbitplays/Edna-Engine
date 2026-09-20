@@ -5,7 +5,7 @@
 
 #include <glm/vec4.hpp>
 
-namespace cellular_automaton
+namespace color
 {
     struct ColorPalette
     {

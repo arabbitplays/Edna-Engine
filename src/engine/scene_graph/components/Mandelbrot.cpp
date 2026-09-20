@@ -5,11 +5,12 @@
 #include <glm/glm.hpp>
 #include <spdlog/spdlog.h>
 
-#include <library/cellular_automaton/colors/ColorPaletteFactory.hpp>
+#include <library/color/ColorPaletteFactory.hpp>
+#include <library/color/ColorPaletteName.hpp>
 
 #include "compute/MandelbrotRenderer.hpp"
 
-using namespace cellular_automaton;
+using namespace color;
 
 namespace RtEngine {
     namespace {
@@ -84,7 +85,7 @@ namespace RtEngine {
             config->addUint("max_iterations", &max_iterations, MIN_MAX_ITERATIONS, MAX_MAX_ITERATIONS);
             config->addVector("initial_number", &initial_number, -INITIAL_BOUND, INITIAL_BOUND);
             config->addBool("julia_mode", &julia_mode);
-            config->addSelection("palette", &palette_name, cellular_automaton::ColorPaletteName::getAllNames());
+            config->addSelection("palette", &palette_name, ::color::ColorPaletteName::getAllNames());
             config->endChild();
         }
     }

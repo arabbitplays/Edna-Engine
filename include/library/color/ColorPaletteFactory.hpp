@@ -1,10 +1,10 @@
 #ifndef EDNA_ENGINE_COLORPALETTEFACTORY_HPP
 #define EDNA_ENGINE_COLORPALETTEFACTORY_HPP
 
-#include <library/cellular_automaton/colors/ColorPalette.hpp>
-#include <library/cellular_automaton/colors/ColorPaletteName.hpp>
+#include <library/color/ColorPalette.hpp>
+#include <library/color/ColorPaletteName.hpp>
 
-namespace cellular_automaton
+namespace color
 {
     class ColorPaletteFactory
     {

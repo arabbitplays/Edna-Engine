@@ -5,7 +5,7 @@
 
 #include <library/animation/animations/IAnimation.hpp>
 #include <library/cellular_automaton/animation/CyclicalCellularAutomatonAnimationGenerator.hpp>
-#include <library/cellular_automaton/colors/ColorPalette.hpp>
+#include <library/color/ColorPalette.hpp>
 
 namespace cellular_automaton
 {
@@ -23,7 +23,7 @@ namespace cellular_automaton
         CyclicalCellularAutomatonAnimationRunner(
             CyclicalCellularAutomatonAnimationGenerator generator,
             float initial_mutation_chance,
-            ColorPalette initial_palette);
+            ::color::ColorPalette initial_palette);
 
         void update();
 
@@ -43,8 +43,8 @@ namespace cellular_automaton
         Track        mutation_track_;
         float        mutation_current_;
 
-        Track        palette_track_;
-        ColorPalette palette_current_;
+        Track                 palette_track_;
+        ::color::ColorPalette palette_current_;
 
         float neighborhood_cooldown_seconds_ = 0.0f;
 

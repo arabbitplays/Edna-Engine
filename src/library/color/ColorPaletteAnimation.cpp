@@ -1,12 +1,10 @@
-#include <library/cellular_automaton/colors/ColorPaletteAnimation.hpp>
-#include <library/cellular_automaton/colors/ColorPalette.hpp>
+#include <library/color/ColorPaletteAnimation.hpp>
 
 #include <algorithm>
 
 #include <glm/glm.hpp>
 
-
-namespace cellular_automaton
+namespace color
 {
     ColorPalette ColorPaletteAnimation::interpolate(float t) const
     {

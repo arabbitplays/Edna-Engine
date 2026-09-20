@@ -7,16 +7,16 @@
 #include <string_view>
 #include <vector>
 
-namespace cellular_automaton
+namespace color
 {
-#define CELLULAR_AUTOMATON_COLOR_PALETTES(X) \
-    X(Fire)                                  \
-    X(Ocean)                                 \
-    X(Rainbow)                               \
-    X(Nature)                                \
-    X(Sunburn)                               \
-    X(Twilight)                              \
-    X(Berry)                                 \
+#define COLOR_PALETTES(X) \
+    X(Fire)               \
+    X(Ocean)              \
+    X(Rainbow)            \
+    X(Nature)             \
+    X(Sunburn)            \
+    X(Twilight)           \
+    X(Berry)              \
     X(Neon)
 
     class ColorPaletteName
@@ -24,9 +24,9 @@ namespace cellular_automaton
     public:
         enum Value
         {
-#define CELLULAR_AUTOMATON_PALETTE_ENUM(name) name,
-            CELLULAR_AUTOMATON_COLOR_PALETTES(CELLULAR_AUTOMATON_PALETTE_ENUM)
-#undef CELLULAR_AUTOMATON_PALETTE_ENUM
+#define COLOR_PALETTE_ENUM(name) name,
+            COLOR_PALETTES(COLOR_PALETTE_ENUM)
+#undef COLOR_PALETTE_ENUM
         };
 
         constexpr ColorPaletteName() = default;
@@ -59,9 +59,9 @@ namespace cellular_automaton
 
     private:
         static constexpr std::array ALL_NAMES = {
-#define CELLULAR_AUTOMATON_PALETTE_STR(name) std::string_view{#name},
-            CELLULAR_AUTOMATON_COLOR_PALETTES(CELLULAR_AUTOMATON_PALETTE_STR)
-#undef CELLULAR_AUTOMATON_PALETTE_STR
+#define COLOR_PALETTE_STR(name) std::string_view{#name},
+            COLOR_PALETTES(COLOR_PALETTE_STR)
+#undef COLOR_PALETTE_STR
         };
 
         Value value_ = Fire;
