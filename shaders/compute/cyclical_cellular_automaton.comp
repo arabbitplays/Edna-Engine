@@ -1,6 +1,7 @@
 #version 450
 
-const uint MAX_STATE_COUNT = 64;
+const uint MAX_STATE_COUNT    = 64;
+const uint MAX_NEIGHBOR_COUNT = 256;
 
 layout (binding = 0, r32ui)     uniform uimage2D stateImage;
 layout (binding = 1, rgba32f)   uniform writeonly image2D targetImage;
@@ -8,6 +9,10 @@ layout (binding = 2)            uniform ColorPalette {
     vec4 colors[MAX_STATE_COUNT];
 } palette;
 layout (binding = 3, rgba32ui)  uniform uimage2D rngImage;
+layout (binding = 4)            uniform Neighborhood {
+    ivec4 offsets[MAX_NEIGHBOR_COUNT]; // .xy holds the offset, .zw padding
+    uint  count;
+} neighborhood;
 
 layout (push_constant) uniform PushConstants {
     uint  state_count;
@@ -50,12 +55,9 @@ void main()
         if (rand01(rng_state) < push.update_chance) {
             uint next = (current + 1u) % push.state_count;
             uint matches = 0u;
-            for (int dy = -1; dy <= 1; dy++) {
-                for (int dx = -1; dx <= 1; dx++) {
-                    if (dx == 0 && dy == 0) continue;
-                    ivec2 npos = (pixel + ivec2(dx, dy) + size) % size;
-                    if (imageLoad(stateImage, npos).r == next) matches++;
-                }
+            for (uint i = 0u; i < neighborhood.count; ++i) {
+                ivec2 npos = (pixel + neighborhood.offsets[i].xy + size) % size;
+                if (imageLoad(stateImage, npos).r == next) matches++;
             }
 
             if (matches >= push.threshold) {
