@@ -1,0 +1,80 @@
+#version 450
+#extension GL_ARB_gpu_shader_fp64 : enable
+
+const uint MAX_COLOR_COUNT = 256;
+
+layout (binding = 0, rgba32f) uniform writeonly image2D targetImage;
+layout (binding = 1)          uniform ColorPalette {
+    vec4 colors[MAX_COLOR_COUNT];
+} palette;
+
+layout (push_constant) uniform PushConstants {
+    double origin_x;
+    double origin_y;
+    double step_size;
+    double initial_x;
+    double initial_y;
+    uint   max_iterations;
+    uint   color_count;
+    uint   julia_mode;
+    uint   _padding;
+} push;
+
+layout (local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
+
+vec4 samplePalette(float t) {
+    if (push.color_count == 0u) return vec4(0.0, 0.0, 0.0, 1.0);
+    if (push.color_count == 1u) return palette.colors[0];
+
+    t = clamp(t, 0.0, 1.0);
+    float scaled = t * float(push.color_count - 1u);
+    uint  lo     = uint(floor(scaled));
+    uint  hi     = min(lo + 1u, push.color_count - 1u);
+    float f      = scaled - float(lo);
+    return mix(palette.colors[lo], palette.colors[hi], f);
+}
+
+void main()
+{
+    ivec2 pixel = ivec2(gl_GlobalInvocationID.xy);
+    ivec2 size  = imageSize(targetImage);
+    if (pixel.x >= size.x || pixel.y >= size.y) return;
+
+    double px = push.origin_x + double(pixel.x) * push.step_size;
+    double py = push.origin_y + double(pixel.y) * push.step_size;
+
+    double cx, cy, zx, zy;
+    if (push.julia_mode != 0u) {
+        cx = push.initial_x;
+        cy = push.initial_y;
+        zx = px;
+        zy = py;
+    } else {
+        cx = px;
+        cy = py;
+        zx = push.initial_x;
+        zy = push.initial_y;
+    }
+    uint   iter = 0u;
+    const double escape_sq = 4.0lf;
+
+    while (iter < push.max_iterations) {
+        double zx2 = zx * zx;
+        double zy2 = zy * zy;
+        if (zx2 + zy2 > escape_sq) break;
+        double new_zx = zx2 - zy2 + cx;
+        zy = 2.0lf * zx * zy + cy;
+        zx = new_zx;
+        iter++;
+    }
+
+    vec4 color;
+    if (iter >= push.max_iterations) {
+        color = palette.colors[push.color_count - 1u];
+    } else {
+        float t = float(iter) / float(push.max_iterations);
+        color = samplePalette(t);
+    }
+
+    imageStore(targetImage, pixel, color);
+}

@@ -1,6 +1,7 @@
 #include "SceneReader.hpp"
 
 #include <CyclicalCellularAutomaton.hpp>
+#include <Mandelbrot.hpp>
 #include <MeshRenderer.hpp>
 #include <Node.hpp>
 #include <QuickTimer.hpp>
@@ -146,6 +147,10 @@ namespace RtEngine {
 				auto ca = std::make_shared<CyclicalCellularAutomaton>(ctx, scene_node);
 				ca->initProperties(properties, update_flags);
 				scene_node->addComponent(ca);
+			} else if (comp_name == Mandelbrot::COMPONENT_NAME) {
+				auto mb = std::make_shared<Mandelbrot>(ctx, scene_node);
+				mb->initProperties(properties, update_flags);
+				scene_node->addComponent(mb);
 			}
 		}
 	}

@@ -1,0 +1,8 @@
+scene:
+  nodes:
+    - name: Mandelbrot
+      components:
+        Mandelbrot:
+          {}
+      children:
+        []
