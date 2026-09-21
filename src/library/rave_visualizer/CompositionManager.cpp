@@ -3,14 +3,17 @@
 #include <algorithm>
 #include <utility>
 
+#include "Glitch.hpp"
 #include "compute/CompositionRenderer.hpp"
+#include "compute/GlitchRenderer.hpp"
 
 namespace RaveVisualizer
 {
-    CompositionManager::CompositionManager(std::shared_ptr<RtEngine::CompositionRenderer> renderer)
-        : renderer(std::move(renderer)) {
+    CompositionManager::CompositionManager(std::shared_ptr<RtEngine::CompositionRenderer> composition,
+                                           std::shared_ptr<RtEngine::Glitch> glitch)
+        : composition(std::move(composition)), glitch(std::move(glitch)) {
         rave_state.fade_progress = fadeValueFor(rave_state.current);
-        pushToRenderer();
+        pushToComposition();
     }
 
     void CompositionManager::tick(const float dt)
@@ -48,7 +51,7 @@ namespace RaveVisualizer
             }
         }
 
-        pushToRenderer();
+        pushToComposition();
     }
 
     void CompositionManager::TryChangeType(const VisualizationType new_type)
@@ -67,22 +70,46 @@ namespace RaveVisualizer
         inversion_staccato_active = active;
         staccato_elapsed_s = 0.0f;
         if (!active) {
-            // Restore un-inverted output when disarming so the shader doesn't
-            // latch in an inverted state between bursts.
+            // Prevent the shader latching in an inverted state between bursts.
             rave_state.invert_color = false;
         }
     }
 
+    namespace {
+        template <typename Setter>
+        void forwardToGlitch(const std::shared_ptr<RtEngine::Glitch>& glitch, Setter set) {
+            if (!glitch) return;
+            const auto renderer = glitch->getRenderer();
+            if (!renderer) return;
+            set(*renderer);
+        }
+    }
+
+    void CompositionManager::setGlitchShakePower(const float v) {
+        forwardToGlitch(glitch, [v](auto& r){ r.setShakePower(v); });
+    }
+    void CompositionManager::setGlitchShakeRate(const float v) {
+        forwardToGlitch(glitch, [v](auto& r){ r.setShakeRate(v); });
+    }
+    void CompositionManager::setGlitchShakeSpeed(const float v) {
+        forwardToGlitch(glitch, [v](auto& r){ r.setShakeSpeed(v); });
+    }
+    void CompositionManager::setGlitchShakeBlockSize(const float v) {
+        forwardToGlitch(glitch, [v](auto& r){ r.setShakeBlockSize(v); });
+    }
+    void CompositionManager::setGlitchShakeColorRate(const float v) {
+        forwardToGlitch(glitch, [v](auto& r){ r.setShakeColorRate(v); });
+    }
+
     float CompositionManager::fadeValueFor(const VisualizationType type)
     {
-        // input_a = CCA -> fade 0.0, input_b = MANDELBROT -> fade 1.0.
         return type == VisualizationType::MANDELBROT ? 1.0f : 0.0f;
     }
 
-    void CompositionManager::pushToRenderer()
+    void CompositionManager::pushToComposition()
     {
-        if (!renderer) return;
-        renderer->setFade(rave_state.fade_progress);
-        renderer->setInvertColor(rave_state.invert_color);
+        if (!composition) return;
+        composition->setFade(rave_state.fade_progress);
+        composition->setInvertColor(rave_state.invert_color);
     }
 } // RaveVisualizer
