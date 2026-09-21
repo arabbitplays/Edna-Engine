@@ -16,6 +16,7 @@ namespace RtEngine {
 
     void Glitch::OnUpdate() {
         if (!renderer && !tryInitialize()) return;
+        if (!update_gate.tick()) return;
 
         renderer->setShakePower(shake_power);
         renderer->setShakeRate(shake_rate);

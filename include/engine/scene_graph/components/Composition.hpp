@@ -7,6 +7,8 @@
 
 #include <vulkan/vulkan.h>
 
+#include <FrameGate.hpp>
+
 #include "Component.hpp"
 #include "SwapchainManager.hpp"
 
@@ -52,6 +54,7 @@ namespace RtEngine {
         std::optional<VkExtent2D> pending_resize_extent;
 
         std::chrono::steady_clock::time_point last_tick;
+        FrameGate update_gate{30.0f};
         SwapchainManager::RecreateCallbackHandle resize_callback_handle = 0;
     };
 } // RtEngine

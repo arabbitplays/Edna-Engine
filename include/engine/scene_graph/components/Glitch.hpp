@@ -3,6 +3,8 @@
 #include <memory>
 #include <string>
 
+#include <FrameGate.hpp>
+
 #include "Component.hpp"
 
 namespace RtEngine {
@@ -40,6 +42,8 @@ namespace RtEngine {
         float shake_color_rate = 0.01f;
 
         std::shared_ptr<GlitchRenderer> renderer;
+
+        FrameGate update_gate{30.0f};
     };
 } // RtEngine
 

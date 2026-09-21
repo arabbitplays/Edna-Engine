@@ -5,6 +5,7 @@
 
 #include <glm/glm.hpp>
 
+#include <FrameGate.hpp>
 #include <library/mandelbrot/animation/MandelbrotAnimationRunner.hpp>
 
 #include "Component.hpp"
@@ -55,6 +56,7 @@ namespace RtEngine {
         std::shared_ptr<MandelbrotRenderer> renderer;
         std::unique_ptr<::mandelbrot::MandelbrotAnimationRunner> animation_runner;
 
+        FrameGate update_gate{30.0f};
         SwapchainManager::RecreateCallbackHandle resize_callback_handle = 0;
     };
 } // RtEngine

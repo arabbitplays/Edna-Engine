@@ -70,6 +70,7 @@ namespace RtEngine {
 
     void Mandelbrot::OnUpdate() {
         if (!renderer) return;
+        if (!update_gate.tick()) return;
 
         if (animate && animation_runner) {
             const VkExtent2D extent =

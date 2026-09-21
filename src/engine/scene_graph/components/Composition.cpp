@@ -31,6 +31,8 @@ namespace RtEngine {
         if (!manager) tryBuildManager();
         if (!manager) return;
 
+        if (!update_gate.tick()) return;
+
         manager->setInversionStaccato(inversion_staccato);
 
         const auto now = std::chrono::steady_clock::now();
