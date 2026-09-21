@@ -4,6 +4,7 @@
 
 namespace RtEngine {
 	class Node;
+	class ImageConnector;
 
 	static constexpr float FIXED_DELTA_TIME = 1.0f / 60.0f;
 
@@ -19,6 +20,8 @@ namespace RtEngine {
 		virtual void OnDestroy() = 0;
 
 		void initProperties(const std::shared_ptr<IProperties> &config, const UpdateFlagsHandle &update_flags) override = 0;
+
+		virtual std::shared_ptr<ImageConnector> getOutputConnector() const { return nullptr; }
 
 		std::weak_ptr<Node> node;
 		std::shared_ptr<EngineContext> context;

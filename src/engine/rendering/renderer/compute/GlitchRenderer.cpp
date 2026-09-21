@@ -31,6 +31,11 @@ namespace RtEngine {
         return output_connector;
     }
 
+    void GlitchRenderer::handleResize(VkExtent2D new_extent) {
+        output_connector->recreate(new_extent);
+        invalidateDescriptors();
+    }
+
     VkShaderModule GlitchRenderer::createShaderModule() {
         return VulkanUtil::createShaderModule(
             vulkan_context->device_manager->getDevice(), oschd_glitch_comp_spv_size(), oschd_glitch_comp_spv());

@@ -2,5 +2,5 @@
 
 
 src += files(
-  'VisualizationManager.cpp',
+  'CompositionManager.cpp',
 )

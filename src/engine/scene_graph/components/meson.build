@@ -3,6 +3,7 @@
 
 src += files(
   'Rigidbody.cpp',
+  'Glitch.cpp',
   'Mandelbrot.cpp',
   'CyclicalCellularAutomaton.cpp',
   'Transform.cpp',

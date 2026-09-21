@@ -16,6 +16,8 @@ namespace RtEngine {
 
         std::shared_ptr<ImageConnector> getOutputConnector() const;
 
+        void handleResize(VkExtent2D new_extent);
+
         void setShakePower(float v)      { push.shake_power = v; }
         void setShakeRate(float v)       { push.shake_rate = v; }
         void setShakeSpeed(float v)      { push.shake_speed = v; }
