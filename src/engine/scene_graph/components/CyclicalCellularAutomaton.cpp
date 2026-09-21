@@ -111,6 +111,10 @@ namespace RtEngine {
         }
     }
 
+    std::shared_ptr<ImageConnector> CyclicalCellularAutomaton::getOutputConnector() const {
+        return renderer ? renderer->getOutputConnector() : nullptr;
+    }
+
     void CyclicalCellularAutomaton::initProperties(const std::shared_ptr<IProperties>& config,
                                                     const UpdateFlagsHandle&) {
         if (config->startChild(COMPONENT_NAME)) {

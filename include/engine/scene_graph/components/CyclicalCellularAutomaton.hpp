@@ -29,6 +29,8 @@ namespace RtEngine {
         void initProperties(const std::shared_ptr<IProperties>& config,
                             const UpdateFlagsHandle& update_flags) override;
 
+        std::shared_ptr<ImageConnector> getOutputConnector() const override;
+
     private:
         static constexpr uint32_t DEFAULT_THRESHOLD = 1;
         static constexpr float DEFAULT_UPDATE_CHANCE = 1;

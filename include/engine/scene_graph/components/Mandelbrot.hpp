@@ -30,6 +30,8 @@ namespace RtEngine {
         void initProperties(const std::shared_ptr<IProperties>& config,
                             const UpdateFlagsHandle& update_flags) override;
 
+        std::shared_ptr<ImageConnector> getOutputConnector() const override;
+
     private:
         static constexpr float    DEFAULT_STEP_SIZE = 0.0001f;
         static constexpr uint32_t DEFAULT_MAX_ITERATIONS = 128u;

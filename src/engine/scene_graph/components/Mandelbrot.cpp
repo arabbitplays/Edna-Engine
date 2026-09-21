@@ -90,6 +90,10 @@ namespace RtEngine {
         renderer->setJuliaMode(julia_mode);
     }
 
+    std::shared_ptr<ImageConnector> Mandelbrot::getOutputConnector() const {
+        return renderer ? renderer->getOutputConnector() : nullptr;
+    }
+
     void Mandelbrot::initProperties(const std::shared_ptr<IProperties>& config,
                                      const UpdateFlagsHandle&) {
         if (config->startChild(COMPONENT_NAME)) {
