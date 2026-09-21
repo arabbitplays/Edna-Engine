@@ -1,6 +1,7 @@
 #ifndef EDNA_ENGINE_MANDELBROT_ANIMATIONGENERATOR_HPP
 #define EDNA_ENGINE_MANDELBROT_ANIMATIONGENERATOR_HPP
 
+#include <cstdint>
 #include <functional>
 #include <memory>
 
@@ -10,6 +11,7 @@
 #include <library/animation/animations/VectorAnimation.hpp>
 #include <library/color/ColorPalette.hpp>
 #include <library/color/ColorPaletteAnimation.hpp>
+#include <library/mandelbrot/MandelbrotState.hpp>
 
 namespace mandelbrot
 {
@@ -19,30 +21,40 @@ namespace mandelbrot
         static constexpr int   STEP_COUNT_MIN     = 800;
         static constexpr int   STEP_COUNT_MAX     = 4000;
 
-        // Offset is in screen units (same coordinate space as the component).
         static constexpr float OFFSET_MIN         = -1.0f;
         static constexpr float OFFSET_MAX         =  1.0f;
 
-        // step_size is animated in log10 space so linear interpolation covers
-        // multiple orders of magnitude without lingering near the small end.
-        static constexpr float LOG_STEP_SIZE_MIN  = -4.0f; // 1e-3
-        static constexpr float LOG_STEP_SIZE_MAX  = -3.0f; // 1e-2
+        // step_size animated in log10 space so linear interpolation covers
+        // orders of magnitude evenly.
+        static constexpr float LOG_STEP_SIZE_MIN  = -6.0f;
+        static constexpr float LOG_STEP_SIZE_MAX  = -3.0f;
 
-        // initial_number kept modest so we mostly get recognisable
-        // Julia-set shapes and slightly-perturbed Mandelbrots.
         static constexpr float INITIAL_MIN        = -1.2f;
         static constexpr float INITIAL_MAX        =  1.2f;
 
+        // Reject candidates whose probe scores below PROBE_ACCEPT_EDGE or
+        // whose inside_fraction exceeds PROBE_MAX_INSIDE_FRACT. If no
+        // attempt clears the gate, the best-scoring candidate wins so
+        // generation never blocks.
+        static constexpr float         PROBE_ACCEPT_EDGE       = 0.05f;
+        static constexpr float         PROBE_MAX_INSIDE_FRACT  = 0.60f;
+        static constexpr std::uint32_t PROBE_MAX_ATTEMPTS      = 8u;
+        static constexpr std::uint32_t PROBE_GRID_SIZE         = 16u;
+        static constexpr std::uint32_t PROBE_MAX_ITER          = 256u;
+
+        // Canonical span used when the generator can't see the actual
+        // on-screen span. Targets that score well here are the
+        // "structurally interesting" ones.
+        static constexpr float         PROBE_REFERENCE_SPAN     = 3.0f;
+
         MandelbrotAnimationGenerator(
-            std::function<void(const glm::vec2&)>          set_offset,
-            std::function<void(float)>                     set_step_size,
-            std::function<void(const glm::vec2&)>          set_initial,
+            std::function<void(const glm::vec2&)>             set_offset,
+            std::function<void(float)>                        set_step_size,
+            std::function<void(const glm::vec2&)>             set_initial,
             std::function<void(const ::color::ColorPalette&)> set_palette);
 
         struct Vec2AnimationResult
         {
-            // Base type so callers can hold either a straight-line lerp or a
-            // Bezier without knowing which one was produced.
             std::unique_ptr<::Animation::Animation<glm::vec2>> animation;
             glm::vec2 target;
         };
@@ -59,9 +71,12 @@ namespace mandelbrot
             ::color::ColorPalette target;
         };
 
-        Vec2AnimationResult    generateOffsetAnimation(const glm::vec2& current);
-        FloatAnimationResult   generateStepSizeAnimation(float current);
-        Vec2AnimationResult    generateInitialAnimation(const glm::vec2& current);
+        // Candidates are scored against `current` for the fields the method
+        // does not roll, so target selection sees the actual fractal being
+        // rendered (in particular the current initial/c and julia_mode).
+        Vec2AnimationResult    generateOffsetAnimation(const MandelbrotState& current);
+        FloatAnimationResult   generateStepSizeAnimation(const MandelbrotState& current);
+        Vec2AnimationResult    generateInitialAnimation(const MandelbrotState& current);
         PaletteAnimationResult generatePaletteAnimation(const ::color::ColorPalette& current);
 
     private:

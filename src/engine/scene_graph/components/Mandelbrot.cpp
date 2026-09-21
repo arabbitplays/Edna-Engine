@@ -7,6 +7,7 @@
 
 #include <library/color/ColorPaletteFactory.hpp>
 #include <library/color/ColorPaletteName.hpp>
+#include <library/mandelbrot/MandelbrotState.hpp>
 #include <library/mandelbrot/animation/MandelbrotAnimationGenerator.hpp>
 #include <library/mandelbrot/animation/MandelbrotAnimationRunner.hpp>
 
@@ -45,22 +46,16 @@ namespace RtEngine {
 
         rendering_manager->addComputeRenderer(renderer, renderer->getOutputConnector());
 
-        // The animation runner writes into the same component fields the UI
-        // reads, so switching between animate/manual just picks who owns the
-        // values.
-        ::mandelbrot::MandelbrotAnimationGenerator generator{
-            [this](const glm::vec2& v) { offset = v; },
-            [this](float v)             { step_size = v; },
-            [this](const glm::vec2& v) { initial_number = v; },
+        // Runner writes into the same component fields the UI reads, so
+        // switching animate/manual just picks who owns the values.
+        animation_runner = std::make_unique<::mandelbrot::MandelbrotAnimationRunner>(
+            [this](const glm::vec2& v)             { offset = v; },
+            [this](float v)                        { step_size = v; },
+            [this](const glm::vec2& v)             { initial_number = v; },
             [this](const ::color::ColorPalette& p) {
                 if (renderer) renderer->setPalette(p.colors);
-            }};
-
-        animation_runner = std::make_unique<::mandelbrot::MandelbrotAnimationRunner>(
-            std::move(generator),
-            offset,
-            step_size,
-            initial_number,
+            },
+            ::mandelbrot::MandelbrotState{offset, step_size, initial_number, julia_mode},
             ::color::ColorPalette{colors});
 
         resize_callback_handle = context->swapchain_manager->addRecreateCallback(
@@ -83,10 +78,7 @@ namespace RtEngine {
             std::log2(static_cast<float>(MandelbrotRenderer::HISTOGRAM_BIN_COUNT));
 
         if (animate && animation_runner) {
-            // Runner writes into offset / step_size / initial_number and sets
-            // the palette directly on the renderer. Speed is modulated by the
-            // previous frame's entropy.
-            animation_runner->update(last_entropy, max_entropy_bits);
+            animation_runner->update(last_entropy, max_entropy_bits, julia_mode);
         } else if (palette_name != applied_palette_name) {
             renderer->setPalette(loadPaletteColors(palette_name));
             applied_palette_name = palette_name;

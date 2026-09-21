@@ -16,6 +16,7 @@
 #include <library/animation/easing_functions/EasingFunctionFactory.hpp>
 #include <library/color/ColorPaletteFactory.hpp>
 #include <library/color/ColorPaletteName.hpp>
+#include <library/mandelbrot/animation/MandelbrotProbe.hpp>
 #include <util/RandomUtil.hpp>
 
 namespace mandelbrot
@@ -49,6 +50,63 @@ namespace mandelbrot
             const std::size_t idx = RtEngine::RandomUtil::generateInt() % curves.size();
             return ::Animation::makeEasingFunction(curves[idx], ::Animation::EasingDirection::InOut);
         }
+
+        // Probe a candidate view. Offset is treated as a position in the
+        // canonical reference frame (center = offset * PROBE_REFERENCE_SPAN),
+        // so scoring is consistent across candidates regardless of the
+        // component's origin field.
+        ProbeResult probeCandidate(const glm::vec2& offset,
+                                   const glm::vec2& initial,
+                                   bool julia_mode)
+        {
+            using Gen = MandelbrotAnimationGenerator;
+            const double span   = static_cast<double>(Gen::PROBE_REFERENCE_SPAN);
+            const double cx     = static_cast<double>(offset.x) * span;
+            const double cy     = static_cast<double>(offset.y) * span;
+            return probeInterest(cx, cy, span,
+                                 static_cast<double>(initial.x),
+                                 static_cast<double>(initial.y),
+                                 julia_mode,
+                                 Gen::PROBE_MAX_ITER,
+                                 Gen::PROBE_GRID_SIZE);
+        }
+
+        float scoreProbe(const ProbeResult& p)
+        {
+            using Gen = MandelbrotAnimationGenerator;
+            if (p.inside_fraction > Gen::PROBE_MAX_INSIDE_FRACT) return 0.0f;
+            return p.edge_score;
+        }
+
+        // Roll up to PROBE_MAX_ATTEMPTS candidates. Return the first one
+        // whose probe clears the gate; otherwise the highest-scoring one
+        // seen. Never blocks.
+        template <typename Candidate, typename Roll, typename Probe>
+        Candidate rejectionSample(Roll&& roll, Probe&& probe_of)
+        {
+            using Gen = MandelbrotAnimationGenerator;
+            Candidate best{};
+            float best_score = -1.0f;
+            ProbeResult best_probe{};
+            for (std::uint32_t attempt = 0; attempt < Gen::PROBE_MAX_ATTEMPTS; ++attempt) {
+                Candidate candidate = roll();
+                const ProbeResult probe = probe_of(candidate);
+                const float score = scoreProbe(probe);
+                if (score >= Gen::PROBE_ACCEPT_EDGE) {
+                    spdlog::info("Mandelbrot anim: probe accepted after {} attempt(s), edge={:.3f} inside={:.2f}",
+                                 attempt + 1u, probe.edge_score, probe.inside_fraction);
+                    return candidate;
+                }
+                if (score > best_score) {
+                    best_score = score;
+                    best_probe = probe;
+                    best = candidate;
+                }
+            }
+            spdlog::info("Mandelbrot anim: probe exhausted {} attempts, best edge={:.3f} inside={:.2f}",
+                         Gen::PROBE_MAX_ATTEMPTS, best_probe.edge_score, best_probe.inside_fraction);
+            return best;
+        }
     }
 
     MandelbrotAnimationGenerator::MandelbrotAnimationGenerator(
@@ -64,21 +122,21 @@ namespace mandelbrot
     }
 
     MandelbrotAnimationGenerator::Vec2AnimationResult
-    MandelbrotAnimationGenerator::generateOffsetAnimation(const glm::vec2& current)
+    MandelbrotAnimationGenerator::generateOffsetAnimation(const MandelbrotState& current)
     {
-        // Precompute 3 offsets: two intermediate Bezier control points shape
-        // the middle of the curve, and the third is the destination the curve
-        // ends at. The result is a smoother arc through the offset space than
-        // a straight lerp.
-        const glm::vec2 c1     = randomVec2(OFFSET_MIN, OFFSET_MAX);
-        const glm::vec2 c2     = randomVec2(OFFSET_MIN, OFFSET_MAX);
-        const glm::vec2 target = randomVec2(OFFSET_MIN, OFFSET_MAX);
-        spdlog::info("Mandelbrot anim: offset bezier c1=({:.3f},{:.3f}) c2=({:.3f},{:.3f}) target=({:.3f},{:.3f})",
-                     c1.x, c1.y, c2.x, c2.y, target.x, target.y);
+        const glm::vec2 target = rejectionSample<glm::vec2>(
+            []() { return randomVec2(OFFSET_MIN, OFFSET_MAX); },
+            [&](const glm::vec2& candidate) {
+                return probeCandidate(candidate, current.initial, current.julia_mode);
+            });
+
+        const glm::vec2 c1 = randomVec2(OFFSET_MIN, OFFSET_MAX);
+        const glm::vec2 c2 = randomVec2(OFFSET_MIN, OFFSET_MAX);
+        spdlog::info("Mandelbrot anim: offset target=({:.3f},{:.3f})", target.x, target.y);
 
         auto set = set_offset_;
         auto animation = std::make_unique<::Animation::Vec2BezierAnimation>(
-            current, c1, c2, target, randomStepCount(),
+            current.offset, c1, c2, target, randomStepCount(),
             [set](const glm::vec2& v) { if (set) set(v); },
             randomInOutEasing());
 
@@ -86,13 +144,14 @@ namespace mandelbrot
     }
 
     MandelbrotAnimationGenerator::FloatAnimationResult
-    MandelbrotAnimationGenerator::generateStepSizeAnimation(float current)
+    MandelbrotAnimationGenerator::generateStepSizeAnimation(const MandelbrotState& current)
     {
-        const float log_target = randomFloat(LOG_STEP_SIZE_MIN, LOG_STEP_SIZE_MAX);
-        const float target = std::pow(10.0f, log_target);
-        // Interpolate the log so the visual zoom speed stays roughly uniform.
-        const float log_current = std::log10(std::max(current, 1e-9f));
-        spdlog::info("Mandelbrot anim: step_size target = {:.6f} (log={:.3f})", target, log_target);
+        // Uniform random in log space. Coupled-zoom targeting (a later
+        // commit) refines this.
+        const float log_target  = randomFloat(LOG_STEP_SIZE_MIN, LOG_STEP_SIZE_MAX);
+        const float target      = std::pow(10.0f, log_target);
+        const float log_current = std::log10(std::max(current.step_size, 1e-9f));
+        spdlog::info("Mandelbrot anim: step_size target={:.6f} (log={:.3f})", target, log_target);
 
         auto set = set_step_size_;
         auto animation = std::make_unique<::Animation::FloatAnimation>(
@@ -104,14 +163,19 @@ namespace mandelbrot
     }
 
     MandelbrotAnimationGenerator::Vec2AnimationResult
-    MandelbrotAnimationGenerator::generateInitialAnimation(const glm::vec2& current)
+    MandelbrotAnimationGenerator::generateInitialAnimation(const MandelbrotState& current)
     {
-        const glm::vec2 target = randomVec2(INITIAL_MIN, INITIAL_MAX);
-        spdlog::info("Mandelbrot anim: initial target = ({:.3f}, {:.3f})", target.x, target.y);
+        const glm::vec2 target = rejectionSample<glm::vec2>(
+            []() { return randomVec2(INITIAL_MIN, INITIAL_MAX); },
+            [&](const glm::vec2& candidate) {
+                return probeCandidate(current.offset, candidate, current.julia_mode);
+            });
+
+        spdlog::info("Mandelbrot anim: initial target=({:.3f},{:.3f})", target.x, target.y);
 
         auto set = set_initial_;
         auto animation = std::make_unique<::Animation::Vec2Animation>(
-            current, target, randomStepCount(),
+            current.initial, target, randomStepCount(),
             [set](const glm::vec2& v) { if (set) set(v); },
             randomInOutEasing());
 
@@ -124,7 +188,7 @@ namespace mandelbrot
         const auto all_names = ::color::ColorPaletteName::getAllNames();
         const std::size_t idx = RtEngine::RandomUtil::generateInt() % all_names.size();
         const auto& picked_name = all_names[idx];
-        spdlog::info("Mandelbrot anim: palette target = {}", picked_name);
+        spdlog::info("Mandelbrot anim: palette target={}", picked_name);
 
         ::color::ColorPalette target = ::color::ColorPaletteFactory::create(
             ::color::ColorPaletteName::fromString(picked_name, ::color::ColorPaletteName::Fire));
