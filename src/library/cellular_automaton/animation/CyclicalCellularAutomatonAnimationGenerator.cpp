@@ -98,7 +98,7 @@ namespace cellular_automaton
     float CyclicalCellularAutomatonAnimationGenerator::pickRandomMutationChance()
     {
         const float target = randomFloat(MUTATION_CHANCE_MIN, MUTATION_CHANCE_MAX);
-        logger()->info(std::format("rolled mutation_chance target = {:.4f}", target));
+        logger()->debug(std::format("rolled mutation_chance target = {:.4f}", target));
         return target;
     }
 
@@ -130,7 +130,7 @@ namespace cellular_automaton
             }
         }
 
-        logger()->info(std::format(
+        logger()->debug(std::format(
             "rolled neighborhood shape={}, size={}, threshold={}", shape_names[shape_idx], size, threshold));
 
         return {.offsets = NeighborhoodFactory::create(shape, static_cast<int>(size)).offsets, .threshold = threshold};

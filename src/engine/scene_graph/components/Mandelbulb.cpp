@@ -9,6 +9,7 @@
 #include <library/color/ColorPaletteFactory.hpp>
 #include <library/color/ColorPaletteName.hpp>
 #include <library/mandelbulb/animation/MandelbulbAnimationGenerator.hpp>
+#include <logging/LogManager.hpp>
 
 using namespace color;
 
@@ -16,6 +17,12 @@ namespace RtEngine
 {
     namespace
     {
+        Logging::LoggerHandle& logger()
+        {
+            static Logging::LoggerHandle instance = Logging::LogManager::getClassLogger<Mandelbulb>();
+            return instance;
+        }
+
         std::vector<glm::vec4> loadPaletteColors(const std::string& name)
         {
             const auto palette_name = ColorPaletteName::fromString(name, ColorPaletteName::Sunburn);

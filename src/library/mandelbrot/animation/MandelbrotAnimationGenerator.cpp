@@ -140,7 +140,7 @@ namespace mandelbrot
             const double centre_re = -half_span + ((static_cast<double>(best_x) + 0.5) * step);
             const double centre_im = -half_span + ((static_cast<double>(best_y) + 0.5) * step);
             const float reference = Gen::PROBE_REFERENCE_SPAN;
-            logger()->info(std::format("directed offset cell=({},{}) score={:.3f}", best_x, best_y, best_score));
+            logger()->debug(std::format("directed offset cell=({},{}) score={:.3f}", best_x, best_y, best_score));
             return {std::clamp(static_cast<float>(centre_re) / reference, Gen::OFFSET_MIN, Gen::OFFSET_MAX),
                 std::clamp(static_cast<float>(centre_im) / reference, Gen::OFFSET_MIN, Gen::OFFSET_MAX)};
         }
@@ -160,7 +160,7 @@ namespace mandelbrot
                 const float score = score_of(candidate);
                 if (score >= Gen::PROBE_ACCEPT_EDGE)
                 {
-                    logger()->info(
+                    logger()->debug(
                         std::format("candidate accepted after {} attempt(s), score={:.3f}", attempt + 1U, score));
                     return candidate;
                 }
@@ -170,7 +170,7 @@ namespace mandelbrot
                     best = candidate;
                 }
             }
-            logger()->info(
+            logger()->debug(
                 std::format("exhausted {} attempts, best score={:.3f}", Gen::PROBE_MAX_ATTEMPTS, best_score));
             return best;
         }
@@ -201,7 +201,7 @@ namespace mandelbrot
                         return std::pair{cubicBezier(current.offset, cp.first, cp.second, target, t), current.initial};
                     });
             });
-        logger()->info(std::format("offset target=({:.3f},{:.3f})", target.x, target.y));
+        logger()->debug(std::format("offset target=({:.3f},{:.3f})", target.x, target.y));
 
         auto set = set_offset_;
         auto animation = std::make_unique<::Animation::Vec2BezierAnimation>(
@@ -230,7 +230,7 @@ namespace mandelbrot
         const float log_current = std::log10(std::max(current.step_size, 1e-9F));
         const float log_target = std::clamp(log_current + log_delta, LOG_STEP_SIZE_MIN, LOG_STEP_SIZE_MAX);
         const float target = std::pow(10.0F, log_target);
-        logger()->info(
+        logger()->debug(
             std::format("step_size target={:.6f} (log_delta={:.3f} density={:.2f})", target, log_delta, density));
 
         auto set = set_step_size_;
@@ -258,7 +258,7 @@ namespace mandelbrot
                     [&](float t) { return std::pair{current.offset, glm::mix(current.initial, candidate, t)}; });
             });
 
-        logger()->info(std::format("initial target=({:.3f},{:.3f})", target.x, target.y));
+        logger()->debug(std::format("initial target=({:.3f},{:.3f})", target.x, target.y));
 
         auto set = set_initial_;
         auto animation = std::make_unique<::Animation::Vec2Animation>(

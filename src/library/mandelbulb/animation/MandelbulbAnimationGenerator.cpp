@@ -80,7 +80,7 @@ namespace mandelbulb
         float current)
     {
         const float target = randomFloat(POWER_MIN, POWER_MAX);
-        logger()->info(std::format("rolled power target = {:.3f}", target));
+        logger()->debug(std::format("rolled power target = {:.3f}", target));
         return {.animation = makeFloatAnimation(current, target, set_power_), .target = target};
     }
 
@@ -88,7 +88,7 @@ namespace mandelbulb
         float current)
     {
         const float target = randomFloat(THETA_OFFSET_MIN, THETA_OFFSET_MAX);
-        logger()->info(std::format("rolled theta_offset target = {:.3f}", target));
+        logger()->debug(std::format("rolled theta_offset target = {:.3f}", target));
         return {.animation = makeFloatAnimation(current, target, set_theta_offset_), .target = target};
     }
 
@@ -96,7 +96,7 @@ namespace mandelbulb
     MandelbulbAnimationGenerator::generateStepRotationAngleAnimation(float current)
     {
         const float target = randomFloat(STEP_ROTATION_ANGLE_MIN, STEP_ROTATION_ANGLE_MAX);
-        logger()->info(std::format("rolled step_rotation_angle target = {:.3f}", target));
+        logger()->debug(std::format("rolled step_rotation_angle target = {:.3f}", target));
         return {.animation = makeFloatAnimation(current, target, set_step_rotation_angle_), .target = target};
     }
 
@@ -114,7 +114,7 @@ namespace mandelbulb
             axis = glm::vec3(0.0f, 1.0f, 0.0f);
         }
         axis = glm::normalize(axis);
-        logger()->info(std::format("rolled step_rotation_axis = ({:.2f},{:.2f},{:.2f})", axis.x, axis.y, axis.z));
+        logger()->debug(std::format("rolled step_rotation_axis = ({:.2f},{:.2f},{:.2f})", axis.x, axis.y, axis.z));
 
         if (set_step_rotation_axis_)
         {
