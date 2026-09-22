@@ -28,6 +28,15 @@ namespace RtEngine
 
         virtual QueueType queueType() const = 0;
 
+        // Inactive renderers still get their per-frame slot but produce an
+        // empty command buffer, so downstream sync stays intact while their
+        // expensive dispatch/pass is skipped.
+        void setActive(bool value);
+        bool isActive() const
+        {
+            return active;
+        }
+
     protected:
         VkCommandBuffer getFreshCommandBuffer(uint32_t frame_idx);
         static void recordBeginCommandBuffer(VkCommandBuffer& commandBuffer);
@@ -36,6 +45,8 @@ namespace RtEngine
         std::shared_ptr<VulkanContext> vulkan_context;
         uint32_t max_frames_in_flight;
         DeletionQueue deletion_queue;
+
+        bool active = true;
 
     private:
         void createCommandBuffers();

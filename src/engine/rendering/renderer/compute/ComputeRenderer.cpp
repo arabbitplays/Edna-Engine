@@ -82,16 +82,21 @@ namespace RtEngine
             throw std::runtime_error("ComputeRenderer: failed to begin command buffer");
         }
 
-        vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline->getHandle());
-        vkCmdBindDescriptorSets(
-            cmd, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline->getLayoutHandle(), 0, 1, &descriptor_set, 0, nullptr);
+        // Skip the dispatch when inactive; still return a valid (empty) CB so
+        // sync stages downstream keep firing in order.
+        if (isActive())
+        {
+            vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline->getHandle());
+            vkCmdBindDescriptorSets(
+                cmd, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline->getLayoutHandle(), 0, 1, &descriptor_set, 0, nullptr);
 
-        recordPushConstants(cmd);
-        recordPreDispatch(cmd);
+            recordPushConstants(cmd);
+            recordPreDispatch(cmd);
 
-        assert(dispatch_size_provider && "ComputeRenderer: dispatch size not set");
-        VkExtent3D dispatch_size = dispatch_size_provider();
-        vkCmdDispatch(cmd, dispatch_size.width, dispatch_size.height, dispatch_size.depth);
+            assert(dispatch_size_provider && "ComputeRenderer: dispatch size not set");
+            VkExtent3D dispatch_size = dispatch_size_provider();
+            vkCmdDispatch(cmd, dispatch_size.width, dispatch_size.height, dispatch_size.depth);
+        }
 
         if (vkEndCommandBuffer(cmd) != VK_SUCCESS)
         {

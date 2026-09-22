@@ -73,6 +73,18 @@ namespace RtEngine
         last_tick = now;
 
         manager->tick(dt);
+
+        const auto weights = manager->currentWeights();
+        const auto set_active = [](const std::weak_ptr<Renderer>& weak, bool active)
+        {
+            if (const auto r = weak.lock())
+            {
+                r->setActive(active);
+            }
+        };
+        set_active(cca_renderer, weights[0] > 0.0F);
+        set_active(mandelbrot_renderer, weights[1] > 0.0F);
+        set_active(mandelbulb_renderer, weights[2] > 0.0F);
     }
 
     void Composition::OnDestroy()
@@ -146,6 +158,7 @@ namespace RtEngine
         const auto mandelbulb_comp = context->scene_manager->getComponent<Mandelbulb>();
         if (const auto r = cca_comp ? cca_comp->getRenderer() : nullptr)
         {
+            cca_renderer = r;
             std::weak_ptr<CyclicalCellularAutomatonRenderer> weak = r;
             manager->addPaletteListener([weak](const ::color::ColorPalette& palette)
                 {
@@ -157,6 +170,7 @@ namespace RtEngine
         }
         if (const auto r = mandelbrot_comp ? mandelbrot_comp->getRenderer() : nullptr)
         {
+            mandelbrot_renderer = r;
             std::weak_ptr<MandelbrotRenderer> weak = r;
             manager->addPaletteListener([weak](const ::color::ColorPalette& palette)
                 {
@@ -168,6 +182,7 @@ namespace RtEngine
         }
         if (const auto r = mandelbulb_comp ? mandelbulb_comp->getRenderer() : nullptr)
         {
+            mandelbulb_renderer = r;
             std::weak_ptr<MandelbulbRenderer> weak = r;
             manager->addPaletteListener([weak](const ::color::ColorPalette& palette)
                 {
