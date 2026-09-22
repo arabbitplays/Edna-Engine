@@ -49,6 +49,7 @@ namespace RtEngine
         void tryBuildManager();
 
         bool inversion_staccato = false;
+        bool applied_inversion_staccato = false;
         bool animate = true;
         float rotation_interval_s = 60.0f;
         std::string current_visualization;

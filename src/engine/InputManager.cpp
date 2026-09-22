@@ -108,6 +108,27 @@ namespace RtEngine
         case GLFW_KEY_Z:
             return Keycode::Z;
 
+        case GLFW_KEY_0:
+            return Keycode::NUM_0;
+        case GLFW_KEY_1:
+            return Keycode::NUM_1;
+        case GLFW_KEY_2:
+            return Keycode::NUM_2;
+        case GLFW_KEY_3:
+            return Keycode::NUM_3;
+        case GLFW_KEY_4:
+            return Keycode::NUM_4;
+        case GLFW_KEY_5:
+            return Keycode::NUM_5;
+        case GLFW_KEY_6:
+            return Keycode::NUM_6;
+        case GLFW_KEY_7:
+            return Keycode::NUM_7;
+        case GLFW_KEY_8:
+            return Keycode::NUM_8;
+        case GLFW_KEY_9:
+            return Keycode::NUM_9;
+
         case GLFW_KEY_SPACE:
             return Keycode::SPACE;
         case GLFW_KEY_LEFT_SHIFT:

@@ -88,12 +88,20 @@ namespace RtEngine
             return;
         }
 
+        manager->pollInput();
+
         if (!update_gate.tick())
         {
             return;
         }
 
-        manager->setInversionStaccato(inversion_staccato);
+        // Only push the checkbox on transitions; the manager owns burst state
+        // triggered by inputs and shouldn't be overwritten every tick.
+        if (inversion_staccato != applied_inversion_staccato)
+        {
+            manager->setInversionStaccato(inversion_staccato);
+            applied_inversion_staccato = inversion_staccato;
+        }
         manager->setAnimate(animate);
         manager->setRotationIntervalSeconds(rotation_interval_s);
 
@@ -195,7 +203,7 @@ namespace RtEngine
 
         const auto initial_palette = ::color::ColorPaletteFactory::create(::color::ColorPaletteName::Sunburn);
         manager = std::make_unique<RaveVisualizer::CompositionManager>(composition_renderer, glitch_comp,
-            ::color::ColorPalette{initial_palette});
+            ::color::ColorPalette{initial_palette}, context ? context->input_manager : nullptr);
 
         const auto cca_comp = context->scene_manager->getComponent<CyclicalCellularAutomaton>();
         const auto mandelbrot_comp = context->scene_manager->getComponent<Mandelbrot>();

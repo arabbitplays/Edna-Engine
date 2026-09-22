@@ -4,6 +4,7 @@
 
 #include <FrameGate.hpp>
 #include <memory>
+#include <optional>
 #include <string>
 
 namespace RtEngine
@@ -38,6 +39,28 @@ namespace RtEngine
         }
         std::shared_ptr<ImageConnector> getOutputConnector() const override;
 
+        // While an override is set, OnUpdate pushes the override values
+        // instead of the ImGui/YAML-configured baseline. Clearing the
+        // override restores the baseline on the next tick.
+        void setShakeOverride(float power, float rate)
+        {
+            override_shake_power = power;
+            override_shake_rate = rate;
+        }
+        void clearShakeOverride()
+        {
+            override_shake_power.reset();
+            override_shake_rate.reset();
+        }
+        float baseShakePower() const
+        {
+            return shake_power;
+        }
+        float baseShakeRate() const
+        {
+            return shake_rate;
+        }
+
     private:
         bool tryInitialize();
 
@@ -48,6 +71,9 @@ namespace RtEngine
         float shake_speed = 5.0f;
         float shake_block_size = 30.5f;
         float shake_color_rate = 0.01f;
+
+        std::optional<float> override_shake_power;
+        std::optional<float> override_shake_rate;
 
         std::shared_ptr<GlitchRenderer> renderer;
 

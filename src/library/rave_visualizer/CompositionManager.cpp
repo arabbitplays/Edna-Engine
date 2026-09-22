@@ -1,6 +1,7 @@
 #include "compute/CompositionRenderer.hpp"
 #include "compute/GlitchRenderer.hpp"
 #include "Glitch.hpp"
+#include "InputManager.hpp"
 
 #include <algorithm>
 #include <library/rave_visualizer/CompositionManager.hpp>
@@ -9,8 +10,9 @@
 namespace RaveVisualizer
 {
     CompositionManager::CompositionManager(std::shared_ptr<RtEngine::CompositionRenderer> composition,
-        std::shared_ptr<RtEngine::Glitch> glitch, ::color::ColorPalette initial_palette)
-        : composition(std::move(composition)), glitch(std::move(glitch)),
+        std::shared_ptr<RtEngine::Glitch> glitch, ::color::ColorPalette initial_palette,
+        std::shared_ptr<RtEngine::InputManager> input_manager)
+        : composition(std::move(composition)), glitch(std::move(glitch)), input_manager(std::move(input_manager)),
           palette_runner(std::move(initial_palette))
     {
         pushToComposition();
@@ -23,6 +25,19 @@ namespace RaveVisualizer
 
     void CompositionManager::tick(const float dt)
     {
+        handleInput();
+
+        if (staccato_remaining_s > 0.0F)
+        {
+            staccato_remaining_s -= dt;
+            if (staccato_remaining_s <= 0.0F)
+            {
+                staccato_remaining_s = 0.0F;
+                setInversionStaccato(false);
+                resetGlitchRamp();
+            }
+        }
+
         if (animate)
         {
             rotation_elapsed_s += dt;
@@ -65,6 +80,15 @@ namespace RaveVisualizer
             }
         }
 
+        if (glitch_ramp_active && glitch)
+        {
+            glitch_ramp_power = std::min(GLITCH_RAMP_POWER_MAX,
+                std::max(glitch_ramp_power, glitch->baseShakePower()) + GLITCH_RAMP_POWER_PER_S * dt);
+            glitch_ramp_rate = std::min(GLITCH_RAMP_RATE_MAX,
+                std::max(glitch_ramp_rate, glitch->baseShakeRate()) + GLITCH_RAMP_RATE_PER_S * dt);
+            glitch->setShakeOverride(glitch_ramp_power, glitch_ramp_rate);
+        }
+
         palette_runner.update();
 
         pushToComposition();
@@ -85,6 +109,73 @@ namespace RaveVisualizer
         rave_state.fade_progress = 0.0F;
         fade_elapsed_s = 0.0F;
         rave_state.phase = VisualizationPhase::FADE;
+    }
+
+    void CompositionManager::triggerInversionStaccato()
+    {
+        staccato_remaining_s = INVERSION_STACCATO_DURATION_S;
+        setInversionStaccato(true);
+    }
+
+    void CompositionManager::startGlitchRamp()
+    {
+        if (!glitch_ramp_active)
+        {
+            glitch_ramp_active = true;
+            glitch_ramp_power = 0.0F;
+            glitch_ramp_rate = 0.0F;
+        }
+    }
+
+    void CompositionManager::resetGlitchRamp()
+    {
+        glitch_ramp_active = false;
+        glitch_ramp_power = 0.0F;
+        glitch_ramp_rate = 0.0F;
+        if (glitch)
+        {
+            glitch->clearShakeOverride();
+        }
+    }
+
+    void CompositionManager::pollInput()
+    {
+        if (!input_manager)
+        {
+            return;
+        }
+
+        if (input_manager->getKeyDown(RtEngine::Keycode::NUM_3))
+        {
+            pending_trigger_staccato = true;
+        }
+        if (input_manager->getKeyDown(RtEngine::Keycode::NUM_2))
+        {
+            pending_start_ramp = true;
+        }
+        if (input_manager->getKeyDown(RtEngine::Keycode::NUM_1))
+        {
+            pending_reset_ramp = true;
+        }
+    }
+
+    void CompositionManager::handleInput()
+    {
+        if (pending_trigger_staccato)
+        {
+            triggerInversionStaccato();
+            pending_trigger_staccato = false;
+        }
+        if (pending_start_ramp)
+        {
+            startGlitchRamp();
+            pending_start_ramp = false;
+        }
+        if (pending_reset_ramp)
+        {
+            resetGlitchRamp();
+            pending_reset_ramp = false;
+        }
     }
 
     void CompositionManager::setInversionStaccato(const bool active)

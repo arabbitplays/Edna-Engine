@@ -14,6 +14,7 @@ namespace RtEngine
 {
     class CompositionRenderer;
     class Glitch;
+    class InputManager;
 } // namespace RtEngine
 
 namespace RaveVisualizer
@@ -25,16 +26,41 @@ namespace RaveVisualizer
         static constexpr float FADE_DURATION_S = 2.0f;
         static constexpr float INVERSION_STACCATO_HZ = 10.0f;
 
+        // Duration the key-triggered inversion burst runs for.
+        static constexpr float INVERSION_STACCATO_DURATION_S = 3.0f;
+
+        // Ramp caps + growth rate for the key-triggered glitch intensification.
+        static constexpr float GLITCH_RAMP_POWER_MAX = 0.4f;
+        static constexpr float GLITCH_RAMP_RATE_MAX = 1.0f;
+        static constexpr float GLITCH_RAMP_POWER_PER_S = 0.05f;
+        static constexpr float GLITCH_RAMP_RATE_PER_S = 0.2f;
+
         using PaletteListener = std::function<void(const ::color::ColorPalette&)>;
 
         CompositionManager(std::shared_ptr<RtEngine::CompositionRenderer> composition,
-            std::shared_ptr<RtEngine::Glitch> glitch, ::color::ColorPalette initial_palette);
+            std::shared_ptr<RtEngine::Glitch> glitch, ::color::ColorPalette initial_palette,
+            std::shared_ptr<RtEngine::InputManager> input_manager = nullptr);
 
         // Listeners are invoked immediately with the current palette on
         // registration, and afterwards on every palette animation step.
         void addPaletteListener(PaletteListener listener);
 
+        // Poll the input manager and latch any pending key events into the
+        // manager's own buffer. Call every render frame so events aren't
+        // dropped when tick() runs on a slower frame gate.
+        void pollInput();
+
         void tick(float dt);
+
+        // Triggers a timed staccato burst (INVERSION_STACCATO_DURATION_S).
+        void triggerInversionStaccato();
+
+        // Starts a monotonically-growing intensification of the glitch shake
+        // power and rate. Idempotent: pressing repeatedly keeps the ramp
+        // running from wherever it currently is.
+        void startGlitchRamp();
+        // Restores the glitch to its baseline configured values.
+        void resetGlitchRamp();
 
         void TryChangeType(VisualizationType new_type);
 
@@ -81,8 +107,11 @@ namespace RaveVisualizer
     private:
         void pushToComposition();
 
+        void handleInput();
+
         std::shared_ptr<RtEngine::CompositionRenderer> composition;
         std::shared_ptr<RtEngine::Glitch> glitch;
+        std::shared_ptr<RtEngine::InputManager> input_manager;
         ::color::PaletteAnimationRunner palette_runner;
         RaveState rave_state;
 
@@ -93,6 +122,19 @@ namespace RaveVisualizer
 
         bool inversion_staccato_active = false;
         float staccato_elapsed_s = 0.0f;
+        // Nonzero while the key-triggered burst is playing out.
+        float staccato_remaining_s = 0.0f;
+
+        bool glitch_ramp_active = false;
+        float glitch_ramp_power = 0.0f;
+        float glitch_ramp_rate = 0.0f;
+
+        // Latched by pollInput() (every frame), drained by handleInput() on
+        // the throttled tick, so key presses that happen between ticks aren't
+        // lost to the input manager's per-frame reset.
+        bool pending_trigger_staccato = false;
+        bool pending_start_ramp = false;
+        bool pending_reset_ramp = false;
     };
 } // namespace RaveVisualizer
 
