@@ -11,8 +11,10 @@ namespace mandelbulb
     class MandelbulbAnimationGenerator
     {
     public:
-        static constexpr int STEP_COUNT_MIN = 400;
-        static constexpr int STEP_COUNT_MAX = 2400;
+        // Runner ticks at the component's ~60 Hz gate, so step_count is
+        // roughly (seconds * 60). 150..800 = ~2.5..13 s per track animation.
+        static constexpr int STEP_COUNT_MIN = 150;
+        static constexpr int STEP_COUNT_MAX = 800;
 
         static constexpr float POWER_MIN = 4.0f;
         static constexpr float POWER_MAX = 12.0f;

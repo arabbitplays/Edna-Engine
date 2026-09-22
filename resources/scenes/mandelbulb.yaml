@@ -23,6 +23,10 @@ scene:
     - name: Mandelbulb
       components:
         Mandelbulb:
-          {}
+          animate: true
+          rotation_speed: 0.14
+          rim_weight: 0.6
+          diffuse_weight: 2.0
+          coloring: "Radius"
       children:
         []

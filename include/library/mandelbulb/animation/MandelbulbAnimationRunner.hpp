@@ -15,10 +15,10 @@ namespace mandelbulb
     class MandelbulbAnimationRunner
     {
     public:
-        static constexpr float COOLDOWN_MIN_SECONDS = 4.0f;
-        static constexpr float COOLDOWN_MAX_SECONDS = 12.0f;
-        static constexpr float AXIS_COOLDOWN_MIN_SECONDS = 8.0f;
-        static constexpr float AXIS_COOLDOWN_MAX_SECONDS = 20.0f;
+        static constexpr float COOLDOWN_MIN_SECONDS = 1.0f;
+        static constexpr float COOLDOWN_MAX_SECONDS = 4.0f;
+        static constexpr float AXIS_COOLDOWN_MIN_SECONDS = 4.0f;
+        static constexpr float AXIS_COOLDOWN_MAX_SECONDS = 10.0f;
 
         MandelbulbAnimationRunner(MandelbulbAnimationGenerator generator, float initial_power,
             float initial_theta_offset, float initial_step_rotation_angle);
