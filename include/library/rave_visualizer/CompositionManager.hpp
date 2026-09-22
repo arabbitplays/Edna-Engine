@@ -21,7 +21,7 @@ namespace RaveVisualizer
     class CompositionManager
     {
     public:
-        static constexpr float ROTATION_INTERVAL_S = 60.0f;
+        static constexpr float DEFAULT_ROTATION_INTERVAL_S = 60.0f;
         static constexpr float FADE_DURATION_S = 2.0f;
         static constexpr float INVERSION_STACCATO_HZ = 10.0f;
 
@@ -37,6 +37,26 @@ namespace RaveVisualizer
         void tick(float dt);
 
         void TryChangeType(VisualizationType new_type);
+
+        // When true, the manager cycles visualizations on its own timer; when
+        // false, the type only changes on TryChangeType calls.
+        void setAnimate(bool value)
+        {
+            animate = value;
+        }
+        bool isAnimate() const
+        {
+            return animate;
+        }
+
+        void setRotationIntervalSeconds(float seconds)
+        {
+            rotation_interval_s = seconds;
+        }
+        float rotationIntervalSeconds() const
+        {
+            return rotation_interval_s;
+        }
 
         void setInversionStaccato(bool active);
         bool isInversionStaccatoActive() const
@@ -66,6 +86,8 @@ namespace RaveVisualizer
         ::color::PaletteAnimationRunner palette_runner;
         RaveState rave_state;
 
+        bool animate = true;
+        float rotation_interval_s = DEFAULT_ROTATION_INTERVAL_S;
         float rotation_elapsed_s = 0.0f;
         float fade_elapsed_s = 0.0f;
 

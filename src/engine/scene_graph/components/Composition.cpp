@@ -17,6 +17,9 @@
 #include <library/rave_visualizer/CompositionManager.hpp>
 #include <logging/LogManager.hpp>
 
+#include <string>
+#include <vector>
+
 namespace RtEngine
 {
     namespace
@@ -25,6 +28,30 @@ namespace RtEngine
         {
             static Logging::LoggerHandle instance = Logging::LogManager::getClassLogger<Composition>();
             return instance;
+        }
+
+        std::vector<std::string> visualizationOptions()
+        {
+            const auto& names = RaveVisualizer::visualizationTypeNames();
+            return {names.begin(), names.end()};
+        }
+
+        RaveVisualizer::VisualizationType parseVisualization(const std::string& name)
+        {
+            const auto& names = RaveVisualizer::visualizationTypeNames();
+            for (std::size_t i = 0; i < names.size(); ++i)
+            {
+                if (names[i] == name)
+                {
+                    return RaveVisualizer::visualizationTypeFromIndex(i);
+                }
+            }
+            return RaveVisualizer::VisualizationType::CCA;
+        }
+
+        const std::string& visualizationName(RaveVisualizer::VisualizationType type)
+        {
+            return RaveVisualizer::visualizationTypeNames()[RaveVisualizer::visualizationTypeIndex(type)];
         }
     } // namespace
 
@@ -67,12 +94,29 @@ namespace RtEngine
         }
 
         manager->setInversionStaccato(inversion_staccato);
+        manager->setAnimate(animate);
+        manager->setRotationIntervalSeconds(rotation_interval_s);
+
+        // Dropdown changes are honored only when not auto-animating; they use
+        // the same fade infrastructure as the automatic rotation.
+        if (!animate && current_visualization != applied_visualization)
+        {
+            manager->TryChangeType(parseVisualization(current_visualization));
+            applied_visualization = current_visualization;
+        }
 
         const auto now = std::chrono::steady_clock::now();
         const float dt = std::chrono::duration<float>(now - last_tick).count();
         last_tick = now;
 
         manager->tick(dt);
+
+        // Keep the dropdown in sync with the automatic rotation.
+        if (animate)
+        {
+            current_visualization = visualizationName(manager->state().current);
+            applied_visualization = current_visualization;
+        }
 
         const auto weights = manager->currentWeights();
         const auto set_active = [](const std::weak_ptr<Renderer>& weak, bool active)
@@ -202,8 +246,15 @@ namespace RtEngine
     void Composition::initProperties(
         const std::shared_ptr<IProperties>& config, const UpdateFlagsHandle& /*update_flags*/)
     {
+        if (current_visualization.empty())
+        {
+            current_visualization = visualizationName(RaveVisualizer::VisualizationType::CCA);
+        }
         if (config->startChild(COMPONENT_NAME))
         {
+            config->addSelection("visualization", &current_visualization, visualizationOptions());
+            config->addBool("animate", &animate);
+            config->addFloat("rotation_interval_s", &rotation_interval_s, 1.0F, 600.0F);
             config->addBool("inversion_staccato", &inversion_staccato);
             config->endChild();
         }

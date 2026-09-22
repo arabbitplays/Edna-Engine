@@ -45,6 +45,9 @@ scene:
     - name: Composition
       components:
         Composition:
+          visualization: CCA
+          animate: true
+          rotation_interval_s: 60.0
           inversion_staccato: false
       children:
         []

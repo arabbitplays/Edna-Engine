@@ -23,13 +23,20 @@ namespace RaveVisualizer
 
     void CompositionManager::tick(const float dt)
     {
-        rotation_elapsed_s += dt;
-        if (rotation_elapsed_s >= ROTATION_INTERVAL_S)
+        if (animate)
+        {
+            rotation_elapsed_s += dt;
+            if (rotation_elapsed_s >= rotation_interval_s)
+            {
+                rotation_elapsed_s = 0.0F;
+                const std::size_t current_index = visualizationTypeIndex(rave_state.current);
+                const std::size_t next_index = (current_index + 1) % VISUALIZATION_TYPE_COUNT;
+                TryChangeType(visualizationTypeFromIndex(next_index));
+            }
+        }
+        else
         {
             rotation_elapsed_s = 0.0F;
-            const std::size_t current_index = visualizationTypeIndex(rave_state.current);
-            const std::size_t next_index = (current_index + 1) % VISUALIZATION_TYPE_COUNT;
-            TryChangeType(visualizationTypeFromIndex(next_index));
         }
 
         if (rave_state.phase == VisualizationPhase::FADE)
