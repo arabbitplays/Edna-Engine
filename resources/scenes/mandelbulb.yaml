@@ -5,10 +5,10 @@ scene:
         Transform:
           position:
             - 0
-            - 0
+            - 0.5
             - 3
           rotation:
-            - 0
+            - -0.2
             - 0
             - 0
           scale:
