@@ -6,6 +6,7 @@
 #include <limits>
 #include <utility>
 
+#include <library/mandelbrot/animation/MandelbrotProbe.hpp>
 #include <util/RandomUtil.hpp>
 
 namespace mandelbrot
@@ -59,14 +60,29 @@ namespace mandelbrot
         startPalette();
     }
 
-    void MandelbrotAnimationRunner::update(float entropy_bits, float max_entropy_bits, bool julia_mode)
+    void MandelbrotAnimationRunner::update(const glm::vec2& view_center, float view_span, bool julia_mode)
     {
         current_state_.julia_mode = julia_mode;
         const auto now = std::chrono::steady_clock::now();
         const float dt = std::chrono::duration<float>(now - last_tick_).count();
         last_tick_ = now;
 
-        const float target_speed = computeSpeed(entropy_bits, max_entropy_bits);
+        // Probe the actual on-screen view so speed reflects what the user
+        // is looking at, not a canonical reference.
+        float target_speed = 1.0f;
+        if (view_span > 0.0f) {
+            const ProbeResult probe = probeInterest(
+                static_cast<double>(view_center.x),
+                static_cast<double>(view_center.y),
+                static_cast<double>(view_span),
+                static_cast<double>(current_state_.initial.x),
+                static_cast<double>(current_state_.initial.y),
+                julia_mode,
+                MandelbrotAnimationGenerator::PROBE_MAX_ITER,
+                MandelbrotAnimationGenerator::PROBE_GRID_SIZE);
+            target_speed = computeSpeed(probe.edge_score);
+        }
+
         const float alpha = 1.0f - std::exp(-dt / SPEED_SMOOTHING_TAU_SECONDS);
         smoothed_speed_ += (target_speed - smoothed_speed_) * alpha;
 
@@ -76,10 +92,9 @@ namespace mandelbrot
         tick(palette_track_, dt, smoothed_speed_, &MandelbrotAnimationRunner::startPalette);
     }
 
-    float MandelbrotAnimationRunner::computeSpeed(float entropy_bits, float max_entropy_bits) const
+    float MandelbrotAnimationRunner::computeSpeed(float edge_score) const
     {
-        if (max_entropy_bits <= 0.0f) return 1.0f;
-        const float x = std::clamp(entropy_bits / max_entropy_bits, 0.0f, 1.0f);
+        const float x = std::clamp(edge_score / EDGE_SCORE_SATURATION, 0.0f, 1.0f);
         return MAX_SPEED - (MAX_SPEED - MIN_SPEED) * x;
     }
 

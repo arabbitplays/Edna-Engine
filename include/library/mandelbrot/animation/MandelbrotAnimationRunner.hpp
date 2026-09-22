@@ -15,6 +15,9 @@ namespace mandelbrot
     // Drives four independent Mandelbrot animation tracks (offset, step_size,
     // initial, palette). Each track chains to a fresh animation after a
     // random cooldown, using the value the previous animation ended on.
+    // A global speed multiplier from a per-frame probe of the current view
+    // slows the tracks on boundary-dense views and speeds them up on flat
+    // or dead-interior views.
     class MandelbrotAnimationRunner
     {
     public:
@@ -24,11 +27,16 @@ namespace mandelbrot
         static constexpr float COOLDOWN_MAX_SECONDS = 6.0f;
 
         // 1.0 = one animation step per rendered frame.
-        static constexpr float MIN_SPEED = 0.2f;   // at high entropy
-        static constexpr float MAX_SPEED = 4.0f;   // at zero entropy
+        static constexpr float MIN_SPEED = 0.2f;   // at high edge score
+        static constexpr float MAX_SPEED = 4.0f;   // at zero edge score
 
-        // EMA time constant on the speed multiplier so entropy spikes don't
-        // translate to jarring per-frame speed changes.
+        // Edge score at/above which speed saturates to MIN_SPEED. Chosen
+        // above the generator's PROBE_ACCEPT_EDGE=0.05 so a barely-interesting
+        // view still slows noticeably.
+        static constexpr float EDGE_SCORE_SATURATION = 0.15f;
+
+        // EMA time constant on the speed multiplier so edge-score spikes
+        // don't translate to jarring per-frame speed changes.
         static constexpr float SPEED_SMOOTHING_TAU_SECONDS = 1.5f;
 
         MandelbrotAnimationRunner(
@@ -39,8 +47,8 @@ namespace mandelbrot
             MandelbrotState        initial_state,
             ::color::ColorPalette  initial_palette);
 
-        // max_entropy_bits <= 0 disables speed modulation.
-        void update(float entropy_bits, float max_entropy_bits, bool julia_mode);
+        // view_span <= 0 disables speed modulation.
+        void update(const glm::vec2& view_center, float view_span, bool julia_mode);
 
     private:
         struct Track
@@ -50,7 +58,7 @@ namespace mandelbrot
             float step_accumulator = 0.0f;
         };
 
-        float computeSpeed(float entropy_bits, float max_entropy_bits) const;
+        float computeSpeed(float edge_score) const;
         void tick(Track& track, float dt, float speed,
                   void (MandelbrotAnimationRunner::*start)());
 

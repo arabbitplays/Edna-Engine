@@ -1,9 +1,6 @@
 #include "Mandelbrot.hpp"
 
-#include <cmath>
-
 #include <glm/glm.hpp>
-#include <spdlog/spdlog.h>
 
 #include <library/color/ColorPaletteFactory.hpp>
 #include <library/color/ColorPaletteName.hpp>
@@ -74,11 +71,12 @@ namespace RtEngine {
     void Mandelbrot::OnUpdate() {
         if (!renderer) return;
 
-        const float max_entropy_bits =
-            std::log2(static_cast<float>(MandelbrotRenderer::HISTOGRAM_BIN_COUNT));
-
         if (animate && animation_runner) {
-            animation_runner->update(last_entropy, max_entropy_bits, julia_mode);
+            const VkExtent2D extent =
+                context->rendering_manager->getVulkanContext()->swapchain->extent;
+            const float view_span = static_cast<float>(extent.width) * step_size;
+            const glm::vec2 view_center = origin + offset * view_span;
+            animation_runner->update(view_center, view_span, julia_mode);
         } else if (palette_name != applied_palette_name) {
             renderer->setPalette(loadPaletteColors(palette_name));
             applied_palette_name = palette_name;
@@ -90,9 +88,6 @@ namespace RtEngine {
         renderer->setMaxIterations(max_iterations);
         renderer->setInitial(static_cast<double>(initial_number.x), static_cast<double>(initial_number.y));
         renderer->setJuliaMode(julia_mode);
-
-        last_entropy = renderer->readEntropy();
-        SPDLOG_INFO("Mandelbrot entropy: {:.3f} bits (max {:.3f})", last_entropy, max_entropy_bits);
     }
 
     void Mandelbrot::initProperties(const std::shared_ptr<IProperties>& config,
