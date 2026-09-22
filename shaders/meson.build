@@ -10,6 +10,7 @@ shaders = [
     'compute/glitch.comp',
     'compute/cyclical_cellular_automaton.comp',
     'compute/mandelbrot.comp',
+    'compute/mandelbulb.comp',
     'compute/composition.comp',
 ]
 
