@@ -1,7 +1,5 @@
 #ifndef EDNA_ENGINE_COMPUTERUNNER_HPP
 #define EDNA_ENGINE_COMPUTERUNNER_HPP
-#include <memory>
-
 #include "EngineContext.hpp"
 #include "IRunner.hpp"
 #include "PresentStage.hpp"
@@ -9,18 +7,21 @@
 #include "SceneManager.hpp"
 #include "SyncManager.hpp"
 
-namespace RtEngine {
-    class ComputeRunner : public IRunner {
+#include <memory>
+
+namespace RtEngine
+{
+    class ComputeRunner : public IRunner
+    {
     public:
-        ComputeRunner(std::shared_ptr<EngineContext> engine_context,
-                      std::shared_ptr<SceneManager> scene_manager);
+        ComputeRunner(std::shared_ptr<EngineContext> engine_context, std::shared_ptr<SceneManager> scene_manager);
 
         bool isRunning() const override;
         void renderScene() override;
-        void setUpdateFlags(const UpdateFlagsHandle &new_flags) const override;
-        void initProperties(const std::shared_ptr<IProperties> &config, const UpdateFlagsHandle &update_flags) override;
+        void setUpdateFlags(const UpdateFlagsHandle& new_flags) const override;
+        void initProperties(const std::shared_ptr<IProperties>& config, const UpdateFlagsHandle& update_flags) override;
 
-        void loadScene(const std::string &scene_path);
+        void loadScene(const std::string& scene_path);
 
     private:
         void drawFrame();
@@ -40,6 +41,6 @@ namespace RtEngine {
         std::string scene_name;
         bool running = true;
     };
-} // RtEngine
+} // namespace RtEngine
 
-#endif //EDNA_ENGINE_COMPUTERUNNER_HPP
+#endif // EDNA_ENGINE_COMPUTERUNNER_HPP

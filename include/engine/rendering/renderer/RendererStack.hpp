@@ -1,11 +1,11 @@
 #ifndef EDNA_ENGINE_RENDERERSTACK_HPP
 #define EDNA_ENGINE_RENDERERSTACK_HPP
-#include <memory>
-#include <vector>
-
 #include "ImageConnector.hpp"
 #include "PresentStage.hpp"
 #include "Renderer.hpp"
+
+#include <memory>
+#include <vector>
 
 namespace RtEngine
 {
@@ -27,6 +27,6 @@ namespace RtEngine
         std::shared_ptr<PresentStage> present_stage;
         std::shared_ptr<ImageConnector> present_connector;
     };
-} // RtEngine
+} // namespace RtEngine
 
-#endif //EDNA_ENGINE_RENDERERSTACK_HPP
+#endif // EDNA_ENGINE_RENDERERSTACK_HPP

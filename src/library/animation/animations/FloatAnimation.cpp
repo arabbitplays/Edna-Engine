@@ -8,4 +8,4 @@ namespace Animation
     }
 
     template class Animation<float>;
-}
+} // namespace Animation

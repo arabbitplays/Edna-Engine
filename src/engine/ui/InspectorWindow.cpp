@@ -1,44 +1,54 @@
 #include "InspectorWindow.hpp"
 
-#include <imgui.h>
-
 #include "ImGuiProperties.hpp"
 #include "SceneAdapter.hpp"
 #include "UpdateFlagValue.hpp"
 
-namespace RtEngine {
-	InspectorWindow::InspectorWindow(const std::shared_ptr<SceneManager>& scene_manager) :
-		 scene_manager(scene_manager) {}
+#include <imgui.h>
 
-	void InspectorWindow::createFrame() {
-		if (!node || !scene_manager) {
-			return;
-}
+namespace RtEngine
+{
+    InspectorWindow::InspectorWindow(const std::shared_ptr<SceneManager>& scene_manager) : scene_manager(scene_manager)
+    {
+    }
 
-		std::shared_ptr<Node> root_node = scene_manager->getCurrentScene()->nodes["root"];
+    void InspectorWindow::createFrame()
+    {
+        if (!node || !scene_manager)
+        {
+            return;
+        }
 
-		ImGui::SetNextWindowSize(ImVec2(400, 300), ImGuiCond_Once);
+        std::shared_ptr<Node> root_node = scene_manager->getCurrentScene()->nodes["root"];
 
-		auto update_flags = std::make_shared<UpdateFlags>();
-		if (show_window) {
-			std::shared_ptr<ImGuiProperties> props = std::make_shared<ImGuiProperties>();
+        ImGui::SetNextWindowSize(ImVec2(400, 300), ImGuiCond_Once);
 
-			ImGui::Begin("Inspector", &show_window);
-			ImGui::Text("%s", node->name.c_str());
-			ImGui::Separator();
+        auto update_flags = std::make_shared<UpdateFlags>();
+        if (show_window)
+        {
+            std::shared_ptr<ImGuiProperties> props = std::make_shared<ImGuiProperties>();
 
-			for (auto &component: node->components) {
-				component->initProperties(props, update_flags);
-			}
+            ImGui::Begin("Inspector", &show_window);
+            ImGui::Text("%s", node->name.c_str());
+            ImGui::Separator();
 
-			ImGui::End();
-		}
+            for (auto& component : node->components)
+            {
+                component->initProperties(props, update_flags);
+            }
 
-		if (update_flags->hasAny()) {
-			notifyUpdate(update_flags);
-		}
-	}
+            ImGui::End();
+        }
 
-	void InspectorWindow::setNode(const std::shared_ptr<Node> &node) { this->node = node; }
+        if (update_flags->hasAny())
+        {
+            notifyUpdate(update_flags);
+        }
+    }
+
+    void InspectorWindow::setNode(const std::shared_ptr<Node>& node)
+    {
+        this->node = node;
+    }
 
 } // namespace RtEngine

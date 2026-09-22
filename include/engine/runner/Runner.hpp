@@ -2,34 +2,35 @@
 #define VULKAN_RAYTRACING_RUNNER_HPP
 #include "IRunner.hpp"
 #include "PresentStage.hpp"
+#include "RaytracingRenderer.hpp"
 #include "RendererStack.hpp"
 #include "SceneManager.hpp"
 #include "SyncManager.hpp"
-#include "RaytracingRenderer.hpp"
 
-namespace RtEngine {
-    class Runner : public IRunner {
+namespace RtEngine
+{
+    class Runner : public IRunner
+    {
     public:
-        Runner(const std::shared_ptr<EngineContext>& engine_context, const std::shared_ptr<SceneManager> &scene_manager);
+        Runner(
+            const std::shared_ptr<EngineContext>& engine_context, const std::shared_ptr<SceneManager>& scene_manager);
 
         std::string getScenePath() const;
-        virtual void loadScene(const std::string &scene_path);
+        virtual void loadScene(const std::string& scene_path);
         void renderScene() override;
 
-        void setUpdateFlags(const UpdateFlagsHandle &new_flags) const override;
+        void setUpdateFlags(const UpdateFlagsHandle& new_flags) const override;
 
         bool isRunning() const override;
 
-        void initProperties(const std::shared_ptr<IProperties> &config, const UpdateFlagsHandle& update_flags) override;
+        void initProperties(const std::shared_ptr<IProperties>& config, const UpdateFlagsHandle& update_flags) override;
 
     protected:
-        virtual void drawFrame(const std::shared_ptr<DrawContext> &draw_context);
+        virtual void drawFrame(const std::shared_ptr<DrawContext>& draw_context);
 
-        virtual void prepareFrame(const std::shared_ptr<DrawContext> &draw_context, uint32_t frame_idx);
-        virtual void renderFrame(uint32_t frame_idx,
-                                 uint32_t swapchain_image_idx,
-                                 bool present) const;
-        virtual void finishFrame(const std::shared_ptr<DrawContext> &draw_context) const;
+        virtual void prepareFrame(const std::shared_ptr<DrawContext>& draw_context, uint32_t frame_idx);
+        virtual void renderFrame(uint32_t frame_idx, uint32_t swapchain_image_idx, bool present) const;
+        virtual void finishFrame(const std::shared_ptr<DrawContext>& draw_context) const;
 
         void handleResize() const;
         void waitForIdle() const;
@@ -50,6 +51,6 @@ namespace RtEngine {
 
         UpdateFlagsHandle update_flags;
     };
-} // RtEngine
+} // namespace RtEngine
 
-#endif //VULKAN_RAYTRACING_RUNNER_HPP
+#endif // VULKAN_RAYTRACING_RUNNER_HPP

@@ -1,23 +1,20 @@
-#include <library/cellular_automaton/animation/CyclicalCellularAutomatonAnimationGenerator.hpp>
-
 #include <array>
 #include <cstdint>
-#include <limits>
-#include <memory>
-#include <utility>
-
 #include <format>
-#include <logging/LogManager.hpp>
-
 #include <library/animation/easing_functions/EasingCurve.hpp>
 #include <library/animation/easing_functions/EasingDirection.hpp>
 #include <library/animation/easing_functions/EasingFunction.hpp>
 #include <library/animation/easing_functions/EasingFunctionFactory.hpp>
+#include <library/cellular_automaton/animation/CyclicalCellularAutomatonAnimationGenerator.hpp>
 #include <library/cellular_automaton/neighborhoods/NeighborhoodFactory.hpp>
 #include <library/cellular_automaton/neighborhoods/NeighborhoodShape.hpp>
 #include <library/color/ColorPaletteFactory.hpp>
 #include <library/color/ColorPaletteName.hpp>
+#include <limits>
+#include <logging/LogManager.hpp>
+#include <memory>
 #include <util/RandomUtil.hpp>
+#include <utility>
 
 namespace cellular_automaton
 {
@@ -55,17 +52,14 @@ namespace cellular_automaton
             const std::size_t idx = RtEngine::RandomUtil::generateInt() % curves.size();
             return ::Animation::makeEasingFunction(curves[idx], ::Animation::EasingDirection::InOut);
         }
-    }
+    } // namespace
 
     CyclicalCellularAutomatonAnimationGenerator::CyclicalCellularAutomatonAnimationGenerator(
-        std::function<void(float)> set_mutation_chance,
-        std::function<void(const ::color::ColorPalette&)> set_palette,
+        std::function<void(float)> set_mutation_chance, std::function<void(const ::color::ColorPalette&)> set_palette,
         std::function<void(const std::vector<glm::ivec2>&)> set_neighborhood,
         std::function<void(uint32_t)> set_threshold)
-        : set_mutation_chance_(std::move(set_mutation_chance)),
-          set_palette_(std::move(set_palette)),
-          set_neighborhood_(std::move(set_neighborhood)),
-          set_threshold_(std::move(set_threshold))
+        : set_mutation_chance_(std::move(set_mutation_chance)), set_palette_(std::move(set_palette)),
+          set_neighborhood_(std::move(set_neighborhood)), set_threshold_(std::move(set_threshold))
     {
     }
 
@@ -76,14 +70,17 @@ namespace cellular_automaton
 
         auto set = set_mutation_chance_;
         auto animation = std::make_unique<::Animation::FloatAnimation>(
-            current,
-            target,
-            randomStepCount(),
-            [set](const float& v) { if (set) { set(v); 
-}},
+            current, target, randomStepCount(),
+            [set](const float& v)
+            {
+                if (set)
+                {
+                    set(v);
+                }
+            },
             randomInOutEasing());
 
-        return {.animation=std::move(animation), .target=target};
+        return {.animation = std::move(animation), .target = target};
     }
 
     CyclicalCellularAutomatonAnimationGenerator::PaletteAnimation
@@ -93,24 +90,31 @@ namespace cellular_automaton
 
         auto set = set_palette_;
         auto animation = std::make_unique<::color::ColorPaletteAnimation>(
-            current,
-            target,
-            randomStepCount(),
-            [set](const ::color::ColorPalette& p) { if (set) { set(p); 
-}},
+            current, target, randomStepCount(),
+            [set](const ::color::ColorPalette& p)
+            {
+                if (set)
+                {
+                    set(p);
+                }
+            },
             randomInOutEasing());
 
-        return {.animation=std::move(animation), .target=std::move(target)};
+        return {.animation = std::move(animation), .target = std::move(target)};
     }
 
     void CyclicalCellularAutomatonAnimationGenerator::applyRandomNeighborhood()
     {
         auto pick = pickRandomNeighborhood();
 
-        if (set_neighborhood_) { set_neighborhood_(pick.offsets);
-}
-        if (set_threshold_) {    set_threshold_(pick.threshold);
-}
+        if (set_neighborhood_)
+        {
+            set_neighborhood_(pick.offsets);
+        }
+        if (set_threshold_)
+        {
+            set_threshold_(pick.threshold);
+        }
     }
 
     float CyclicalCellularAutomatonAnimationGenerator::pickRandomMutationChance()
@@ -141,18 +145,26 @@ namespace cellular_automaton
         const auto shape = NeighborhoodShape::fromString(shape_names[shape_idx], NeighborhoodShape::Box);
 
         uint32_t threshold = 0U;
-        if (size == 1U) {
+        if (size == 1U)
+        {
             threshold = 1U;
-        } else {
-            switch (shape) {
-                case NeighborhoodShape::Box:     threshold = size * 2U; break;
-                case NeighborhoodShape::Diamond: threshold = size;      break;
+        }
+        else
+        {
+            switch (shape)
+            {
+            case NeighborhoodShape::Box:
+                threshold = size * 2U;
+                break;
+            case NeighborhoodShape::Diamond:
+                threshold = size;
+                break;
             }
         }
 
-        logger()->info(std::format("rolled neighborhood shape={}, size={}, threshold={}",
-                                   shape_names[shape_idx], size, threshold));
+        logger()->info(std::format(
+            "rolled neighborhood shape={}, size={}, threshold={}", shape_names[shape_idx], size, threshold));
 
-        return {.offsets=NeighborhoodFactory::create(shape, static_cast<int>(size)).offsets, .threshold=threshold};
+        return {.offsets = NeighborhoodFactory::create(shape, static_cast<int>(size)).offsets, .threshold = threshold};
     }
-}
+} // namespace cellular_automaton

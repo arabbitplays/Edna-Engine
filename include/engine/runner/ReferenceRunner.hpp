@@ -1,44 +1,47 @@
 #ifndef REFERENCERENDERER_HPP
 #define REFERENCERENDERER_HPP
 
-#include <chrono>
-
 #include "Runner.hpp"
 
-namespace RtEngine {
-	class ReferenceRunner : public Runner {
-	public:
-		ReferenceRunner(const std::shared_ptr<EngineContext> &engine_context, const std::shared_ptr<SceneManager> &scene_manager);
+#include <chrono>
 
-		void loadScene(const std::string &scene_path) override;
-		void renderScene() override;
-		void drawFrame(const std::shared_ptr<DrawContext> &draw_context) override;
+namespace RtEngine
+{
+    class ReferenceRunner : public Runner
+    {
+    public:
+        ReferenceRunner(
+            const std::shared_ptr<EngineContext>& engine_context, const std::shared_ptr<SceneManager>& scene_manager);
 
-	private:
-		void prepareFrame(const std::shared_ptr<DrawContext> &draw_context, uint32_t frame_idx) override;
+        void loadScene(const std::string& scene_path) override;
+        void renderScene() override;
+        void drawFrame(const std::shared_ptr<DrawContext>& draw_context) override;
 
-		void mergeImages(uint32_t width, uint32_t height);
+    private:
+        void prepareFrame(const std::shared_ptr<DrawContext>& draw_context, uint32_t frame_idx) override;
 
-		std::string getTmpImagePath(uint32_t image_idx, uint32_t samples);
-		std::string getOutputImagePath(uint32_t samples);
+        void mergeImages(uint32_t width, uint32_t height);
 
-		static float *calculateMean(float *imgA, const float *imgB, uint32_t size);
+        std::string getTmpImagePath(uint32_t image_idx, uint32_t samples);
+        std::string getOutputImagePath(uint32_t samples);
 
-		const std::string TMP_FOLDER = "./tmp";
-		const std::string OUT_FOLDER = "../resources/references";
+        static float* calculateMean(float* imgA, const float* imgB, uint32_t size);
 
-		std::shared_ptr<DrawContext> draw_context;
+        const std::string TMP_FOLDER = "./tmp";
+        const std::string OUT_FOLDER = "../resources/references";
 
-		std::chrono::steady_clock::time_point stopwatch_start;
-		uint32_t present_sample_count = 8;
-		int32_t final_sample_count = 1 << 20;
-		int32_t samples_per_image = 1 << 12;
-		// int32_t samples_per_image = 32;
-		// int32_t final_sample_count = 256;
+        std::shared_ptr<DrawContext> draw_context;
 
-		std::vector<float*> done_images;
-		uint32_t final_image_count;
-	};
+        std::chrono::steady_clock::time_point stopwatch_start;
+        uint32_t present_sample_count = 8;
+        int32_t final_sample_count = 1 << 20;
+        int32_t samples_per_image = 1 << 12;
+        // int32_t samples_per_image = 32;
+        // int32_t final_sample_count = 256;
+
+        std::vector<float*> done_images;
+        uint32_t final_image_count;
+    };
 
 } // namespace RtEngine
 #endif // REFERENCERENDERER_HPP

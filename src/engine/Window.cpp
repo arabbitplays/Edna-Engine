@@ -4,29 +4,36 @@
 
 #include "../../include/engine/Window.hpp"
 
-namespace RtEngine {
-    Window::Window(const uint32_t width, const uint32_t height) {
+namespace RtEngine
+{
+    Window::Window(const uint32_t width, const uint32_t height)
+    {
         initGlfwWindow(width, height);
     }
 
-    bool Window::is_open() const {
+    bool Window::is_open() const
+    {
         return glfwWindowShouldClose(glfw_handle) == 0;
     }
 
-    void Window::pollEvents() {
+    void Window::pollEvents()
+    {
         glfwPollEvents();
     }
 
-    GLFWwindow * Window::getHandle() const {
+    GLFWwindow* Window::getHandle() const
+    {
         return glfw_handle;
     }
 
-    void Window::destroy() const {
+    void Window::destroy() const
+    {
         glfwDestroyWindow(glfw_handle);
-		glfwTerminate();
+        glfwTerminate();
     }
 
-    void Window::initGlfwWindow(const uint32_t width, const uint32_t height) {
+    void Window::initGlfwWindow(const uint32_t width, const uint32_t height)
+    {
         glfwInit();
 
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
@@ -39,36 +46,45 @@ namespace RtEngine {
         glfwSetCursorPosCallback(glfw_handle, mouseCallback);
     }
 
-    void Window::addResizeCallback(const std::function<void(int, int)> &func) {
+    void Window::addResizeCallback(const std::function<void(int, int)>& func)
+    {
         resize_callbacks.push_back(func);
     }
 
-    void Window::addKeyCallback(const std::function<void(int, int, int, int)> &func) {
+    void Window::addKeyCallback(const std::function<void(int, int, int, int)>& func)
+    {
         key_callbacks.push_back(func);
     }
 
-    void Window::addMouseCallback(const std::function<void(double, double)> &func) {
+    void Window::addMouseCallback(const std::function<void(double, double)>& func)
+    {
         mouse_callbacks.push_back(func);
     }
 
-    void Window::framebufferResizeCallback(GLFWwindow *glfw_window, int width, int height) {
-        auto *window = reinterpret_cast<Window *>(glfwGetWindowUserPointer(glfw_window));
-        for (const auto& func : window->resize_callbacks) {
+    void Window::framebufferResizeCallback(GLFWwindow* glfw_window, int width, int height)
+    {
+        auto* window = reinterpret_cast<Window*>(glfwGetWindowUserPointer(glfw_window));
+        for (const auto& func : window->resize_callbacks)
+        {
             func(width, height);
         }
     }
 
-    void Window::keyCallback(GLFWwindow *glfw_window, int key, int scancode, int action, int mods) {
-        auto *window = reinterpret_cast<Window *>(glfwGetWindowUserPointer(glfw_window));
-        for (const auto& func : window->key_callbacks) {
+    void Window::keyCallback(GLFWwindow* glfw_window, int key, int scancode, int action, int mods)
+    {
+        auto* window = reinterpret_cast<Window*>(glfwGetWindowUserPointer(glfw_window));
+        for (const auto& func : window->key_callbacks)
+        {
             func(key, scancode, action, mods);
         }
     }
 
-    void Window::mouseCallback(GLFWwindow *glfw_window, double x_pos, double y_pos) {
-        auto *window = reinterpret_cast<Window *>(glfwGetWindowUserPointer(glfw_window));
-        for (const auto& func : window->mouse_callbacks) {
+    void Window::mouseCallback(GLFWwindow* glfw_window, double x_pos, double y_pos)
+    {
+        auto* window = reinterpret_cast<Window*>(glfwGetWindowUserPointer(glfw_window));
+        for (const auto& func : window->mouse_callbacks)
+        {
             func(x_pos, y_pos);
         }
     }
-} // RtEngine
+} // namespace RtEngine

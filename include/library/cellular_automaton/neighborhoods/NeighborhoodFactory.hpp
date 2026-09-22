@@ -11,6 +11,6 @@ namespace cellular_automaton
     public:
         static Neighborhood create(NeighborhoodShape shape, int size);
     };
-}
+} // namespace cellular_automaton
 
-#endif //EDNA_ENGINE_NEIGHBORHOODFACTORY_HPP
+#endif // EDNA_ENGINE_NEIGHBORHOODFACTORY_HPP

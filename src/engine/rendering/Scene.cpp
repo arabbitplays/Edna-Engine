@@ -1,92 +1,112 @@
 #include "Scene.hpp"
 
-#include <PhongMaterial.hpp>
-#include <glm/ext/matrix_clip_space.hpp>
-#include <glm/ext/matrix_transform.hpp>
-#include <components/Camera.hpp>
-
 #include "SceneUtil.hpp"
 
-namespace RtEngine {
-	std::shared_ptr<SceneData> Scene::createSceneData(uint32_t emitting_object_count) {
-		auto scene_data = std::make_shared<SceneData>();
+#include <components/Camera.hpp>
+#include <glm/ext/matrix_clip_space.hpp>
+#include <glm/ext/matrix_transform.hpp>
+#include <PhongMaterial.hpp>
 
-		std::shared_ptr<Camera> camera = SceneUtil::collectCameras(getRootNode()).at(0); // TODO remove this by having a own camera uniform buffer
-		scene_data->inverse_view = camera->getInverseView();
-		scene_data->inverse_proj = camera->getInverseProjection();
-		scene_data->view_pos = glm::vec4(camera->getPosition(), 0.0F);
+namespace RtEngine
+{
+    std::shared_ptr<SceneData> Scene::createSceneData(uint32_t emitting_object_count)
+    {
+        auto scene_data = std::make_shared<SceneData>();
 
-		std::array<glm::vec4, POINT_LIGHT_COUNT> point_light_positions = {};
-		std::array<glm::vec4, POINT_LIGHT_COUNT> point_light_colors = {};
-		for (uint32_t i = 0; i < POINT_LIGHT_COUNT; i++) {
-			point_light_positions[i] = glm::vec4{pointLights[i].position, pointLights[i].intensity};
-			point_light_colors[i] = glm::vec4{pointLights[i].color, 0.0F};
-		}
+        std::shared_ptr<Camera> camera =
+            SceneUtil::collectCameras(getRootNode()).at(0); // TODO remove this by having a own camera uniform buffer
+        scene_data->inverse_view = camera->getInverseView();
+        scene_data->inverse_proj = camera->getInverseProjection();
+        scene_data->view_pos = glm::vec4(camera->getPosition(), 0.0F);
 
-		scene_data->pointLightPositions = point_light_positions;
-		scene_data->pointLightColors = point_light_colors;
-		scene_data->sunlightDirection = glm::vec4(sun.direction, sun.intensity);
-		scene_data->sunlightColor = glm::vec4(sun.color, 0.0F);
-		scene_data->sunlightColor = glm::vec4{1, 0, 0, 1.0F};
+        std::array<glm::vec4, POINT_LIGHT_COUNT> point_light_positions = {};
+        std::array<glm::vec4, POINT_LIGHT_COUNT> point_light_colors = {};
+        for (uint32_t i = 0; i < POINT_LIGHT_COUNT; i++)
+        {
+            point_light_positions[i] = glm::vec4{pointLights[i].position, pointLights[i].intensity};
+            point_light_colors[i] = glm::vec4{pointLights[i].color, 0.0F};
+        }
 
-		scene_data->ambientColor = glm::vec4(0.05F);
+        scene_data->pointLightPositions = point_light_positions;
+        scene_data->pointLightColors = point_light_colors;
+        scene_data->sunlightDirection = glm::vec4(sun.direction, sun.intensity);
+        scene_data->sunlightColor = glm::vec4(sun.color, 0.0F);
+        scene_data->sunlightColor = glm::vec4{1, 0, 0, 1.0F};
 
-		scene_data->emitting_object_count = emitting_object_count;
+        scene_data->ambientColor = glm::vec4(0.05F);
 
-		return scene_data;
-	}
+        scene_data->emitting_object_count = emitting_object_count;
 
-	void Scene::addNode(const std::string& name, std::shared_ptr<Node> node) {
-		assert(!nodes.contains(name));
-		nodes[name] = std::move(node);
-	}
+        return scene_data;
+    }
 
-	std::shared_ptr<Node> Scene::getRootNode() { return nodes["root"]; }
+    void Scene::addNode(const std::string& name, std::shared_ptr<Node> node)
+    {
+        assert(!nodes.contains(name));
+        nodes[name] = std::move(node);
+    }
 
-	void Scene::start() {
-		for (auto &node: nodes) {
-			node.second->start();
-		}
-	}
+    std::shared_ptr<Node> Scene::getRootNode()
+    {
+        return nodes["root"];
+    }
 
-	void Scene::update() {
-		getRootNode()->refreshTransform(glm::mat4(1.0F));
+    void Scene::start()
+    {
+        for (auto& node : nodes)
+        {
+            node.second->start();
+        }
+    }
 
-		for (auto &node: nodes) {
-			node.second->update();
-		}
-	}
+    void Scene::update()
+    {
+        getRootNode()->refreshTransform(glm::mat4(1.0F));
 
-	void Scene::destroy() {
-		for (auto &node: nodes) {
-			node.second->destroy();
-		}
-	}
+        for (auto& node : nodes)
+        {
+            node.second->update();
+        }
+    }
 
-	std::vector<std::shared_ptr<MeshAsset>> Scene::getMeshAssets() {
-		return SceneUtil::collectMeshAssets(getRootNode());
-	}
+    void Scene::destroy()
+    {
+        for (auto& node : nodes)
+        {
+            node.second->destroy();
+        }
+    }
 
-	std::vector<std::shared_ptr<MaterialInstance>> Scene::getMaterialInstances() {
-		return  SceneUtil::collectMaterialInstances(getRootNode());
-	}
+    std::vector<std::shared_ptr<MeshAsset>> Scene::getMeshAssets()
+    {
+        return SceneUtil::collectMeshAssets(getRootNode());
+    }
 
-	void Scene::fillDrawContext(const std::shared_ptr<DrawContext> &draw_context) {
-		getRootNode()->draw(*draw_context);
-	}
+    std::vector<std::shared_ptr<MaterialInstance>> Scene::getMaterialInstances()
+    {
+        return SceneUtil::collectMaterialInstances(getRootNode());
+    }
 
-	std::shared_ptr<Material> Scene::getMaterial() {
-		return material;
-	}
+    void Scene::fillDrawContext(const std::shared_ptr<DrawContext>& draw_context)
+    {
+        getRootNode()->draw(*draw_context);
+    }
 
-	std::shared_ptr<EnvironmentMap> Scene::getEnvironmentMap() {
-		return environment_map;
-	}
+    std::shared_ptr<Material> Scene::getMaterial()
+    {
+        return material;
+    }
 
-	void * Scene::getSceneData(size_t *size, uint32_t emitting_instances_count) {
-		last_scene_data = createSceneData(emitting_instances_count);
-		*size = sizeof(SceneData);
-		return last_scene_data.get();
-	}
+    std::shared_ptr<EnvironmentMap> Scene::getEnvironmentMap()
+    {
+        return environment_map;
+    }
+
+    void* Scene::getSceneData(size_t* size, uint32_t emitting_instances_count)
+    {
+        last_scene_data = createSceneData(emitting_instances_count);
+        *size = sizeof(SceneData);
+        return last_scene_data.get();
+    }
 
 } // namespace RtEngine

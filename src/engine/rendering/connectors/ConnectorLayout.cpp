@@ -1,11 +1,10 @@
 #include "ConnectorLayout.hpp"
 
-#include <cassert>
-#include <utility>
-
-#include <logging/LogManager.hpp>
-
 #include "DescriptorLayoutBuilder.hpp"
+
+#include <cassert>
+#include <logging/LogManager.hpp>
+#include <utility>
 
 namespace RtEngine
 {
@@ -16,10 +15,10 @@ namespace RtEngine
             static Logging::LoggerHandle instance = Logging::LogManager::getClassLogger<ConnectorLayout>();
             return instance;
         }
-    }
+    } // namespace
 
-    ConnectorLayout::ConnectorLayout(std::shared_ptr<DeviceManager> device_manager,
-                                     std::shared_ptr<DescriptorAllocator> descriptor_allocator)
+    ConnectorLayout::ConnectorLayout(
+        std::shared_ptr<DeviceManager> device_manager, std::shared_ptr<DescriptorAllocator> descriptor_allocator)
         : device_manager(std::move(device_manager)), descriptor_allocator(std::move(descriptor_allocator))
     {
     }
@@ -45,8 +44,8 @@ namespace RtEngine
         for (uint32_t binding = 0; binding < connectors.size(); binding++)
         {
             assert(connectors[binding] != nullptr && "ConnectorLayout has nullptr connector at binding");
-            builder.addBinding(binding, connectors[binding]->getDescriptorType(),
-                               connectors[binding]->getDescriptorCount());
+            builder.addBinding(
+                binding, connectors[binding]->getDescriptorType(), connectors[binding]->getDescriptorCount());
         }
         return builder.build(device_manager->getDevice(), stage_flags);
     }
@@ -75,4 +74,4 @@ namespace RtEngine
     {
         return connectors;
     }
-} // RtEnginge
+} // namespace RtEngine

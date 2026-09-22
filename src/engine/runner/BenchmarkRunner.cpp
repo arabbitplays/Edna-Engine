@@ -1,187 +1,214 @@
 #include "BenchmarkRunner.hpp"
 
-#include <filesystem>
-#include <omp.h>
-
-#include <logging/LogManager.hpp>
-#include <utility>
-
 #include "ImageUtil.hpp"
 #include "PathUtil.hpp"
 #include "QuickTimer.hpp"
 #include "ReferenceRunner.hpp"
 
-namespace RtEngine {
-	namespace {
-		Logging::LoggerHandle& logger() {
-			static Logging::LoggerHandle instance = Logging::LogManager::getClassLogger<BenchmarkRunner>();
-			return instance;
-		}
-	}
+#include <filesystem>
+#include <logging/LogManager.hpp>
+#include <omp.h>
+#include <utility>
 
-	namespace fs = std::filesystem;
+namespace RtEngine
+{
+    namespace
+    {
+        Logging::LoggerHandle& logger()
+        {
+            static Logging::LoggerHandle instance = Logging::LogManager::getClassLogger<BenchmarkRunner>();
+            return instance;
+        }
+    } // namespace
 
-	constexpr std::string sample_count_option_name = "Sample_Count";
-	constexpr std::string reference_image_path_option_name = "Reference_Image";
+    namespace fs = std::filesystem;
 
-	BenchmarkRunner::BenchmarkRunner(const std::shared_ptr<EngineContext> &engine_context, const std::shared_ptr<SceneManager> &scene_manager)
-			: Runner(engine_context, scene_manager) {
+    constexpr std::string sample_count_option_name = "Sample_Count";
+    constexpr std::string reference_image_path_option_name = "Reference_Image";
 
-		if (std::filesystem::create_directories(TMP_FOLDER)) {
-			logger()->info(std::format("Created directory {}", TMP_FOLDER));
-		}
+    BenchmarkRunner::BenchmarkRunner(
+        const std::shared_ptr<EngineContext>& engine_context, const std::shared_ptr<SceneManager>& scene_manager)
+        : Runner(engine_context, scene_manager)
+    {
 
-		if (std::filesystem::create_directories(OUT_FOLDER)) {
-			logger()->info(std::format("Created directory {}", OUT_FOLDER));
-		}
-	}
+        if (std::filesystem::create_directories(TMP_FOLDER))
+        {
+            logger()->info(std::format("Created directory {}", TMP_FOLDER));
+        }
 
-	void BenchmarkRunner::loadScene(const std::string &scene_path) {
-		Runner::loadScene(scene_path);
+        if (std::filesystem::create_directories(OUT_FOLDER))
+        {
+            logger()->info(std::format("Created directory {}", OUT_FOLDER));
+        }
+    }
 
-		scene_manager->getCurrentScene()->update();
-		draw_context = createMainDrawContext();
+    void BenchmarkRunner::loadScene(const std::string& scene_path)
+    {
+        Runner::loadScene(scene_path);
 
-		assert(draw_context->targets.size() == 1);
-		std::shared_ptr<RenderTarget> target = draw_context->targets[0];
-		target->setSamplesPerFrame(1);
-	}
+        scene_manager->getCurrentScene()->update();
+        draw_context = createMainDrawContext();
 
-	void BenchmarkRunner::renderScene() {
-		if (update_flags->checkFlag(SCENE_UPDATE)) {
-			loadScene(scene_manager->getScenePath(scene_name));
-		}
-		std::shared_ptr<RenderTarget> target = draw_context->targets[0];
+        assert(draw_context->targets.size() == 1);
+        std::shared_ptr<RenderTarget> target = draw_context->targets[0];
+        target->setSamplesPerFrame(1);
+    }
 
-		// render one image and then output it if output path is defined
-		if (std::cmp_equal(error_calculation_sample_count ,target->getTotalSampleCount())) {
-			waitForIdle();
-			raytracing_renderer->outputRenderingTarget(target, getTmpImagePath(error_calculation_sample_count));
+    void BenchmarkRunner::renderScene()
+    {
+        if (update_flags->checkFlag(SCENE_UPDATE))
+        {
+            loadScene(scene_manager->getScenePath(scene_name));
+        }
+        std::shared_ptr<RenderTarget> target = draw_context->targets[0];
 
-			if (error_calculation_sample_count == final_sample_count) {
-				running = false;
-				outputBenchmarkDataToCsv();
-			} else {
-				error_calculation_sample_count *= 2;
-			}
-		}
+        // render one image and then output it if output path is defined
+        if (std::cmp_equal(error_calculation_sample_count, target->getTotalSampleCount()))
+        {
+            waitForIdle();
+            raytracing_renderer->outputRenderingTarget(target, getTmpImagePath(error_calculation_sample_count));
 
-		drawFrame(draw_context);
-	}
+            if (error_calculation_sample_count == final_sample_count)
+            {
+                running = false;
+                outputBenchmarkDataToCsv();
+            }
+            else
+            {
+                error_calculation_sample_count *= 2;
+            }
+        }
 
+        drawFrame(draw_context);
+    }
 
-	void BenchmarkRunner::drawFrame(const std::shared_ptr<DrawContext> &draw_context) {
-		sync_manager->waitForNextFrameStart();
+    void BenchmarkRunner::drawFrame(const std::shared_ptr<DrawContext>& draw_context)
+    {
+        sync_manager->waitForNextFrameStart();
 
-		std::shared_ptr<RenderTarget> target = draw_context->targets[0];
+        std::shared_ptr<RenderTarget> target = draw_context->targets[0];
 
-		uint32_t curr_sample_count = target->getTotalSampleCount();
-		bool present_image = error_calculation_sample_count - 1 == curr_sample_count;
+        uint32_t curr_sample_count = target->getTotalSampleCount();
+        bool present_image = error_calculation_sample_count - 1 == curr_sample_count;
 
-		int32_t swapchain_image_idx = 0;
-		if (present_image) {
-			swapchain_image_idx = present_stage->acquireNextSwapchainImage();
-			if (swapchain_image_idx < 0) {
-				handleResize();
-				return;
-			}
-		}
+        int32_t swapchain_image_idx = 0;
+        if (present_image)
+        {
+            swapchain_image_idx = present_stage->acquireNextSwapchainImage();
+            if (swapchain_image_idx < 0)
+            {
+                handleResize();
+                return;
+            }
+        }
 
-		const uint32_t frame_idx = sync_manager->currentFrameInFlight();
+        const uint32_t frame_idx = sync_manager->currentFrameInFlight();
 
-		prepareFrame(draw_context, frame_idx);
+        prepareFrame(draw_context, frame_idx);
 
-		raytracing_renderer->writeRenderTarget(target);
+        raytracing_renderer->writeRenderTarget(target);
 
-		renderFrame(frame_idx, static_cast<uint32_t>(swapchain_image_idx), present_image);
-		finishFrame(draw_context);
-	}
+        renderFrame(frame_idx, static_cast<uint32_t>(swapchain_image_idx), present_image);
+        finishFrame(draw_context);
+    }
 
+    void BenchmarkRunner::prepareFrame(const std::shared_ptr<DrawContext>& draw_context, uint32_t frame_idx)
+    {
+        raytracing_renderer->writeResources(draw_context, update_flags, frame_idx);
+        update_flags->resetFlags();
+    }
 
-	void BenchmarkRunner::prepareFrame(const std::shared_ptr<DrawContext> &draw_context, uint32_t frame_idx) {
-		raytracing_renderer->writeResources(draw_context, update_flags, frame_idx);
-		update_flags->resetFlags();
-	}
+    std::string BenchmarkRunner::getTmpImagePath(uint32_t samples)
+    {
+        std::string scene_name = PathUtil::getFileName(scene_manager->getCurrentScene()->path);
+        return std::format("{}/bm_{}_{}.png", TMP_FOLDER, samples, scene_name);
+    }
 
-	std::string BenchmarkRunner::getTmpImagePath(uint32_t samples) {
-		std::string scene_name = PathUtil::getFileName(scene_manager->getCurrentScene()->path);
-		return std::format("{}/bm_{}_{}.png", TMP_FOLDER, samples, scene_name);
-	}
+    std::string BenchmarkRunner::getOutputFilePath()
+    {
+        std::string scene_name = PathUtil::getFileName(scene_manager->getCurrentScene()->path);
+        return std::format("{}/bm_out.csv", OUT_FOLDER, scene_name);
+    }
 
-	std::string BenchmarkRunner::getOutputFilePath() {
-		std::string scene_name = PathUtil::getFileName(scene_manager->getCurrentScene()->path);
-		return std::format("{}/bm_out.csv", OUT_FOLDER, scene_name);
-	}
+    std::string BenchmarkRunner::getRefFilePath()
+    {
+        std::string scene_name = PathUtil::getFileName(scene_manager->getCurrentScene()->path);
+        return std::format("{}/1048576_{}.png", REF_FOLDER, scene_name);
+    }
 
-	std::string BenchmarkRunner::getRefFilePath() {
-		std::string scene_name = PathUtil::getFileName(scene_manager->getCurrentScene()->path);
-		return std::format("{}/1048576_{}.png", REF_FOLDER, scene_name);
-	}
+    void BenchmarkRunner::outputBenchmarkDataToCsv()
+    {
+        std::string ref_path = getRefFilePath();
 
-	void BenchmarkRunner::outputBenchmarkDataToCsv() {
-		std::string ref_path = getRefFilePath();
+        int ref_width;
+        int ref_height;
+        uint8_t* ref_data = ImageUtil::loadPNG(ref_path, &ref_width, &ref_height);
 
-		int ref_width;
-		int ref_height;
-		uint8_t* ref_data = ImageUtil::loadPNG(ref_path, &ref_width, &ref_height);
+        assert(ref_data != nullptr);
 
-		assert(ref_data != nullptr);
+        std::string output_path = getOutputFilePath();
+        std::ofstream out(output_path);
+        if (!out)
+        {
+            throw std::runtime_error("Failed to open CSV file");
+        }
+        out << "samples,mse\n";
 
-		std::string output_path = getOutputFilePath();
-		std::ofstream out(output_path);
-		if (!out) {
-			throw std::runtime_error("Failed to open CSV file");
-}
-		out << "samples,mse\n";
+        for (uint32_t i = 1; i <= final_sample_count; i *= 2)
+        {
+            int width;
+            int height;
+            uint8_t* data = ImageUtil::loadPNG(getTmpImagePath(i), &width, &height);
 
-		for (uint32_t i = 1; i <= final_sample_count; i *= 2) {
-			int width;
-			int height;
-			uint8_t* data = ImageUtil::loadPNG(getTmpImagePath(i), &width, &height);
+            assert(ref_width == width && ref_height == height);
+            assert(data != nullptr);
 
-			assert(ref_width == width && ref_height == height);
-			assert(data != nullptr);
+            float mse = calculateMSE(ref_data, data, width * height * 4);
+            out << std::format("{},{}\n", i, mse);
 
-			float mse = calculateMSE(ref_data, data, width * height * 4);
-			out << std::format("{},{}\n", i, mse);
+            stbi_image_free(data);
+        }
+        stbi_image_free(ref_data);
 
-			stbi_image_free(data);
-		}
-		stbi_image_free(ref_data);
+        clearTmpfolder();
+        logger()->info(std::format("Saved benchmark data to {}!", output_path));
+    }
 
-		clearTmpfolder();
-		logger()->info(std::format("Saved benchmark data to {}!", output_path));
-	}
+    void BenchmarkRunner::clearTmpfolder()
+    {
+        namespace Fs = std::filesystem;
+        QuickTimer timer("MSE Calculation");
 
-	void BenchmarkRunner::clearTmpfolder() {
-		namespace Fs = std::filesystem;
-		QuickTimer timer("MSE Calculation");
+        if (!fs::exists(TMP_FOLDER) || !fs::is_directory(TMP_FOLDER))
+        {
+            return;
+        }
 
-		if (!fs::exists(TMP_FOLDER) || !fs::is_directory(TMP_FOLDER)) {
-			return;
-}
+        for (const fs::directory_entry& entry : fs::directory_iterator(TMP_FOLDER))
+        {
+            if (entry.is_regular_file())
+            {
+                fs::remove(entry.path());
+            }
+        }
+    }
 
-		for (const fs::directory_entry& entry : fs::directory_iterator(TMP_FOLDER)) {
-			if (entry.is_regular_file()) {
-				fs::remove(entry.path());
-			}
-		}
-	}
+    float BenchmarkRunner::calculateMSE(const uint8_t* ref_data, const uint8_t* data, uint32_t size)
+    {
+        float result = 0;
+#pragma omp parallel for reduction(+ : result)
+        for (uint32_t i = 0; i < size; i++)
+        {
+            int32_t difference = static_cast<int32_t>(ref_data[i]) - static_cast<int32_t>(data[i]);
+            result += static_cast<float>(difference * difference) / static_cast<float>(size);
+        }
 
-	float BenchmarkRunner::calculateMSE(const uint8_t* ref_data, const uint8_t* data, uint32_t size) {
-		float result = 0;
-#pragma omp parallel for reduction(+:result)
-		for (uint32_t i = 0; i < size; i++) {
-			int32_t difference = static_cast<int32_t>(ref_data[i]) - static_cast<int32_t>(data[i]);
-			result += static_cast<float>(difference * difference) / static_cast<float>(size);
-		}
+        return result;
+    }
 
-		return result;
-	}
-
-	/*void BenchmarkRunner::initProperties() {
-		RaytracingRenderer::initProperties();
-		renderer_properties->addInt(SAMPLE_COUNT_OPTION_NAME, &sample_count);
-		renderer_properties->addString(REFERENCE_IMAGE_PATH_OPTION_NAME, &reference_image_path);
-	}*/
+    /*void BenchmarkRunner::initProperties() {
+        RaytracingRenderer::initProperties();
+        renderer_properties->addInt(SAMPLE_COUNT_OPTION_NAME, &sample_count);
+        renderer_properties->addString(REFERENCE_IMAGE_PATH_OPTION_NAME, &reference_image_path);
+    }*/
 } // namespace RtEngine

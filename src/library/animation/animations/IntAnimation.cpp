@@ -1,6 +1,5 @@
-#include <library/animation/animations/IntAnimation.hpp>
-
 #include <cmath>
+#include <library/animation/animations/IntAnimation.hpp>
 
 namespace Animation
 {
@@ -12,4 +11,4 @@ namespace Animation
     }
 
     template class Animation<int>;
-}
+} // namespace Animation

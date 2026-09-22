@@ -2,21 +2,25 @@
 #define VULKAN_RAYTRACING_METALROUGHINSTANCE_HPP
 #include "MaterialInstance.hpp"
 
-namespace RtEngine {
-    class PhongInstance final : public MaterialInstance {
+namespace RtEngine
+{
+    class PhongInstance final : public MaterialInstance
+    {
     public:
-        explicit PhongInstance(const std::string& name) : MaterialInstance(name) {
+        explicit PhongInstance(const std::string& name) : MaterialInstance(name)
+        {
             resources = std::make_shared<PhongResources>();
         }
 
-        void *getResources(size_t *size, const std::shared_ptr<MaterialTextures<>> &material_textures) override;
+        void* getResources(size_t* size, const std::shared_ptr<MaterialTextures<>>& material_textures) override;
         void loadResources(YAML::Node yaml_node) override;
         YAML::Node writeResourcesToYaml() override;
 
-        void initProperties(const std::shared_ptr<IProperties> &config, const UpdateFlagsHandle &update_flags) override;
+        void initProperties(const std::shared_ptr<IProperties>& config, const UpdateFlagsHandle& update_flags) override;
 
     protected:
-        struct PhongResources {
+        struct PhongResources
+        {
             glm::vec3 diffuse;
             glm::vec3 specular;
             glm::vec3 ambient;
@@ -36,6 +40,6 @@ namespace RtEngine {
 
         std::shared_ptr<PhongResources> resources;
     };
-} // RtEngine
+} // namespace RtEngine
 
-#endif //VULKAN_RAYTRACING_METALROUGHINSTANCE_HPP
+#endif // VULKAN_RAYTRACING_METALROUGHINSTANCE_HPP

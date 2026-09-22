@@ -15,6 +15,6 @@ namespace color
     protected:
         ColorPalette interpolate(float t) const override;
     };
-}
+} // namespace color
 
-#endif //EDNA_ENGINE_COLORPALETTEANIMATION_HPP
+#endif // EDNA_ENGINE_COLORPALETTEANIMATION_HPP

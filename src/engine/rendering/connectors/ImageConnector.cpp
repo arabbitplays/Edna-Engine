@@ -5,20 +5,21 @@
 namespace RtEngine
 {
     ImageConnector::ImageConnector(std::shared_ptr<ResourceBuilder> resource_builder, VkExtent2D image_extent,
-                                   uint32_t image_count, VkFormat format, VkImageUsageFlags usage,
-                                   VkImageAspectFlags aspect_flags, DataProvider data_provider)
-        : Connector(VK_DESCRIPTOR_TYPE_STORAGE_IMAGE),
-          resource_builder(std::move(resource_builder)), image_extent(image_extent), image_count(image_count),
-          format(format), usage(usage), aspect_flags(aspect_flags), data_provider(std::move(data_provider))
+        uint32_t image_count, VkFormat format, VkImageUsageFlags usage, VkImageAspectFlags aspect_flags,
+        DataProvider data_provider)
+        : Connector(VK_DESCRIPTOR_TYPE_STORAGE_IMAGE), resource_builder(std::move(resource_builder)),
+          image_extent(image_extent), image_count(image_count), format(format), usage(usage),
+          aspect_flags(aspect_flags), data_provider(std::move(data_provider))
     {
         createImages();
     }
 
     void ImageConnector::write(DescriptorAllocator& allocator, uint32_t binding)
     {
-        // TODO the multiple images are currently for frames in flight. Allow for multiple images per descriptor, with multiple sets of them for multiple frames in flight
-        allocator.writeImage(binding, images[0].imageView, VK_NULL_HANDLE, VK_IMAGE_LAYOUT_GENERAL,
-                             getDescriptorType());
+        // TODO the multiple images are currently for frames in flight. Allow for multiple images per descriptor, with
+        // multiple sets of them for multiple frames in flight
+        allocator.writeImage(
+            binding, images[0].imageView, VK_NULL_HANDLE, VK_IMAGE_LAYOUT_GENERAL, getDescriptorType());
     }
 
     void ImageConnector::createImages()
@@ -26,17 +27,21 @@ namespace RtEngine
         images.resize(image_count);
         const VkExtent3D extent_3d{image_extent.width, image_extent.height, 1};
 
-        for (uint32_t i = 0; i < image_count; i++) {
-            if (data_provider) {
+        for (uint32_t i = 0; i < image_count; i++)
+        {
+            if (data_provider)
+            {
                 std::vector<uint8_t> pixels = data_provider(image_extent);
                 images[i] = resource_builder->createImage(pixels.data(), extent_3d, format, VK_IMAGE_TILING_OPTIMAL,
-                                                          usage, aspect_flags, VK_IMAGE_LAYOUT_GENERAL);
-            } else {
-                images[i] = resource_builder->createImage(extent_3d, format, VK_IMAGE_TILING_OPTIMAL, usage,
-                                                          aspect_flags);
-                resource_builder->transitionImageLayout(
-                        images[i].image, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
-                        VK_ACCESS_NONE, VK_ACCESS_NONE, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_GENERAL);
+                    usage, aspect_flags, VK_IMAGE_LAYOUT_GENERAL);
+            }
+            else
+            {
+                images[i] =
+                    resource_builder->createImage(extent_3d, format, VK_IMAGE_TILING_OPTIMAL, usage, aspect_flags);
+                resource_builder->transitionImageLayout(images[i].image, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+                    VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_ACCESS_NONE, VK_ACCESS_NONE, VK_IMAGE_LAYOUT_UNDEFINED,
+                    VK_IMAGE_LAYOUT_GENERAL);
             }
         }
     }
@@ -65,9 +70,10 @@ namespace RtEngine
 
     void ImageConnector::destroy()
     {
-        for (const auto &image : images) {
+        for (const auto& image : images)
+        {
             resource_builder->destroyImage(image);
         }
         images.clear();
     }
-} // RtEngine
+} // namespace RtEngine

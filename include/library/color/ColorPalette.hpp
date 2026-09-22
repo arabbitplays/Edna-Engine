@@ -1,9 +1,8 @@
 #ifndef EDNA_ENGINE_COLORPALETTE_HPP
 #define EDNA_ENGINE_COLORPALETTE_HPP
 
-#include <vector>
-
 #include <glm/vec4.hpp>
+#include <vector>
 
 namespace color
 {
@@ -11,6 +10,6 @@ namespace color
     {
         std::vector<glm::vec4> colors;
     };
-}
+} // namespace color
 
-#endif //EDNA_ENGINE_COLORPALETTE_HPP
+#endif // EDNA_ENGINE_COLORPALETTE_HPP

@@ -2,30 +2,32 @@
 #define BASICS_COMMANDMANAGER_HPP
 
 #include <DeviceManager.hpp>
-#include <VulkanUtil.hpp>
 #include <memory>
 #include <optional>
 #include <vector>
 #include <vulkan/vulkan_core.h>
+#include <VulkanUtil.hpp>
 
-namespace RtEngine {
-	class CommandManager {
-	public:
-		VkCommandPool commandPool{};
+namespace RtEngine
+{
+    class CommandManager
+    {
+    public:
+        VkCommandPool commandPool{};
 
-		CommandManager();
-		CommandManager(const std::shared_ptr<DeviceManager> &deviceManager);
-		void createCommandPool();
-		VkCommandBuffer beginSingleTimeCommands() const;
-		void endSingleTimeCommand(VkCommandBuffer commandBuffer) const;
+        CommandManager();
+        CommandManager(const std::shared_ptr<DeviceManager>& deviceManager);
+        void createCommandPool();
+        VkCommandBuffer beginSingleTimeCommands() const;
+        void endSingleTimeCommand(VkCommandBuffer commandBuffer) const;
 
-		std::vector<VkCommandBuffer> allocatePrimaryCommandBuffers(uint32_t count) const;
+        std::vector<VkCommandBuffer> allocatePrimaryCommandBuffers(uint32_t count) const;
 
-		void destroy() const;
+        void destroy() const;
 
-	private:
-		std::shared_ptr<DeviceManager> deviceManager;
-	};
+    private:
+        std::shared_ptr<DeviceManager> deviceManager;
+    };
 
 } // namespace RtEngine
 #endif // BASICS_COMMANDMANAGER_HPP

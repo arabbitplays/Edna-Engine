@@ -9,14 +9,14 @@
 
 namespace color
 {
-#define COLOR_PALETTES(X) \
-    X(Fire)               \
-    X(Ocean)              \
-    X(Rainbow)            \
-    X(Nature)             \
-    X(Sunburn)            \
-    X(Twilight)           \
-    X(Berry)              \
+#define COLOR_PALETTES(X)                                                                                              \
+    X(Fire)                                                                                                            \
+    X(Ocean)                                                                                                           \
+    X(Rainbow)                                                                                                         \
+    X(Nature)                                                                                                          \
+    X(Sunburn)                                                                                                         \
+    X(Twilight)                                                                                                        \
+    X(Berry)                                                                                                           \
     X(Neon)
 
     class ColorPaletteName
@@ -30,19 +30,25 @@ namespace color
         };
 
         constexpr ColorPaletteName() = default;
-        constexpr ColorPaletteName(Value v) : value_(v) {}
-        constexpr operator Value() const { return value_; }
+        constexpr ColorPaletteName(Value v) : value_(v)
+        {
+        }
+        constexpr operator Value() const
+        {
+            return value_;
+        }
 
         constexpr std::string_view toString() const
         {
             return ALL_NAMES[static_cast<std::size_t>(value_)];
         }
 
-        static constexpr ColorPaletteName fromString(std::string_view name,
-                                                     ColorPaletteName fallback)
+        static constexpr ColorPaletteName fromString(std::string_view name, ColorPaletteName fallback)
         {
-            for (std::size_t i = 0; i < ALL_NAMES.size(); ++i) {
-                if (ALL_NAMES[i] == name) {
+            for (std::size_t i = 0; i < ALL_NAMES.size(); ++i)
+            {
+                if (ALL_NAMES[i] == name)
+                {
                     return static_cast<Value>(i);
                 }
             }
@@ -53,7 +59,8 @@ namespace color
         {
             std::vector<std::string> result;
             result.reserve(ALL_NAMES.size());
-            for (const std::string_view name : ALL_NAMES) result.emplace_back(name);
+            for (const std::string_view name : ALL_NAMES)
+                result.emplace_back(name);
             return result;
         }
 
@@ -66,6 +73,6 @@ namespace color
 
         Value value_ = Fire;
     };
-}
+} // namespace color
 
-#endif //EDNA_ENGINE_COLORPALETTENAME_HPP
+#endif // EDNA_ENGINE_COLORPALETTENAME_HPP

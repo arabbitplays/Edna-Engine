@@ -17,6 +17,6 @@ namespace Animation
     };
 
     using AnimationHandle = std::shared_ptr<IAnimation>;
-}
+} // namespace Animation
 
-#endif //EDNA_ENGINE_IANIMATION_HPP
+#endif // EDNA_ENGINE_IANIMATION_HPP

@@ -9,8 +9,8 @@
 
 namespace cellular_automaton
 {
-#define CELLULAR_AUTOMATON_NEIGHBORHOOD_SHAPES(X) \
-    X(Box)                                        \
+#define CELLULAR_AUTOMATON_NEIGHBORHOOD_SHAPES(X)                                                                      \
+    X(Box)                                                                                                             \
     X(Diamond)
 
     class NeighborhoodShape
@@ -24,19 +24,25 @@ namespace cellular_automaton
         };
 
         constexpr NeighborhoodShape() = default;
-        constexpr NeighborhoodShape(Value v) : value_(v) {}
-        constexpr operator Value() const { return value_; }
+        constexpr NeighborhoodShape(Value v) : value_(v)
+        {
+        }
+        constexpr operator Value() const
+        {
+            return value_;
+        }
 
         constexpr std::string_view toString() const
         {
             return ALL_NAMES[static_cast<std::size_t>(value_)];
         }
 
-        static constexpr NeighborhoodShape fromString(std::string_view name,
-                                                      NeighborhoodShape fallback)
+        static constexpr NeighborhoodShape fromString(std::string_view name, NeighborhoodShape fallback)
         {
-            for (std::size_t i = 0; i < ALL_NAMES.size(); ++i) {
-                if (ALL_NAMES[i] == name) {
+            for (std::size_t i = 0; i < ALL_NAMES.size(); ++i)
+            {
+                if (ALL_NAMES[i] == name)
+                {
                     return static_cast<Value>(i);
                 }
             }
@@ -47,7 +53,8 @@ namespace cellular_automaton
         {
             std::vector<std::string> result;
             result.reserve(ALL_NAMES.size());
-            for (const std::string_view name : ALL_NAMES) result.emplace_back(name);
+            for (const std::string_view name : ALL_NAMES)
+                result.emplace_back(name);
             return result;
         }
 
@@ -60,6 +67,6 @@ namespace cellular_automaton
 
         Value value_ = Box;
     };
-}
+} // namespace cellular_automaton
 
-#endif //EDNA_ENGINE_NEIGHBORHOODSHAPE_HPP
+#endif // EDNA_ENGINE_NEIGHBORHOODSHAPE_HPP

@@ -1,15 +1,17 @@
 #ifndef VULKAN_RAYTRACING_ENGINE_HPP
 #define VULKAN_RAYTRACING_ENGINE_HPP
-#include <memory>
-
 #include "GuiManager.hpp"
 #include "IRunner.hpp"
+#include "RaytracingRenderer.hpp"
 #include "RenderingManager.hpp"
 #include "Runner.hpp"
-#include "RaytracingRenderer.hpp"
 
-namespace RtEngine {
-    enum RunnerType {
+#include <memory>
+
+namespace RtEngine
+{
+    enum RunnerType
+    {
         NONE,
         REALTIME,
         OFFLINE,
@@ -18,22 +20,27 @@ namespace RtEngine {
         COMPUTE_ONLY,
     };
 
-    struct EngineOptions {
+    struct EngineOptions
+    {
         std::string config_file, resources_dir;
         bool verbose = false;
         RunnerType runner_type = NONE;
     };
 
-    struct CliArguments {
+    struct CliArguments
+    {
         int argc;
-        char **argv;
+        char** argv;
 
         CliArguments() = default;
 
-        CliArguments(int argc, char ** argv) : argc(argc), argv(argv) {}
+        CliArguments(int argc, char** argv) : argc(argc), argv(argv)
+        {
+        }
     };
 
-    class Engine {
+    class Engine
+    {
     public:
         Engine() = default;
 
@@ -70,6 +77,6 @@ namespace RtEngine {
         std::shared_ptr<RenderingManager> rendering_manager;
         std::shared_ptr<IRunner> runner;
     };
-} // RtEngine
+} // namespace RtEngine
 
-#endif //VULKAN_RAYTRACING_ENGINE_HPP
+#endif // VULKAN_RAYTRACING_ENGINE_HPP

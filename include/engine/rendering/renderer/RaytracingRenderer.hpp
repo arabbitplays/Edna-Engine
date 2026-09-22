@@ -9,59 +9,64 @@
 
 #define TINYOBJLOADER_IMPLEMENTATION
 
-#include <GuiRenderer.hpp>
-#include <GuiWindow.hpp>
-#include <memory>
-#include <RenderTarget.hpp>
-#include <../rendering/vulkan_scene_representation/SceneAdapter.hpp>
-
-#include <VulkanContext.hpp>
 #include "MeshRepository.hpp"
 #include "Renderer.hpp"
 #include "UpdateFlagValue.hpp"
 
-namespace RtEngine {
+#include <../rendering/vulkan_scene_representation/SceneAdapter.hpp>
+#include <GuiRenderer.hpp>
+#include <GuiWindow.hpp>
+#include <memory>
+#include <RenderTarget.hpp>
+#include <VulkanContext.hpp>
 
-	class RaytracingRenderer : public ISerializable, public Renderer {
-	public:
-		RaytracingRenderer(const std::shared_ptr<VulkanContext> &vulkan_context,
-			const std::shared_ptr<MeshRepository> &mesh_repository,
-			const std::shared_ptr<TextureRepository> &texture_repository,
-			const uint32_t max_frames_in_flight);
+namespace RtEngine
+{
 
-		void init() override;
-		void initProperties(const std::shared_ptr<IProperties> &config, const UpdateFlagsHandle &update_flags) override;
+    class RaytracingRenderer : public ISerializable, public Renderer
+    {
+    public:
+        RaytracingRenderer(const std::shared_ptr<VulkanContext>& vulkan_context,
+            const std::shared_ptr<MeshRepository>& mesh_repository,
+            const std::shared_ptr<TextureRepository>& texture_repository, const uint32_t max_frames_in_flight);
 
-		void loadScene(const std::shared_ptr<IScene>& scene);
+        void init() override;
+        void initProperties(const std::shared_ptr<IProperties>& config, const UpdateFlagsHandle& update_flags) override;
 
-		void writeResources(const std::shared_ptr<DrawContext> &draw_context, UpdateFlagsHandle update_flags, uint32_t frame_idx);
-		void writeRenderTarget(const std::shared_ptr<RenderTarget> &target);
+        void loadScene(const std::shared_ptr<IScene>& scene);
 
-		VkCommandBuffer recordCommandBuffer(uint32_t frame_idx) override;
-		QueueType queueType() const override { return GRAPHICS; }
+        void writeResources(
+            const std::shared_ptr<DrawContext>& draw_context, UpdateFlagsHandle update_flags, uint32_t frame_idx);
+        void writeRenderTarget(const std::shared_ptr<RenderTarget>& target);
 
-		void outputRenderingTarget(const std::shared_ptr<RenderTarget> &target, const std::string &output_path);
-		float *downloadRenderTarget(const std::shared_ptr<RenderTarget> &target) const;
-		static uint8_t *fixImageFormatForStorage(void *image_data, size_t pixel_count, VkFormat originalFormat);
+        VkCommandBuffer recordCommandBuffer(uint32_t frame_idx) override;
+        QueueType queueType() const override
+        {
+            return GRAPHICS;
+        }
 
-		std::unordered_map<std::string, std::shared_ptr<Material>> getMaterials() const;
+        void outputRenderingTarget(const std::shared_ptr<RenderTarget>& target, const std::string& output_path);
+        float* downloadRenderTarget(const std::shared_ptr<RenderTarget>& target) const;
+        static uint8_t* fixImageFormatForStorage(void* image_data, size_t pixel_count, VkFormat originalFormat);
 
-	protected:
-		uint32_t recursion_depth = 5;
-		std::vector<int32_t> push_constants{};
+        std::unordered_map<std::string, std::shared_ptr<Material>> getMaterials() const;
 
-		std::shared_ptr<MeshRepository> mesh_repository;
-		std::shared_ptr<TextureRepository> texture_repository;
+    protected:
+        uint32_t recursion_depth = 5;
+        std::vector<int32_t> push_constants{};
 
-		std::shared_ptr<SceneAdapter> scene_adapter;
-		std::shared_ptr<RenderTarget> current_target;
+        std::shared_ptr<MeshRepository> mesh_repository;
+        std::shared_ptr<TextureRepository> texture_repository;
 
-		static bool hasStencilComponent(VkFormat format);
+        std::shared_ptr<SceneAdapter> scene_adapter;
+        std::shared_ptr<RenderTarget> current_target;
 
-		void recordRenderToImage(VkCommandBuffer commandBuffer, uint32_t frame_idx);
+        static bool hasStencilComponent(VkFormat format);
 
-		void *createPushConstants(uint32_t *size, const std::shared_ptr<RenderTarget> &target);
-	};
+        void recordRenderToImage(VkCommandBuffer commandBuffer, uint32_t frame_idx);
+
+        void* createPushConstants(uint32_t* size, const std::shared_ptr<RenderTarget>& target);
+    };
 
 } // namespace RtEngine
 #endif // BASICS_VULKANENGINE_HPP

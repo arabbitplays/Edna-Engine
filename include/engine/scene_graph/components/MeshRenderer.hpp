@@ -4,28 +4,31 @@
 #include <Component.hpp>
 #include <Material.hpp>
 
-namespace RtEngine {
-	class MeshRenderer : public Component {
-	public:
-		MeshRenderer() = default;
-		MeshRenderer(const std::shared_ptr<EngineContext>& context, const std::shared_ptr<Node>& node) : Component(context, node){};
+namespace RtEngine
+{
+    class MeshRenderer : public Component
+    {
+    public:
+        MeshRenderer() = default;
+        MeshRenderer(const std::shared_ptr<EngineContext>& context, const std::shared_ptr<Node>& node)
+            : Component(context, node) {};
 
-		static constexpr std::string COMPONENT_NAME = "MeshRenderer";
+        static constexpr std::string COMPONENT_NAME = "MeshRenderer";
 
-		void OnStart() override;
-		void OnRender(DrawContext &ctx) override;
-		void OnUpdate() override {};
-		void OnDestroy() override {};
+        void OnStart() override;
+        void OnRender(DrawContext& ctx) override;
+        void OnUpdate() override {};
+        void OnDestroy() override {};
 
-		void initProperties(const std::shared_ptr<IProperties> &config, const UpdateFlagsHandle &update_flags) override;
+        void initProperties(const std::shared_ptr<IProperties>& config, const UpdateFlagsHandle& update_flags) override;
 
-		std::shared_ptr<MeshAsset> mesh_asset;
-		std::shared_ptr<MaterialInstance> mesh_material;
+        std::shared_ptr<MeshAsset> mesh_asset;
+        std::shared_ptr<MaterialInstance> mesh_material;
 
-	private:
-		std::string mesh_asset_name;
-		std::string material_instance_name;
-	};
+    private:
+        std::string mesh_asset_name;
+        std::string material_instance_name;
+    };
 
 } // namespace RtEngine
 #endif // MESHRENDERER_HPP

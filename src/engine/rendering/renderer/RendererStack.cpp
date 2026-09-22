@@ -33,4 +33,4 @@ namespace RtEngine
     {
         return present_connector;
     }
-} // RtEngine
+} // namespace RtEngine

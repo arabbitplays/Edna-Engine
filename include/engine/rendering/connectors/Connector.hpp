@@ -1,19 +1,27 @@
 #ifndef EDNA_ENGINE_CONNECTOR_HPP
 #define EDNA_ENGINE_CONNECTOR_HPP
-#include <memory>
-
 #include "DescriptorAllocator.hpp"
+
+#include <memory>
 
 namespace RtEngine
 {
     class Connector
     {
     public:
-        explicit Connector(VkDescriptorType type) : type(type) {}
+        explicit Connector(VkDescriptorType type) : type(type)
+        {
+        }
         virtual ~Connector() = default;
 
-        VkDescriptorType getDescriptorType() const { return type; }
-        virtual uint32_t getDescriptorCount() const { return 1; }
+        VkDescriptorType getDescriptorType() const
+        {
+            return type;
+        }
+        virtual uint32_t getDescriptorCount() const
+        {
+            return 1;
+        }
 
         virtual void write(DescriptorAllocator& allocator, uint32_t binding) = 0;
 
@@ -22,6 +30,6 @@ namespace RtEngine
     };
 
     using ConnectorHandle = std::shared_ptr<Connector>;
-}
+} // namespace RtEngine
 
-#endif //EDNA_ENGINE_CONNECTOR_HPP
+#endif // EDNA_ENGINE_CONNECTOR_HPP

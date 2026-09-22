@@ -4,5 +4,6 @@
 
 #include "../../../include/engine/repositories/TextureRepository.hpp"
 
-namespace RtEngine {
-} // RtEngine
+namespace RtEngine
+{
+} // namespace RtEngine

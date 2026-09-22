@@ -1,9 +1,13 @@
 #ifndef VULKAN_RAYTRACING_UPDATEFLAGS_HPP
 #define VULKAN_RAYTRACING_UPDATEFLAGS_HPP
 
+#include <cstdint>
+#include <memory>
 
-namespace RtEngine {
-    enum UpdateFlagValue {
+namespace RtEngine
+{
+    enum UpdateFlagValue
+    {
         NO_UPDATE = 0,
         STATIC_GEOMETRY_UPDATE = 1 << 0,
         MATERIAL_UPDATE = 1 << 1,
@@ -11,35 +15,43 @@ namespace RtEngine {
         TARGET_RESET = 1 << 3,
     };
 
-    class UpdateFlags {
+    class UpdateFlags
+    {
     public:
         UpdateFlags() = default;
 
-        void setFlag(UpdateFlagValue flag) {
+        void setFlag(UpdateFlagValue flag)
+        {
             flags |= flag;
 
-            if (flag == SCENE_UPDATE) {
+            if (flag == SCENE_UPDATE)
+            {
                 flags |= STATIC_GEOMETRY_UPDATE | MATERIAL_UPDATE | TARGET_RESET;
             }
 
-            if (flag == STATIC_GEOMETRY_UPDATE || flag == MATERIAL_UPDATE) {
+            if (flag == STATIC_GEOMETRY_UPDATE || flag == MATERIAL_UPDATE)
+            {
                 flags |= TARGET_RESET;
             }
         }
 
-        void setFlags(const std::shared_ptr<UpdateFlags> &other) {
+        void setFlags(const std::shared_ptr<UpdateFlags>& other)
+        {
             flags |= other->flags;
         }
 
-        bool hasAny() const {
+        bool hasAny() const
+        {
             return flags != 0;
         }
 
-        bool checkFlag(UpdateFlagValue flag) const {
+        bool checkFlag(UpdateFlagValue flag) const
+        {
             return (flags & flag) != 0;
         }
 
-        void resetFlags() {
+        void resetFlags()
+        {
             flags = 0;
         }
 
@@ -47,6 +59,6 @@ namespace RtEngine {
     };
 
     typedef std::shared_ptr<UpdateFlags> UpdateFlagsHandle;
-} // RtEngine
+} // namespace RtEngine
 
-#endif //VULKAN_RAYTRACING_UPDATEFLAGS_HPP
+#endif // VULKAN_RAYTRACING_UPDATEFLAGS_HPP

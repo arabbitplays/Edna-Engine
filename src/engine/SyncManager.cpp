@@ -5,19 +5,17 @@
 
 namespace RtEngine
 {
-    SyncManager::SyncManager(uint32_t max_frames_in_flight,
-                             std::shared_ptr<DeviceManager> device_manager,
-                             std::shared_ptr<SwapchainManager> swapchain_manager)
-        : device_manager(std::move(device_manager)),
-          swapchain_manager(std::move(swapchain_manager)),
+    SyncManager::SyncManager(uint32_t max_frames_in_flight, std::shared_ptr<DeviceManager> device_manager,
+        std::shared_ptr<SwapchainManager> swapchain_manager)
+        : device_manager(std::move(device_manager)), swapchain_manager(std::move(swapchain_manager)),
           max_frames_in_flight(max_frames_in_flight)
     {
         createFrameSemaphores();
         createSwapchainSemaphores();
 
         // Rebuild per-swapchain-image semaphores when the swapchain is recreated.
-        resize_callback_handle = this->swapchain_manager->addRecreateCallback(
-            [this](uint32_t, uint32_t) { recreateSwapchainSemaphores(); });
+        resize_callback_handle =
+            this->swapchain_manager->addRecreateCallback([this](uint32_t, uint32_t) { recreateSwapchainSemaphores(); });
     }
 
     void SyncManager::reconfigureStagesPerFrame(uint32_t stages_per_frame)
@@ -89,17 +87,15 @@ namespace RtEngine
         return (frame_counter * stages_per_frame) + stage_index + 1;
     }
 
-    bool SyncManager::stageHasPredecessor(uint32_t stage_index) 
+    bool SyncManager::stageHasPredecessor(uint32_t stage_index)
     {
         return stage_index > 0;
     }
 
-    void SyncManager::submitStage(const uint32_t stage_index,
-                                  VkQueue queue,
-                                  VkCommandBuffer command_buffer,
-                                  const std::vector<VkSemaphore>& extra_binary_waits,
-                                  const std::vector<VkPipelineStageFlags>& extra_binary_wait_stages,
-                                  const std::vector<VkSemaphore>& extra_binary_signals)
+    void SyncManager::submitStage(const uint32_t stage_index, VkQueue queue, VkCommandBuffer command_buffer,
+        const std::vector<VkSemaphore>& extra_binary_waits,
+        const std::vector<VkPipelineStageFlags>& extra_binary_wait_stages,
+        const std::vector<VkSemaphore>& extra_binary_signals)
     {
         if (extra_binary_waits.size() != extra_binary_wait_stages.size())
         {
@@ -240,9 +236,7 @@ namespace RtEngine
             }
 
             deletion_queue.pushFunction([this, i]()
-            {
-                vkDestroySemaphore(device_manager->getDevice(), image_available_semaphores[i], nullptr);
-            });
+                { vkDestroySemaphore(device_manager->getDevice(), image_available_semaphores[i], nullptr); });
         }
     }
 
@@ -275,4 +269,4 @@ namespace RtEngine
         }
         render_finished_semaphores.clear();
     }
-} // RtEngine
+} // namespace RtEngine

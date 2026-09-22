@@ -1,9 +1,9 @@
 #ifndef EDNA_ENGINE_IMAGECONNECTOR_HPP
 #define EDNA_ENGINE_IMAGECONNECTOR_HPP
-#include <functional>
-
 #include "Connector.hpp"
 #include "ResourceBuilder.hpp"
+
+#include <functional>
 
 namespace RtEngine
 {
@@ -12,9 +12,9 @@ namespace RtEngine
     public:
         using DataProvider = std::function<std::vector<uint8_t>(VkExtent2D)>;
 
-        ImageConnector(std::shared_ptr<ResourceBuilder> resource_builder, VkExtent2D image_extent,
-                       uint32_t image_count, VkFormat format, VkImageUsageFlags usage,
-                       VkImageAspectFlags aspect_flags, DataProvider data_provider = nullptr);
+        ImageConnector(std::shared_ptr<ResourceBuilder> resource_builder, VkExtent2D image_extent, uint32_t image_count,
+            VkFormat format, VkImageUsageFlags usage, VkImageAspectFlags aspect_flags,
+            DataProvider data_provider = nullptr);
 
         AllocatedImage getImageAt(uint32_t index) const;
         uint32_t getImageCount() const;
@@ -39,6 +39,6 @@ namespace RtEngine
 
         std::vector<AllocatedImage> images;
     };
-} // RtEngine
+} // namespace RtEngine
 
-#endif //EDNA_ENGINE_IMAGECONNECTOR_HPP
+#endif // EDNA_ENGINE_IMAGECONNECTOR_HPP

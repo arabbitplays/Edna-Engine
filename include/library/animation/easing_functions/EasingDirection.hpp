@@ -11,4 +11,4 @@ namespace Animation
     };
 }
 
-#endif //EDNA_ENGINE_EASINGDIRECTION_HPP
+#endif // EDNA_ENGINE_EASINGDIRECTION_HPP

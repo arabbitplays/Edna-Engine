@@ -13,6 +13,6 @@ namespace Animation
     protected:
         int interpolate(float t) const override;
     };
-}
+} // namespace Animation
 
-#endif //EDNA_ENGINE_INTANIMATION_HPP
+#endif // EDNA_ENGINE_INTANIMATION_HPP
