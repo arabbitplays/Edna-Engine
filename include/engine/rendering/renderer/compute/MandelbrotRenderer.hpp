@@ -13,7 +13,6 @@ namespace RtEngine
     {
     public:
         static constexpr uint32_t MAX_COLOR_COUNT = 256;
-        static constexpr uint32_t HISTOGRAM_BIN_COUNT = 64;
 
         MandelbrotRenderer(const std::shared_ptr<VulkanContext>& vulkan_context, VkExtent2D image_extent,
             const std::vector<glm::vec4>& colors, double origin_x, double origin_y, double offset_x, double offset_y,
@@ -57,16 +56,11 @@ namespace RtEngine
 
         void handleResize(VkExtent2D new_extent);
 
-        // Shannon entropy (bits, 0..log2(HISTOGRAM_BIN_COUNT)) of the last
-        // dispatch's fractional-iteration histogram. 0 before first dispatch.
-        float readEntropy() const;
-
     protected:
         VkShaderModule createShaderModule() override;
 
         void configurePushConstants(ComputePipeline& pipeline) override;
         void recordPushConstants(VkCommandBuffer cmd) override;
-        void recordPreDispatch(VkCommandBuffer cmd) override;
 
     private:
         struct PushConstants
@@ -94,7 +88,6 @@ namespace RtEngine
 
         std::shared_ptr<ImageConnector> target_connector;
         std::shared_ptr<BufferConnector> palette_connector;
-        std::shared_ptr<BufferConnector> histogram_connector;
     };
 } // namespace RtEngine
 

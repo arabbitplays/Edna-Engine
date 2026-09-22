@@ -2,15 +2,11 @@
 #extension GL_ARB_gpu_shader_fp64 : enable
 
 const uint MAX_COLOR_COUNT      = 256;
-const uint HISTOGRAM_BIN_COUNT  = 64;
 
 layout (binding = 0, rgba32f) uniform writeonly image2D targetImage;
 layout (binding = 1)          uniform ColorPalette {
     vec4 colors[MAX_COLOR_COUNT];
 } palette;
-layout (binding = 2, std430)  buffer Histogram {
-    uint bins[HISTOGRAM_BIN_COUNT];
-} histogram;
 
 layout (push_constant) uniform PushConstants {
     double origin_x;
@@ -85,9 +81,6 @@ void main()
         float mu         = float(iter) + 1.0 - nu;
 
         float linear = clamp(mu / float(push.max_iterations), 0.0, 1.0);
-        uint  bin    = min(uint(linear * float(HISTOGRAM_BIN_COUNT)), HISTOGRAM_BIN_COUNT - 1u);
-        atomicAdd(histogram.bins[bin], 1u);
-
         float t = sqrt(linear);
         color = samplePalette(t);
     }

@@ -5,8 +5,6 @@
 #include "VulkanUtil.hpp"
 
 #include <cassert>
-#include <cmath>
-#include <cstring>
 #include <mandelbrot.comp.spv.h>
 #include <vector>
 
@@ -42,15 +40,8 @@ namespace RtEngine
             vulkan_context->resource_builder, vulkan_context->device_manager, palette_size, 1);
         palette_connector->uploadData(0, this->colors.data(), upload_size);
 
-        const VkDeviceSize histogram_size = sizeof(uint32_t) * HISTOGRAM_BIN_COUNT;
-        histogram_connector = std::make_shared<BufferConnector>(vulkan_context->resource_builder,
-            vulkan_context->device_manager, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, histogram_size, 1,
-            VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-
         addConnector(0, target_connector);
         addConnector(1, palette_connector);
-        addConnector(2, histogram_connector);
 
         setDispatchSize(
             [this]()
@@ -64,7 +55,6 @@ namespace RtEngine
             {
                 target_connector->destroy();
                 palette_connector->destroy();
-                histogram_connector->destroy();
             });
     }
 
@@ -102,62 +92,6 @@ namespace RtEngine
     void MandelbrotRenderer::configurePushConstants(ComputePipeline& pipeline)
     {
         pipeline.addPushConstant(sizeof(PushConstants), VK_SHADER_STAGE_COMPUTE_BIT);
-    }
-
-    void MandelbrotRenderer::recordPreDispatch(VkCommandBuffer cmd)
-    {
-        const VkDeviceSize histogram_size = sizeof(uint32_t) * HISTOGRAM_BIN_COUNT;
-        vkCmdFillBuffer(cmd, histogram_connector->getBufferAt(0).handle, 0, histogram_size, 0U);
-
-        VkBufferMemoryBarrier barrier{};
-        barrier.sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
-        barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-        barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT;
-        barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-        barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-        barrier.buffer = histogram_connector->getBufferAt(0).handle;
-        barrier.offset = 0;
-        barrier.size = histogram_size;
-
-        vkCmdPipelineBarrier(cmd, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, 0, 0, nullptr,
-            1, &barrier, 0, nullptr);
-    }
-
-    float MandelbrotRenderer::readEntropy() const
-    {
-        const VkDeviceSize histogram_size = sizeof(uint32_t) * HISTOGRAM_BIN_COUNT;
-        std::vector<uint32_t> bins(HISTOGRAM_BIN_COUNT, 0);
-
-        const VkDevice device = vulkan_context->device_manager->getDevice();
-        const AllocatedBuffer buffer = histogram_connector->getBufferAt(0);
-
-        void* mapped = nullptr;
-        vkMapMemory(device, buffer.bufferMemory, 0, histogram_size, 0, &mapped);
-        std::memcpy(bins.data(), mapped, histogram_size);
-        vkUnmapMemory(device, buffer.bufferMemory);
-
-        uint64_t total = 0;
-        for (const uint32_t c : bins)
-        {
-            total += c;
-        }
-        if (total == 0)
-        {
-            return 0.0F;
-        }
-
-        const double inv_total = 1.0 / static_cast<double>(total);
-        double entropy = 0.0;
-        for (const uint32_t c : bins)
-        {
-            if (c == 0U)
-            {
-                continue;
-            }
-            const double p = static_cast<double>(c) * inv_total;
-            entropy -= p * std::log2(p);
-        }
-        return static_cast<float>(entropy);
     }
 
     void MandelbrotRenderer::recordPushConstants(VkCommandBuffer cmd)
