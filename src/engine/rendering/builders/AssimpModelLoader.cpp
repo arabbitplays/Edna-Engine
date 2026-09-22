@@ -1,8 +1,15 @@
 #include "AssimpModelLoader.hpp"
 
-#include <spdlog/spdlog.h>
+#include <logging/LogManager.hpp>
 
 namespace RtEngine {
+	namespace {
+		Logging::LoggerHandle& logger() {
+			static Logging::LoggerHandle instance = Logging::LogManager::getClassLogger<AssimpModelLoader>();
+			return instance;
+		}
+	}
+
 	void AssimpModelLoader::loadData(std::string path, std::vector<Vertex> &vertices, std::vector<uint32_t> &indices) {
 		Assimp::Importer importer;
 		const aiScene *scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_CalcTangentSpace);
@@ -29,7 +36,7 @@ namespace RtEngine {
 	void AssimpModelLoader::processMesh(aiMesh *mesh, const aiScene *scene, std::vector<Vertex> &vertices,
 										std::vector<uint32_t> &indices) {
 		if (!mesh->mTangents) {
-			spdlog::warn("No tangent found for mesh!");
+			logger()->warn("No tangent found for mesh!");
 		}
 
 		for (uint32_t i = 0; i < mesh->mNumVertices; i++) {

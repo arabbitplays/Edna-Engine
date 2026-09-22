@@ -1,6 +1,6 @@
 #include "Composition.hpp"
 
-#include <spdlog/spdlog.h>
+#include <logging/LogManager.hpp>
 
 #include <library/rave_visualizer/CompositionManager.hpp>
 
@@ -13,6 +13,13 @@
 #include "compute/GlitchRenderer.hpp"
 
 namespace RtEngine {
+    namespace {
+        Logging::LoggerHandle& logger() {
+            static Logging::LoggerHandle instance = Logging::LogManager::getClassLogger<Composition>();
+            return instance;
+        }
+    }
+
     Composition::Composition() = default;
     Composition::Composition(const std::shared_ptr<EngineContext>& context,
                              const std::shared_ptr<Node>& node)
@@ -55,7 +62,7 @@ namespace RtEngine {
         const auto mandelbrot_comp = context->scene_manager->getComponent<Mandelbrot>();
         const auto cca_comp        = context->scene_manager->getComponent<CyclicalCellularAutomaton>();
         if (!mandelbrot_comp || !cca_comp) {
-            spdlog::warn("Composition: scene must contain a Mandelbrot and a CyclicalCellularAutomaton component");
+            logger()->warn("Composition: scene must contain a Mandelbrot and a CyclicalCellularAutomaton component");
             return false;
         }
 

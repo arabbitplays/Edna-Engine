@@ -1,7 +1,5 @@
 #include "HierarchyWindow.hpp"
 
-#include <spdlog/spdlog.h>
-
 namespace RtEngine {
 	HierarchyWindow::HierarchyWindow(const std::shared_ptr<InspectorWindow>& inspector_window,
 									 const std::shared_ptr<SceneManager>& scene_manager) :

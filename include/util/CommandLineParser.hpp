@@ -1,9 +1,10 @@
 #ifndef COMMANDLINEPARSER_HPP
 #define COMMANDLINEPARSER_HPP
 
+#include <format>
 #include <string>
 #include <vector>
-#include "spdlog/spdlog.h"
+#include <logging/LogManager.hpp>
 
 namespace RtEngine {
 	class CommandLineParser {
@@ -37,7 +38,7 @@ namespace RtEngine {
 					*string_arguments[args[i]].variable = args[i + 1];
 					i++;
 				} else {
-					spdlog::error("Invalid argument: {}", args[i]);
+					logger->error(std::format("Invalid argument: {}", args[i]));
 				}
 			}
 		}
@@ -82,10 +83,11 @@ namespace RtEngine {
 				max_option_length = std::max(max_option_length, option.size());
 			}
 
-			spdlog::info("Options:");
+			logger->info("Options:");
 			for (int i = 0; i < options.size(); i++) {
-				spdlog::info("{} {}{}", options[i], std::string(max_option_length - options[i].size(), ' '),
-							 descriptions[i]);
+				logger->info(std::format("{} {}{}", options[i],
+											 std::string(max_option_length - options[i].size(), ' '),
+											 descriptions[i]));
 			}
 		}
 
@@ -93,6 +95,8 @@ namespace RtEngine {
 		std::unordered_map<std::string, IntArgument> int_arguments;
 		std::unordered_map<std::string, BoolArgument> bool_arguments;
 		std::unordered_map<std::string, StringArgument> string_arguments;
+
+		Logging::LoggerHandle logger = Logging::LogManager::getClassLogger<CommandLineParser>();
 	};
 
 } // namespace RtEngine

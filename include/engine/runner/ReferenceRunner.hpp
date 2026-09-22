@@ -1,8 +1,9 @@
 #ifndef REFERENCERENDERER_HPP
 #define REFERENCERENDERER_HPP
 
+#include <chrono>
+
 #include "Runner.hpp"
-#include "spdlog/stopwatch.h"
 
 namespace RtEngine {
 	class ReferenceRunner : public Runner {
@@ -28,7 +29,7 @@ namespace RtEngine {
 
 		std::shared_ptr<DrawContext> draw_context;
 
-		spdlog::stopwatch stopwatch;
+		std::chrono::steady_clock::time_point stopwatch_start;
 		uint32_t present_sample_count = 8;
 		int32_t final_sample_count = 1 << 20;
 		int32_t samples_per_image = 1 << 12;

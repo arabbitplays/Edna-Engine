@@ -8,9 +8,19 @@
 #include <metal_rough_raygen.rgen.spv.h>
 #include <shadow_miss.rmiss.spv.h>
 
+#include <format>
+#include <logging/LogManager.hpp>
+
 #include "MetalRoughInstance.hpp"
 
 namespace RtEngine {
+	namespace {
+		Logging::LoggerHandle& logger() {
+			static Logging::LoggerHandle instance = Logging::LogManager::getClassLogger<MetalRoughMaterial>();
+			return instance;
+		}
+	}
+
 	void MetalRoughMaterial::buildPipelines(VkDescriptorSetLayout sceneLayout) {
 		DescriptorLayoutBuilder layoutBuilder;
 		pipeline = std::make_shared<RaytracingPipeline>(vulkan_context);
@@ -74,7 +84,7 @@ namespace RtEngine {
 		std::shared_ptr<MaterialInstance> instance = std::make_shared<MetalRoughInstance>("", tex_repo);
 		instance->loadResources(yaml_node);
 		if (instances.contains(instance->name)) {
-			SPDLOG_WARN("Material instance with name {} already exists!", instance->name);
+			logger()->warn(std::format("Material instance with name {} already exists!", instance->name));
 			return instances[instance->name];
 		}
 

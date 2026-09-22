@@ -5,7 +5,6 @@
 #include <ResourceBuilder.hpp>
 #include <memory>
 #include <unordered_map>
-#include <spdlog/spdlog.h>
 
 #include "TextureRepository.hpp"
 

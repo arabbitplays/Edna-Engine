@@ -7,12 +7,20 @@
 #include <set>
 #include <RandomUtil.hpp>
 #include <glm/gtc/packing.hpp>
+#include <logging/LogManager.hpp>
 
 #include "ImageUtil.hpp"
 #include "QuickTimer.hpp"
 #include "UpdateFlagValue.hpp"
 
 namespace RtEngine {
+	namespace {
+		Logging::LoggerHandle& logger() {
+			static Logging::LoggerHandle instance = Logging::LogManager::getClassLogger<RaytracingRenderer>();
+			return instance;
+		}
+	}
+
 
 	void CmdTraceRaysKHR(VkDevice device, VkCommandBuffer commandBuffer,
 						 const VkStridedDeviceAddressRegionKHR *pRaygenShaderBindingTable,
@@ -183,7 +191,7 @@ namespace RtEngine {
 			delete[] image_data;
 			return output_image;
 		} else {
-			spdlog::error("Image format of the storage image is not supported to be stored correctly!");
+			logger()->error("Image format of the storage image is not supported to be stored correctly!");
 			return nullptr;
 		}
 	}

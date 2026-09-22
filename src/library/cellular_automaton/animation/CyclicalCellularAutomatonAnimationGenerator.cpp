@@ -6,7 +6,8 @@
 #include <memory>
 #include <utility>
 
-#include <spdlog/spdlog.h>
+#include <format>
+#include <logging/LogManager.hpp>
 
 #include <library/animation/easing_functions/EasingCurve.hpp>
 #include <library/animation/easing_functions/EasingDirection.hpp>
@@ -22,6 +23,13 @@ namespace cellular_automaton
 {
     namespace
     {
+        Logging::LoggerHandle& logger()
+        {
+            static Logging::LoggerHandle instance =
+                Logging::LogManager::getClassLogger<CyclicalCellularAutomatonAnimationGenerator>();
+            return instance;
+        }
+
         float randomFloat(float min, float max)
         {
             const float t = static_cast<float>(RtEngine::RandomUtil::generateInt()) /
@@ -104,7 +112,7 @@ namespace cellular_automaton
     float CyclicalCellularAutomatonAnimationGenerator::pickRandomMutationChance()
     {
         const float target = randomFloat(MUTATION_CHANCE_MIN, MUTATION_CHANCE_MAX);
-        spdlog::info("CCA anim: rolled mutation_chance target = {:.4f}", target);
+        logger()->info(std::format("rolled mutation_chance target = {:.4f}", target));
         return target;
     }
 
@@ -113,7 +121,7 @@ namespace cellular_automaton
         const auto all_names = ::color::ColorPaletteName::getAllNames();
         const std::size_t idx = RtEngine::RandomUtil::generateInt() % all_names.size();
         const auto& picked_name = all_names[idx];
-        spdlog::info("CCA anim: rolled palette target = {}", picked_name);
+        logger()->info(std::format("rolled palette target = {}", picked_name));
         return ::color::ColorPaletteFactory::create(
             ::color::ColorPaletteName::fromString(picked_name, ::color::ColorPaletteName::Fire));
     }
@@ -138,8 +146,8 @@ namespace cellular_automaton
             }
         }
 
-        spdlog::info("CCA anim: rolled neighborhood shape={}, size={}, threshold={}",
-                     shape_names[shape_idx], size, threshold);
+        logger()->info(std::format("rolled neighborhood shape={}, size={}, threshold={}",
+                                   shape_names[shape_idx], size, threshold));
 
         return {NeighborhoodFactory::create(shape, static_cast<int>(size)).offsets, threshold};
     }

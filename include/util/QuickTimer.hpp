@@ -2,8 +2,9 @@
 #define QUICKTIMER_HPP
 
 #include <chrono>
+#include <format>
 #include <iostream>
-#include "spdlog/spdlog.h"
+#include <logging/LogManager.hpp>
 
 namespace RtEngine {
 	struct QuickTimer {
@@ -20,7 +21,8 @@ namespace RtEngine {
 			if (print_on_exit) {
 				using namespace std::chrono;
 				const auto dur = duration_cast<microseconds>(clock::now() - start).count();
-				spdlog::debug("{}: {} ms", name, dur / 1000.0f);
+				Logging::LoggerHandle logger = Logging::LogManager::getClassLogger<QuickTimer>();
+				logger->debug(std::format("{}: {} ms", name, dur / 1000.0f));
 			}
 		}
 	};

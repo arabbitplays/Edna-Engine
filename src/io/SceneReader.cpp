@@ -11,7 +11,6 @@
 #include <TransformUtil.hpp>
 #include <YAML_glm.hpp>
 #include <glm/gtx/quaternion.hpp>
-#include <spdlog/spdlog.h>
 #include "EngineContext.hpp"
 #include "Material.hpp"
 #include "YamlLoadProperties.hpp"

@@ -3,12 +3,21 @@
 #include <filesystem>
 #include <omp.h>
 
+#include <logging/LogManager.hpp>
+
 #include "ImageUtil.hpp"
 #include "PathUtil.hpp"
 #include "QuickTimer.hpp"
 #include "ReferenceRunner.hpp"
 
 namespace RtEngine {
+	namespace {
+		Logging::LoggerHandle& logger() {
+			static Logging::LoggerHandle instance = Logging::LogManager::getClassLogger<BenchmarkRunner>();
+			return instance;
+		}
+	}
+
 	constexpr std::string SAMPLE_COUNT_OPTION_NAME = "Sample_Count";
 	constexpr std::string REFERENCE_IMAGE_PATH_OPTION_NAME = "Reference_Image";
 
@@ -16,11 +25,11 @@ namespace RtEngine {
 			: Runner(engine_context, scene_manager) {
 
 		if (std::filesystem::create_directories(TMP_FOLDER)) {
-			SPDLOG_INFO("Created directory {}");
+			logger()->info(std::format("Created directory {}", TMP_FOLDER));
 		}
 
 		if (std::filesystem::create_directories(OUT_FOLDER)) {
-			SPDLOG_INFO("Created directory {}");
+			logger()->info(std::format("Created directory {}", OUT_FOLDER));
 		}
 	}
 
@@ -135,7 +144,7 @@ namespace RtEngine {
 		stbi_image_free(ref_data);
 
 		clearTmpfolder();
-		SPDLOG_INFO("Saved benchmark data to {}!", output_path);
+		logger()->info(std::format("Saved benchmark data to {}!", output_path));
 	}
 
 	void BenchmarkRunner::clearTmpfolder() {

@@ -1,6 +1,7 @@
 #include "Glitch.hpp"
 
-#include <spdlog/spdlog.h>
+#include <format>
+#include <logging/LogManager.hpp>
 
 #include "EngineContext.hpp"
 #include "Node.hpp"
@@ -8,6 +9,13 @@
 #include "compute/GlitchRenderer.hpp"
 
 namespace RtEngine {
+    namespace {
+        Logging::LoggerHandle& logger() {
+            static Logging::LoggerHandle instance = Logging::LogManager::getClassLogger<Glitch>();
+            return instance;
+        }
+    }
+
     Glitch::Glitch() = default;
     Glitch::Glitch(const std::shared_ptr<EngineContext>& context,
                    const std::shared_ptr<Node>& node)
@@ -33,7 +41,7 @@ namespace RtEngine {
 
         const auto it = scene->nodes.find(source_node);
         if (it == scene->nodes.end()) {
-            spdlog::warn("Glitch: source node '{}' not found in scene", source_node);
+            logger()->warn(std::format("Glitch: source node '{}' not found in scene", source_node));
             return false;
         }
 

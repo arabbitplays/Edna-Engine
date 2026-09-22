@@ -10,11 +10,18 @@
 #include <stb_image_write.h>
 
 #include <glm/vector_relational.hpp>
-#include <spdlog/spdlog.h>
+#include <logging/LogManager.hpp>
 
 #include "QuickTimer.hpp"
 
 namespace RtEngine {
+	namespace {
+		Logging::LoggerHandle& logger() {
+			static Logging::LoggerHandle instance = Logging::LogManager::getClassLogger<ResourceBuilder>();
+			return instance;
+		}
+	}
+
 	VkDeviceAddress GetBufferDeviceAddressKHR(VkDevice device, const VkBufferDeviceAddressInfoKHR *address_info) {
 		auto func = (PFN_vkGetBufferDeviceAddressKHR) vkGetDeviceProcAddr(device, "vkGetBufferDeviceAddressKHR");
 		if (func != nullptr) {
@@ -225,7 +232,7 @@ namespace RtEngine {
 		} else if (type == ENVIRONMENT) {
 			format = VK_FORMAT_R8G8B8A8_SRGB;
 		} else {
-			SPDLOG_ERROR("Texture type not supported!");
+			logger()->error("Texture type not supported!");
 		}
 
 		AllocatedImage textureImage =

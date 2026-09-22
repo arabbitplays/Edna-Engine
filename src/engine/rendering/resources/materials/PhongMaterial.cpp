@@ -12,7 +12,17 @@
 #include "PhongInstance.hpp"
 #include "shadow_miss.rmiss.spv.h"
 
+#include <format>
+#include <logging/LogManager.hpp>
+
 namespace RtEngine {
+	namespace {
+		Logging::LoggerHandle& logger() {
+			static Logging::LoggerHandle instance = Logging::LogManager::getClassLogger<PhongMaterial>();
+			return instance;
+		}
+	}
+
 	void PhongMaterial::buildPipelines(VkDescriptorSetLayout sceneLayout) {
 		DescriptorLayoutBuilder layoutBuilder;
 		pipeline = std::make_shared<RaytracingPipeline>(vulkan_context);
@@ -71,7 +81,7 @@ namespace RtEngine {
 		std::shared_ptr<MaterialInstance> instance = std::make_shared<PhongInstance>("");
 		instance->loadResources(yaml_node);
 		if (instances.contains(instance->name)) {
-			SPDLOG_WARN("Material instance with name {} already existst!", instance->name);
+			logger()->warn(std::format("Material instance with name {} already existst!", instance->name));
 			return instances[instance->name];
 		}
 

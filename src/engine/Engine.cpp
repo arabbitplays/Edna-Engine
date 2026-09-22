@@ -1,5 +1,7 @@
 #include "../../include/engine/Engine.hpp"
 
+#include <logging/LogManager.hpp>
+
 #include "BenchmarkRunner.hpp"
 #include "CommandLineParser.hpp"
 #include "ComputeRunner.hpp"
@@ -10,6 +12,13 @@
 #include "YamlLoadProperties.hpp"
 
 namespace RtEngine {
+    namespace {
+        Logging::LoggerHandle& logger() {
+            static Logging::LoggerHandle instance = Logging::LogManager::getClassLogger<Engine>();
+            return instance;
+        }
+    }
+
     void Engine::run(CliArguments cli_args) {
         parseCliArguments(cli_args);
 
@@ -66,20 +75,20 @@ namespace RtEngine {
     void Engine::createRunner() {
         if (options->runner_type == OFFLINE) {
             runner = std::make_shared<Runner>(engine_context, scene_manager);
-            SPDLOG_INFO("Offline runner created");
+            logger()->info("Offline runner created");
         } else if (options->runner_type == REALTIME) {
             //vulkan_renderer = std::make_shared<RealtimeRunner>();
         } else if (options->runner_type == REFERENCE) {
             runner = std::make_shared<ReferenceRunner>(engine_context, scene_manager);
-            SPDLOG_INFO("Reference runner created");
+            logger()->info("Reference runner created");
         } else if (options->runner_type == BENCHMARK) {
             runner = std::make_shared<BenchmarkRunner>(engine_context, scene_manager);
-            SPDLOG_INFO("Benchmark runner created");
+            logger()->info("Benchmark runner created");
         } else if (options->runner_type == COMPUTE_ONLY) {
             runner = std::make_shared<ComputeRunner>(engine_context, scene_manager);
-            SPDLOG_INFO("Compute runner created");
+            logger()->info("Compute runner created");
         } else {
-            SPDLOG_ERROR("No runner created");
+            logger()->error("No runner created");
             return;
         }
 
@@ -138,10 +147,6 @@ namespace RtEngine {
         if (help) {
             cli_parser.printHelp();
             return;
-        }
-
-        if (options->verbose) {
-            spdlog::set_level(spdlog::level::debug);
         }
 
         if (benchmark) {

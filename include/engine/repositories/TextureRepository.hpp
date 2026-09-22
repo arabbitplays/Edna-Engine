@@ -5,9 +5,10 @@
 #ifndef VULKAN_RAYTRACING_TEXTUREREPOSITORY_HPP
 #define VULKAN_RAYTRACING_TEXTUREREPOSITORY_HPP
 
+#include <format>
 #include <glm/packing.hpp>
 #include <glm/vec4.hpp>
-#include <spdlog/spdlog.h>
+#include <logging/LogManager.hpp>
 
 #include "ResourceBuilder.hpp"
 #include "Texture.hpp"
@@ -21,7 +22,7 @@ namespace RtEngine {
 
         std::shared_ptr<Texture> addTexture(std::string path, TextureType type) {
             if (texture_path_cache.contains(path)) {
-                spdlog::debug("Texture cache hit with path: {}", path);
+                logger->debug(std::format("Texture cache hit with path: {}", path));
                 return texture_path_cache[path];
             }
 
@@ -96,7 +97,7 @@ namespace RtEngine {
 
         std::shared_ptr<Texture> default_tex, default_normal_tex, error_tex;
 
-
+        Logging::LoggerHandle logger = Logging::LogManager::getClassLogger<TextureRepository>();
     };
 } // RtEngine
 

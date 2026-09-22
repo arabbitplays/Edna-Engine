@@ -38,7 +38,6 @@
       buildInputs = with pkgs; [
         glfw
         glm
-        spdlog
         # imgui # no backend vulkan implementation in the nixpkgs version, let it build over meson
         stb
         assimp

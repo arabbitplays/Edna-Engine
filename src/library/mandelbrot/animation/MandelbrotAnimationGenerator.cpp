@@ -7,7 +7,8 @@
 #include <memory>
 #include <utility>
 
-#include <spdlog/spdlog.h>
+#include <format>
+#include <logging/LogManager.hpp>
 
 #include <glm/glm.hpp>
 
@@ -25,6 +26,13 @@ namespace mandelbrot
 {
     namespace
     {
+        Logging::LoggerHandle& logger()
+        {
+            static Logging::LoggerHandle instance =
+                Logging::LogManager::getClassLogger<MandelbrotAnimationGenerator>();
+            return instance;
+        }
+
         float randomFloat(float min, float max)
         {
             const float t = static_cast<float>(RtEngine::RandomUtil::generateInt()) /
@@ -138,8 +146,8 @@ namespace mandelbrot
             const double centre_re   = -half_span + (static_cast<double>(best_x) + 0.5) * step;
             const double centre_im   = -half_span + (static_cast<double>(best_y) + 0.5) * step;
             const float  reference   = Gen::PROBE_REFERENCE_SPAN;
-            spdlog::info("Mandelbrot anim: directed offset cell=({},{}) score={:.3f}",
-                         best_x, best_y, best_score);
+            logger()->info(std::format("directed offset cell=({},{}) score={:.3f}",
+                                       best_x, best_y, best_score));
             return glm::vec2(
                 std::clamp(static_cast<float>(centre_re) / reference, Gen::OFFSET_MIN, Gen::OFFSET_MAX),
                 std::clamp(static_cast<float>(centre_im) / reference, Gen::OFFSET_MIN, Gen::OFFSET_MAX));
@@ -158,8 +166,8 @@ namespace mandelbrot
                 Candidate candidate = roll();
                 const float score = score_of(candidate);
                 if (score >= Gen::PROBE_ACCEPT_EDGE) {
-                    spdlog::info("Mandelbrot anim: candidate accepted after {} attempt(s), score={:.3f}",
-                                 attempt + 1u, score);
+                    logger()->info(std::format("candidate accepted after {} attempt(s), score={:.3f}",
+                                               attempt + 1u, score));
                     return candidate;
                 }
                 if (score > best_score) {
@@ -167,8 +175,8 @@ namespace mandelbrot
                     best = candidate;
                 }
             }
-            spdlog::info("Mandelbrot anim: exhausted {} attempts, best score={:.3f}",
-                         Gen::PROBE_MAX_ATTEMPTS, best_score);
+            logger()->info(std::format("exhausted {} attempts, best score={:.3f}",
+                                       Gen::PROBE_MAX_ATTEMPTS, best_score));
             return best;
         }
     }
@@ -202,7 +210,7 @@ namespace mandelbrot
                                      current.initial};
                 });
             });
-        spdlog::info("Mandelbrot anim: offset target=({:.3f},{:.3f})", target.x, target.y);
+        logger()->info(std::format("offset target=({:.3f},{:.3f})", target.x, target.y));
 
         auto set = set_offset_;
         auto animation = std::make_unique<::Animation::Vec2BezierAnimation>(
@@ -227,8 +235,8 @@ namespace mandelbrot
         const float log_target  = std::clamp(log_current + log_delta,
                                              LOG_STEP_SIZE_MIN, LOG_STEP_SIZE_MAX);
         const float target      = std::pow(10.0f, log_target);
-        spdlog::info("Mandelbrot anim: step_size target={:.6f} (log_delta={:.3f} density={:.2f})",
-                     target, log_delta, density);
+        logger()->info(std::format("step_size target={:.6f} (log_delta={:.3f} density={:.2f})",
+                                   target, log_delta, density));
 
         auto set = set_step_size_;
         auto animation = std::make_unique<::Animation::FloatAnimation>(
@@ -251,7 +259,7 @@ namespace mandelbrot
                 });
             });
 
-        spdlog::info("Mandelbrot anim: initial target=({:.3f},{:.3f})", target.x, target.y);
+        logger()->info(std::format("initial target=({:.3f},{:.3f})", target.x, target.y));
 
         auto set = set_initial_;
         auto animation = std::make_unique<::Animation::Vec2Animation>(
@@ -268,7 +276,7 @@ namespace mandelbrot
         const auto all_names = ::color::ColorPaletteName::getAllNames();
         const std::size_t idx = RtEngine::RandomUtil::generateInt() % all_names.size();
         const auto& picked_name = all_names[idx];
-        spdlog::info("Mandelbrot anim: palette target={}", picked_name);
+        logger()->info(std::format("palette target={}", picked_name));
 
         ::color::ColorPalette target = ::color::ColorPaletteFactory::create(
             ::color::ColorPaletteName::fromString(picked_name, ::color::ColorPaletteName::Fire));

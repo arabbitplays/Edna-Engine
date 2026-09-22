@@ -6,8 +6,9 @@
 #define VULKAN_RAYTRACING_IMAGEUTIL_HPP
 #include <stb_image.h>
 #include <stb_image_write.h>
+#include <format>
 #include <string>
-#include <spdlog/spdlog.h>
+#include <logging/LogManager.hpp>
 
 class ImageUtil {
 public:
@@ -15,10 +16,11 @@ public:
     ~ImageUtil() = delete;
 
     static void writePNG(std::string path, uint8_t *data, uint32_t width, uint32_t height) {
+        Logging::LoggerHandle logger = Logging::LogManager::getClassLogger<ImageUtil>();
         if (stbi_write_png(path.c_str(), width, height, 4, data, width * 4)) {
-            spdlog::info("Saved rendered image to {}!", path);
+            logger->info(std::format("Saved rendered image to {}!", path));
         } else {
-            spdlog::error("failed to save output image to {}!", path);
+            logger->error(std::format("failed to save output image to {}!", path));
         }
     }
 

@@ -1,9 +1,17 @@
 #include "MeshRepository.hpp"
 
+#include <format>
 #include <VulkanContext.hpp>
-#include <spdlog/spdlog.h>
+#include <logging/LogManager.hpp>
 
 namespace RtEngine {
+	namespace {
+		Logging::LoggerHandle& logger() {
+			static Logging::LoggerHandle instance = Logging::LogManager::getClassLogger<MeshRepository>();
+			return instance;
+		}
+	}
+
 	MeshRepository::MeshRepository(const std::shared_ptr<VulkanContext> &context, const std::string& resource_dir) {
 		mesh_asset_builder = std::make_shared<MeshAssetBuilder>(context->device_manager->getDevice(),
 																resource_dir);
@@ -19,7 +27,7 @@ namespace RtEngine {
 	// returns the name given to the mesh
 	std::string MeshRepository::addMesh(std::string path) {
 		if (mesh_path_cache.contains(path)) {
-			spdlog::debug("Mesh cache hit with path: {}", path);
+			logger()->debug(std::format("Mesh cache hit with path: {}", path));
 			return mesh_path_cache[path]->name;
 		}
 

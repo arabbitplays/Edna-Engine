@@ -3,11 +3,21 @@
 #include <cassert>
 #include <utility>
 
+#include <logging/LogManager.hpp>
+
 #include "DescriptorLayoutBuilder.hpp"
-#include "spdlog/spdlog.h"
 
 namespace RtEngine
 {
+    namespace
+    {
+        Logging::LoggerHandle& logger()
+        {
+            static Logging::LoggerHandle instance = Logging::LogManager::getClassLogger<ConnectorLayout>();
+            return instance;
+        }
+    }
+
     ConnectorLayout::ConnectorLayout(std::shared_ptr<DeviceManager> device_manager,
                                      std::shared_ptr<DescriptorAllocator> descriptor_allocator)
         : device_manager(std::move(device_manager)), descriptor_allocator(std::move(descriptor_allocator))
@@ -23,7 +33,7 @@ namespace RtEngine
 
         if (connectors[binding] != nullptr)
         {
-            SPDLOG_WARN("Overwriting connector at binding " + std::to_string(binding));
+            logger()->warn("Overwriting connector at binding " + std::to_string(binding));
         }
 
         connectors[binding] = std::move(connector);

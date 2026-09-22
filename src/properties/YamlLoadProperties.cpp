@@ -1,6 +1,16 @@
 #include "../../include/properties/YamlLoadProperties.hpp"
 
+#include <format>
+#include <logging/LogManager.hpp>
+
 namespace RtEngine {
+    namespace {
+        Logging::LoggerHandle& logger() {
+            static Logging::LoggerHandle instance = Logging::LogManager::getClassLogger<YamlLoadProperties>();
+            return instance;
+        }
+    }
+
     YamlLoadProperties::YamlLoadProperties(std::string config_path) {
         nodes.push_back(YAML::LoadFile(config_path));
     }
@@ -91,7 +101,7 @@ namespace RtEngine {
             }
         }
 
-        SPDLOG_WARN("{} is not a valid value for property {}", select, name);
+        logger()->warn(std::format("{} is not a valid value for property {}", select, name));
         return false;
     }
 } // RtEngine

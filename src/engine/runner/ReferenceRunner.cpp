@@ -2,18 +2,27 @@
 
 #include <filesystem>
 
+#include <logging/LogManager.hpp>
+
 #include "ImageUtil.hpp"
 #include "PathUtil.hpp"
 #include <format>
 
 namespace RtEngine {
+	namespace {
+		Logging::LoggerHandle& logger() {
+			static Logging::LoggerHandle instance = Logging::LogManager::getClassLogger<ReferenceRunner>();
+			return instance;
+		}
+	}
+
 	constexpr std::string SAMPLE_COUNT_OPTION_NAME = "Sample_Count";
 
 	ReferenceRunner::ReferenceRunner(const std::shared_ptr<EngineContext> &engine_context, const std::shared_ptr<SceneManager> &scene_manager)
 			: Runner(engine_context, scene_manager) {
 		final_image_count = final_sample_count / samples_per_image;
 		if (std::filesystem::create_directories(OUT_FOLDER)) {
-			SPDLOG_INFO("Created directory {}");
+			logger()->info(std::format("Created directory {}", OUT_FOLDER));
 		}
 	}
 
@@ -27,7 +36,7 @@ namespace RtEngine {
 		std::shared_ptr<RenderTarget> target = draw_context->targets[0];
 		target->setSamplesPerFrame(8);
 
-		stopwatch.reset();
+		stopwatch_start = std::chrono::steady_clock::now();
 	}
 
 	void ReferenceRunner::renderScene() {
@@ -84,7 +93,8 @@ namespace RtEngine {
 		finishFrame(draw_context);
 
 		if (curr_sample_count % (1 << 10) == 0) {
-			double elapsed_time = stopwatch.elapsed().count();
+			double elapsed_time = std::chrono::duration<double>(
+				std::chrono::steady_clock::now() - stopwatch_start).count();
 			uint32_t collected_sample_count = done_images.size() * samples_per_image + curr_sample_count;
 
 			uint32_t samples_left = final_sample_count - collected_sample_count;
@@ -93,8 +103,9 @@ namespace RtEngine {
 			int minutes = (static_cast<int>(time_left) % 3600) / 60;
 			int sec = static_cast<int>(time_left) % 60;
 			uint32_t progress = round(static_cast<float>(collected_sample_count) / static_cast<float>(final_sample_count) * 100.0f);
-			SPDLOG_INFO("Collected sample count: {}, progress: {}%, estimated time remaining: {}h {}m {}s",
-						 collected_sample_count, progress, hours, minutes, sec);
+			logger()->info(std::format(
+				"Collected sample count: {}, progress: {}%, estimated time remaining: {}h {}m {}s",
+				collected_sample_count, progress, hours, minutes, sec));
 		}
 	}
 

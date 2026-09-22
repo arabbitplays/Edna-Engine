@@ -7,11 +7,19 @@
 #include <fstream>
 #include <iostream>
 #include <MetalRoughMaterial.hpp>
-#include <spdlog/spdlog.h>
+#include <format>
+#include <logging/LogManager.hpp>
 
 #include "YamlDumpProperties.hpp"
 
 namespace RtEngine {
+	namespace {
+		Logging::LoggerHandle& logger() {
+			static Logging::LoggerHandle instance = Logging::LogManager::getClassLogger<SceneWriter>();
+			return instance;
+		}
+	}
+
 	void SceneWriter::writeScene(const std::string &filename, std::shared_ptr<Scene> scene) {
 		QuickTimer quick_timer("Writing scene to file");
 
@@ -49,7 +57,7 @@ namespace RtEngine {
 		fout << out.c_str();
 		fout.close();
 
-		spdlog::info("Scene successfully written to {}", path);
+		logger()->info(std::format("Scene successfully written to {}", path));
 	}
 
 	void SceneWriter::writeMaterial(YAML::Emitter &out, const std::shared_ptr<Material> &material) {
