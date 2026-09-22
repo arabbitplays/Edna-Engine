@@ -6,6 +6,7 @@
 #include "EngineContext.hpp"
 #include "Glitch.hpp"
 #include "Mandelbrot.hpp"
+#include "Mandelbulb.hpp"
 #include "Scene.hpp"
 
 #include <library/rave_visualizer/CompositionManager.hpp>
@@ -87,15 +88,18 @@ namespace RtEngine
 
         const auto mandelbrot_comp = context->scene_manager->getComponent<Mandelbrot>();
         const auto cca_comp = context->scene_manager->getComponent<CyclicalCellularAutomaton>();
-        if (!mandelbrot_comp || !cca_comp)
+        const auto mandelbulb_comp = context->scene_manager->getComponent<Mandelbulb>();
+        if (!mandelbrot_comp || !cca_comp || !mandelbulb_comp)
         {
-            logger()->warn("Composition: scene must contain a Mandelbrot and a CyclicalCellularAutomaton component");
+            logger()->warn(
+                "Composition: scene must contain Mandelbrot, CyclicalCellularAutomaton and Mandelbulb components");
             return false;
         }
 
         const auto mandelbrot_out = mandelbrot_comp->getOutputConnector();
         const auto cca_out = cca_comp->getOutputConnector();
-        if (!mandelbrot_out || !cca_out)
+        const auto mandelbulb_out = mandelbulb_comp->getOutputConnector();
+        if (!mandelbrot_out || !cca_out || !mandelbulb_out)
         {
             return false;
         }
@@ -104,7 +108,8 @@ namespace RtEngine
         const auto vulkan_context = rendering_manager->getVulkanContext();
         const VkExtent2D extent = vulkan_context->swapchain->extent;
 
-        composition_renderer = std::make_shared<CompositionRenderer>(vulkan_context, extent, cca_out, mandelbrot_out);
+        composition_renderer =
+            std::make_shared<CompositionRenderer>(vulkan_context, extent, cca_out, mandelbrot_out, mandelbulb_out);
         composition_renderer->init();
         rendering_manager->addComputeRenderer(composition_renderer, nullptr);
 

@@ -14,6 +14,7 @@ namespace RaveVisualizer
         // Target visualization during a fade; equals `current` outside FADE.
         VisualizationType target = VisualizationType::CCA;
 
+        // 0.0 at fade start (fully on `current`), 1.0 at fade end (fully on `target`).
         float fade_progress = 0.0f;
 
         bool invert_color = false;

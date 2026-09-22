@@ -4,6 +4,7 @@
 #include "RaveState.hpp"
 #include "VisualizationType.hpp"
 
+#include <array>
 #include <memory>
 
 namespace RtEngine
@@ -46,10 +47,9 @@ namespace RaveVisualizer
             return rave_state;
         }
 
-    private:
-        // input_a = CCA (fade 0.0), input_b = MANDELBROT (fade 1.0).
-        static float fadeValueFor(VisualizationType type);
+        std::array<float, VISUALIZATION_TYPE_COUNT> currentWeights() const;
 
+    private:
         void pushToComposition();
 
         std::shared_ptr<RtEngine::CompositionRenderer> composition;

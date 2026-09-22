@@ -10,13 +10,15 @@ namespace RtEngine
     public:
         CompositionRenderer(const std::shared_ptr<VulkanContext>& vulkan_context, VkExtent2D image_extent,
             std::shared_ptr<ImageConnector> input_a, std::shared_ptr<ImageConnector> input_b,
-            uint32_t max_frames_in_flight = 1);
+            std::shared_ptr<ImageConnector> input_c, uint32_t max_frames_in_flight = 1);
 
         std::shared_ptr<ImageConnector> getOutputConnector() const;
 
-        void setFade(float fade)
+        void setWeights(float weight_a, float weight_b, float weight_c)
         {
-            push.fade = fade;
+            push.weight_a = weight_a;
+            push.weight_b = weight_b;
+            push.weight_c = weight_c;
         }
         void setInvertColor(bool invert)
         {
@@ -34,11 +36,13 @@ namespace RtEngine
     private:
         struct PushConstants
         {
-            float fade;
+            float weight_a;
+            float weight_b;
+            float weight_c;
             uint32_t invert_color;
         };
 
-        PushConstants push{0.0f, 0u};
+        PushConstants push{1.0f, 0.0f, 0.0f, 0u};
 
         std::shared_ptr<ImageConnector> output_connector;
     };

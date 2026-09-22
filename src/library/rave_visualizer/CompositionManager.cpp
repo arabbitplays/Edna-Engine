@@ -12,7 +12,6 @@ namespace RaveVisualizer
         std::shared_ptr<RtEngine::CompositionRenderer> composition, std::shared_ptr<RtEngine::Glitch> glitch)
         : composition(std::move(composition)), glitch(std::move(glitch))
     {
-        rave_state.fade_progress = fadeValueFor(rave_state.current);
         pushToComposition();
     }
 
@@ -22,23 +21,21 @@ namespace RaveVisualizer
         if (rotation_elapsed_s >= ROTATION_INTERVAL_S)
         {
             rotation_elapsed_s = 0.0F;
-            const VisualizationType next =
-                rave_state.current == VisualizationType::CCA ? VisualizationType::MANDELBROT : VisualizationType::CCA;
-            TryChangeType(next);
+            const std::size_t current_index = visualizationTypeIndex(rave_state.current);
+            const std::size_t next_index = (current_index + 1) % VISUALIZATION_TYPE_COUNT;
+            TryChangeType(visualizationTypeFromIndex(next_index));
         }
 
         if (rave_state.phase == VisualizationPhase::FADE)
         {
             fade_elapsed_s += dt;
             const float t = std::clamp(fade_elapsed_s / FADE_DURATION_S, 0.0F, 1.0F);
-            const float from = fadeValueFor(rave_state.current);
-            const float to = fadeValueFor(rave_state.target);
-            rave_state.fade_progress = from + ((to - from) * t);
+            rave_state.fade_progress = t;
 
             if (t >= 1.0F)
             {
                 rave_state.current = rave_state.target;
-                rave_state.fade_progress = fadeValueFor(rave_state.current);
+                rave_state.fade_progress = 0.0F;
                 rave_state.phase = VisualizationPhase::VISUALIZATION;
                 fade_elapsed_s = 0.0F;
             }
@@ -70,6 +67,7 @@ namespace RaveVisualizer
         }
 
         rave_state.target = new_type;
+        rave_state.fade_progress = 0.0F;
         fade_elapsed_s = 0.0F;
         rave_state.phase = VisualizationPhase::FADE;
     }
@@ -127,9 +125,22 @@ namespace RaveVisualizer
         forwardToGlitch(glitch, [v](auto& r) { r.setShakeColorRate(v); });
     }
 
-    float CompositionManager::fadeValueFor(const VisualizationType type)
+    std::array<float, VISUALIZATION_TYPE_COUNT> CompositionManager::currentWeights() const
     {
-        return type == VisualizationType::MANDELBROT ? 1.0F : 0.0F;
+        std::array<float, VISUALIZATION_TYPE_COUNT> weights{};
+        weights.fill(0.0F);
+        const std::size_t current_index = visualizationTypeIndex(rave_state.current);
+        if (rave_state.phase == VisualizationPhase::FADE)
+        {
+            const std::size_t target_index = visualizationTypeIndex(rave_state.target);
+            weights[current_index] = 1.0F - rave_state.fade_progress;
+            weights[target_index] = rave_state.fade_progress;
+        }
+        else
+        {
+            weights[current_index] = 1.0F;
+        }
+        return weights;
     }
 
     void CompositionManager::pushToComposition()
@@ -138,7 +149,8 @@ namespace RaveVisualizer
         {
             return;
         }
-        composition->setFade(rave_state.fade_progress);
+        const auto weights = currentWeights();
+        composition->setWeights(weights[0], weights[1], weights[2]);
         composition->setInvertColor(rave_state.invert_color);
     }
 } // namespace RaveVisualizer

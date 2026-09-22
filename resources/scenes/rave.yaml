@@ -1,5 +1,25 @@
 scene:
   nodes:
+    - name: Camera
+      components:
+        Transform:
+          position:
+            - 0
+            - 0.5
+            - 3
+          rotation:
+            - -0.2
+            - 0
+            - 0
+          scale:
+            - 1
+            - 1
+            - 1
+        Camera:
+          fov: 45
+          interactive: false
+      children:
+        []
     - name: Mandelbrot
       components:
         Mandelbrot:
@@ -10,6 +30,16 @@ scene:
       components:
         CyclicalCellularAutomaton:
           animate: true
+      children:
+        []
+    - name: Mandelbulb
+      components:
+        Mandelbulb:
+          animate: true
+          rotation_speed: 0.14
+          rim_weight: 0.6
+          diffuse_weight: 2.0
+          coloring: "Radius"
       children:
         []
     - name: Composition
