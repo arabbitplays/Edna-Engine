@@ -20,6 +20,19 @@ namespace RtEngine
             const auto palette_name = ColorPaletteName::fromString(name, ColorPaletteName::Sunburn);
             return ColorPaletteFactory::create(palette_name).colors;
         }
+
+        const std::vector<std::string>& coloringModeNames()
+        {
+            static const std::vector<std::string> names = {"Iterations", "OrbitTrap", "Radius"};
+            return names;
+        }
+
+        MandelbulbRenderer::ColoringMode parseColoringMode(const std::string& name)
+        {
+            if (name == "Iterations") return MandelbulbRenderer::ColoringMode::Iterations;
+            if (name == "Radius") return MandelbulbRenderer::ColoringMode::Radius;
+            return MandelbulbRenderer::ColoringMode::OrbitTrap;
+        }
     } // namespace
 
     void Mandelbulb::OnStart()
@@ -32,7 +45,7 @@ namespace RtEngine
         applied_palette_name = palette_name;
 
         renderer = std::make_shared<MandelbulbRenderer>(
-            vulkan_context, extent, colors, initial, power, max_iterations);
+            vulkan_context, extent, colors, initial, power, max_iterations, parseColoringMode(coloring_mode));
         renderer->init();
 
         rendering_manager->addComputeRenderer(renderer, renderer->getOutputConnector());
@@ -83,6 +96,7 @@ namespace RtEngine
         renderer->setInitial(initial);
         renderer->setPower(power);
         renderer->setMaxIterations(max_iterations);
+        renderer->setColoringMode(parseColoringMode(coloring_mode));
     }
 
     std::shared_ptr<ImageConnector> Mandelbulb::getOutputConnector() const
@@ -100,6 +114,7 @@ namespace RtEngine
             config->addUint("max_iterations", &max_iterations, MIN_MAX_ITERATIONS, MAX_MAX_ITERATIONS);
             config->addFloat("rotation_speed", &rotation_speed, -ROTATION_SPEED_BOUND, ROTATION_SPEED_BOUND);
             config->addSelection("palette", &palette_name, ::color::ColorPaletteName::getAllNames());
+            config->addSelection("coloring", &coloring_mode, coloringModeNames());
             config->endChild();
         }
     }

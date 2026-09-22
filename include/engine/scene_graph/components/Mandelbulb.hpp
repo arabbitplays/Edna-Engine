@@ -51,6 +51,7 @@ namespace RtEngine
         float rotation_speed = 0.5f;
         std::string palette_name = DEFAULT_PALETTE_NAME;
         std::string applied_palette_name;
+        std::string coloring_mode = "OrbitTrap";
 
         float rotation_angle = 0.0f;
 

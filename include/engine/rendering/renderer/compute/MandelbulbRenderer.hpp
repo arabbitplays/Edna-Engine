@@ -14,9 +14,16 @@ namespace RtEngine
     public:
         static constexpr uint32_t MAX_COLOR_COUNT = 256;
 
+        enum class ColoringMode : uint32_t
+        {
+            Iterations = 0,
+            OrbitTrap = 1,
+            Radius = 2,
+        };
+
         MandelbulbRenderer(const std::shared_ptr<VulkanContext>& vulkan_context, VkExtent2D image_extent,
             const std::vector<glm::vec4>& colors, const glm::vec3& initial, float power, uint32_t max_iterations,
-            uint32_t max_frames_in_flight = 1);
+            ColoringMode coloring_mode, uint32_t max_frames_in_flight = 1);
 
         std::shared_ptr<ImageConnector> getOutputConnector() const;
 
@@ -41,6 +48,10 @@ namespace RtEngine
         {
             push.max_iterations = iterations;
         }
+        void setColoringMode(ColoringMode mode)
+        {
+            push.coloring_mode = static_cast<uint32_t>(mode);
+        }
 
         void setPalette(const std::vector<glm::vec4>& new_colors);
 
@@ -60,7 +71,7 @@ namespace RtEngine
             float power;
             uint32_t max_iterations;
             uint32_t color_count;
-            uint32_t _padding;
+            uint32_t coloring_mode;
         };
 
         struct CameraData
@@ -73,7 +84,7 @@ namespace RtEngine
         VkExtent2D image_extent;
         std::vector<glm::vec4> colors;
 
-        PushConstants push{glm::vec4(0.0f), 8.0f, 8u, 0u, 0u};
+        PushConstants push{glm::vec4(0.0f), 8.0f, 8u, 0u, static_cast<uint32_t>(ColoringMode::OrbitTrap)};
         CameraData camera_data{glm::mat4(1.0f), glm::mat4(1.0f), glm::mat4(1.0f)};
 
         std::shared_ptr<ImageConnector> target_connector;

@@ -12,20 +12,28 @@ layout (binding = 2)          uniform CameraData {
     mat4 rotation;
 } camera;
 
+const uint COLORING_ITERATIONS = 0u;
+const uint COLORING_ORBIT_TRAP = 1u;
+const uint COLORING_RADIUS     = 2u;
+
 layout (push_constant) uniform PushConstants {
     vec4  initial;
     float power;
     uint  max_iterations;
     uint  color_count;
-    uint  _padding;
+    uint  coloring_mode;
 } push;
 
 layout (local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
 
 const float DE_BAILOUT     = 2.0;
-const int   MARCH_STEPS    = 128;
-const float MARCH_EPS      = 0.0008;
+const int   MARCH_STEPS    = 256;
+const float MARCH_EPS_MIN  = 0.00025;
+// Grow the hit threshold with distance so sub-pixel features at grazing angles
+// count as hits and don't leave see-through holes at the silhouette.
+const float MARCH_EPS_REL  = 0.0015;
 const float MARCH_MAX_DIST = 32.0;
+const float NORMAL_EPS     = 0.0015;
 
 vec4 samplePalette(float t)
 {
@@ -41,18 +49,22 @@ vec4 samplePalette(float t)
 }
 
 // Distance estimator for the mandelbulb; iterates z_{n+1} = z_n^power + c.
-// Returns (distance, iteration_count) so callers can shade by escape speed.
-vec2 mandelbulbDE(vec3 pos)
+// Returns (distance, iteration_count, orbit_trap). The orbit trap is the
+// minimum |z| the bounded orbit reached — a geometric fingerprint of how
+// close each point's orbit passes to the origin.
+vec3 mandelbulbDE(vec3 pos)
 {
     vec3  z    = push.initial.xyz;
     vec3  c    = pos;
     float dr   = 1.0;
     float r    = length(z);
+    float trap = r;
     uint  iter = 0u;
 
     for (; iter < push.max_iterations; iter++) {
         r = length(z);
         if (r > DE_BAILOUT) break;
+        trap = min(trap, r);
 
         float theta = acos(clamp(z.z / r, -1.0, 1.0));
         float phi   = atan(z.y, z.x);
@@ -70,7 +82,18 @@ vec2 mandelbulbDE(vec3 pos)
     }
 
     float dist = 0.5 * log(max(r, 1e-6)) * r / max(dr, 1e-6);
-    return vec2(dist, float(iter));
+    return vec3(dist, float(iter), trap);
+}
+
+// Tetrahedron-sampled gradient of the DE. Four evaluations instead of six.
+vec3 calcNormal(vec3 p)
+{
+    const vec2 k = vec2(1.0, -1.0);
+    return normalize(
+        k.xyy * mandelbulbDE(p + k.xyy * NORMAL_EPS).x +
+        k.yyx * mandelbulbDE(p + k.yyx * NORMAL_EPS).x +
+        k.yxy * mandelbulbDE(p + k.yxy * NORMAL_EPS).x +
+        k.xxx * mandelbulbDE(p + k.xxx * NORMAL_EPS).x);
 }
 
 void main()
@@ -93,15 +116,19 @@ void main()
     vec3 rd      = rot_inv * dir_world;
 
     float t        = 0.0;
+    float hit_trap = 0.0;
     uint  hit_iter = 0u;
+    int   step_i   = 0;
     bool  hit      = false;
-    for (int i = 0; i < MARCH_STEPS; i++) {
-        vec3 p     = ro + rd * t;
-        vec2 de    = mandelbulbDE(p);
+    for (; step_i < MARCH_STEPS; step_i++) {
+        vec3  p    = ro + rd * t;
+        vec3  de   = mandelbulbDE(p);
         float d    = de.x;
-        if (d < MARCH_EPS) {
+        float eps  = max(MARCH_EPS_MIN, MARCH_EPS_REL * t);
+        if (d < eps) {
             hit      = true;
             hit_iter = uint(de.y);
+            hit_trap = de.z;
             break;
         }
         t += d;
@@ -110,11 +137,37 @@ void main()
 
     vec4 color;
     if (hit) {
-        float shade     = clamp(1.0 - t / MARCH_MAX_DIST, 0.2, 1.0);
-        float palette_t = float(hit_iter) / float(max(push.max_iterations, 1u));
+        vec3  p       = ro + rd * t;
+        vec3  n       = calcNormal(p);
+
+        // Light + view live in the ray's frame (object space) so the fractal
+        // relights as it rotates and grazing folds catch highlights.
+        vec3  light_dir = normalize(vec3(0.55, 0.75, -0.35));
+        float diffuse   = max(dot(n, light_dir), 0.0);
+        float ambient   = 0.22;
+        float rim       = pow(1.0 - max(dot(n, -rd), 0.0), 3.0);
+
+        // Step-count AO: crevices need more steps to converge, so they get
+        // slightly darker and gain contrast without needing extra samples.
+        float ao        = 1.0 - clamp(float(step_i) / float(MARCH_STEPS), 0.0, 1.0);
+        ao              = mix(0.45, 1.0, ao);
+
+        float palette_t;
+        if (push.coloring_mode == COLORING_ITERATIONS) {
+            palette_t = sqrt(float(hit_iter) / float(max(push.max_iterations, 1u)));
+        } else if (push.coloring_mode == COLORING_RADIUS) {
+            // Radius of the hit point: mandelbulb sits within |p| ~ 1.25.
+            palette_t = clamp(length(p) / 1.25, 0.0, 1.0);
+        } else {
+            // Orbit trap: min |z| lies in [0, DE_BAILOUT]; sqrt stretches the
+            // palette across the crowded low-radius region.
+            palette_t = sqrt(clamp(hit_trap / DE_BAILOUT, 0.0, 1.0));
+        }
         color = samplePalette(palette_t);
-        color.rgb *= shade;
-        color.a = 1.0;
+
+        float shade = (ambient + 0.85 * diffuse) * ao;
+        color.rgb   = color.rgb * shade + rim * 0.18;
+        color.a     = 1.0;
     } else {
         color = palette.colors[0];
         color.a = 1.0;

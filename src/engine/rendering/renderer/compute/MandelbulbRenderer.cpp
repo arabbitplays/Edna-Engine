@@ -13,7 +13,8 @@ namespace RtEngine
 {
     MandelbulbRenderer::MandelbulbRenderer(const std::shared_ptr<VulkanContext>& vulkan_context,
         const VkExtent2D image_extent, const std::vector<glm::vec4>& colors, const glm::vec3& initial,
-        const float power, const uint32_t max_iterations, const uint32_t max_frames_in_flight)
+        const float power, const uint32_t max_iterations, const ColoringMode coloring_mode,
+        const uint32_t max_frames_in_flight)
         : ComputeRenderer(vulkan_context, max_frames_in_flight), image_extent(image_extent), colors(colors)
     {
         assert(!colors.empty() && "MandelbulbRenderer: colors must not be empty");
@@ -24,6 +25,7 @@ namespace RtEngine
         push.power = power;
         push.max_iterations = max_iterations;
         push.color_count = static_cast<uint32_t>(colors.size());
+        push.coloring_mode = static_cast<uint32_t>(coloring_mode);
 
         target_connector = ImageConnectorFactory::createRenderTargetConnector(
             vulkan_context->resource_builder, image_extent, max_frames_in_flight);
