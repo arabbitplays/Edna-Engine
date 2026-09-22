@@ -43,17 +43,30 @@ namespace RtEngine
         static constexpr float MIN_POWER = 2.0f;
         static constexpr float MAX_POWER = 16.0f;
         static constexpr float ROTATION_SPEED_BOUND = 6.283185f;
+        static constexpr float ANGLE_OFFSET_BOUND = 3.14159265f;
+        static constexpr float STEP_ROTATION_ANGLE_BOUND = 0.78539816f; // pi/4
+        static constexpr float POWER_ANIM_AMPLITUDE = 2.0f;
+        static constexpr float THETA_OFFSET_ANIM_AMPLITUDE = 1.57079633f; // pi/2
         static inline const std::string DEFAULT_PALETTE_NAME = "Sunburn";
 
         glm::vec3 initial = glm::vec3(0.0f);
         float power = DEFAULT_POWER;
+        float theta_offset = 0.0f;
+        glm::vec3 step_rotation_axis = glm::vec3(0.0f, 1.0f, 0.0f);
+        float step_rotation_angle = 0.0f;
         uint32_t max_iterations = DEFAULT_MAX_ITERATIONS;
         float rotation_speed = 0.5f;
+        float power_speed = 0.0f;
+        float theta_offset_speed = 0.0f;
+        float step_rotation_speed = 0.0f;
         std::string palette_name = DEFAULT_PALETTE_NAME;
         std::string applied_palette_name;
         std::string coloring_mode = "OrbitTrap";
 
         float rotation_angle = 0.0f;
+        float power_phase = 0.0f;
+        float theta_offset_phase = 0.0f;
+        float step_rotation_phase = 0.0f;
 
         std::shared_ptr<MandelbulbRenderer> renderer;
         std::weak_ptr<Camera> camera;

@@ -36,6 +36,10 @@ namespace RtEngine
         {
             camera_data.rotation = rotation;
         }
+        void setStepRotation(const glm::mat4& step_rotation)
+        {
+            camera_data.step_rotation = step_rotation;
+        }
         void setInitial(const glm::vec3& initial)
         {
             push.initial = glm::vec4(initial, 0.0f);
@@ -43,6 +47,10 @@ namespace RtEngine
         void setPower(float power)
         {
             push.power = power;
+        }
+        void setThetaOffset(float theta_offset)
+        {
+            push.theta_offset = theta_offset;
         }
         void setMaxIterations(uint32_t iterations)
         {
@@ -69,9 +77,13 @@ namespace RtEngine
         {
             glm::vec4 initial;
             float power;
+            float theta_offset;
             uint32_t max_iterations;
             uint32_t color_count;
             uint32_t coloring_mode;
+            uint32_t _pad_0;
+            uint32_t _pad_1;
+            uint32_t _pad_2;
         };
 
         struct CameraData
@@ -79,13 +91,22 @@ namespace RtEngine
             glm::mat4 inverse_view;
             glm::mat4 inverse_projection;
             glm::mat4 rotation;
+            glm::mat4 step_rotation;
         };
 
         VkExtent2D image_extent;
         std::vector<glm::vec4> colors;
 
-        PushConstants push{glm::vec4(0.0f), 8.0f, 8u, 0u, static_cast<uint32_t>(ColoringMode::OrbitTrap)};
-        CameraData camera_data{glm::mat4(1.0f), glm::mat4(1.0f), glm::mat4(1.0f)};
+        PushConstants push{
+            /*initial*/ glm::vec4(0.0f),
+            /*power*/ 8.0f,
+            /*theta_offset*/ 0.0f,
+            /*max_iterations*/ 8u,
+            /*color_count*/ 0u,
+            /*coloring_mode*/ static_cast<uint32_t>(ColoringMode::OrbitTrap),
+            /*_pad*/ 0u, 0u, 0u,
+        };
+        CameraData camera_data{glm::mat4(1.0f), glm::mat4(1.0f), glm::mat4(1.0f), glm::mat4(1.0f)};
 
         std::shared_ptr<ImageConnector> target_connector;
         std::shared_ptr<BufferConnector> palette_connector;

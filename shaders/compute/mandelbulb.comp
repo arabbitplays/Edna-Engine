@@ -10,6 +10,7 @@ layout (binding = 2)          uniform CameraData {
     mat4 inverse_view;
     mat4 inverse_projection;
     mat4 rotation;
+    mat4 step_rotation;
 } camera;
 
 const uint COLORING_ITERATIONS = 0u;
@@ -19,9 +20,13 @@ const uint COLORING_RADIUS     = 2u;
 layout (push_constant) uniform PushConstants {
     vec4  initial;
     float power;
+    float theta_offset;
     uint  max_iterations;
     uint  color_count;
     uint  coloring_mode;
+    uint  _pad_0;
+    uint  _pad_1;
+    uint  _pad_2;
 } push;
 
 layout (local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
@@ -48,18 +53,22 @@ vec4 samplePalette(float t)
     return mix(palette.colors[lo], palette.colors[hi], f);
 }
 
-// Distance estimator for the mandelbulb; iterates z_{n+1} = z_n^power + c.
-// Returns (distance, iteration_count, orbit_trap). The orbit trap is the
-// minimum |z| the bounded orbit reached — a geometric fingerprint of how
-// close each point's orbit passes to the origin.
+// Distance estimator for the mandelbulb; iterates z_{n+1} = R * z_n^power + c.
+// A theta_offset twists the exponentiation output; a per-step rotation R
+// (from the UBO) applies before adding c. Returns (distance, iteration_count,
+// orbit_trap).
 vec3 mandelbulbDE(vec3 pos)
 {
     vec3  z    = push.initial.xyz;
     vec3  c    = pos;
+
     float dr   = 1.0;
     float r    = length(z);
     float trap = r;
     uint  iter = 0u;
+
+    // step_rotation is a mat4 from the UBO; we only need its 3x3 upper block.
+    mat3 R = mat3(camera.step_rotation);
 
     for (; iter < push.max_iterations; iter++) {
         r = length(z);
@@ -71,13 +80,14 @@ vec3 mandelbulbDE(vec3 pos)
         dr = pow(r, push.power - 1.0) * push.power * dr + 1.0;
 
         float zr        = pow(r, push.power);
-        float new_theta = theta * push.power;
+        float new_theta = theta * push.power + push.theta_offset;
         float new_phi   = phi   * push.power;
 
         z = zr * vec3(
             sin(new_theta) * cos(new_phi),
             sin(new_theta) * sin(new_phi),
             cos(new_theta));
+        z = R * z;
         z += c;
     }
 

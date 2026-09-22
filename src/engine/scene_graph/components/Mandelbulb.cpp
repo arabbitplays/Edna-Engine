@@ -4,6 +4,8 @@
 #include "compute/MandelbulbRenderer.hpp"
 #include "Scene.hpp"
 
+#include <algorithm>
+#include <cmath>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <library/color/ColorPaletteFactory.hpp>
@@ -86,15 +88,35 @@ namespace RtEngine
         }
 
         rotation_angle += rotation_speed * FIXED_DELTA_TIME;
+        power_phase += power_speed * FIXED_DELTA_TIME;
+        theta_offset_phase += theta_offset_speed * FIXED_DELTA_TIME;
+        step_rotation_phase += step_rotation_speed * FIXED_DELTA_TIME;
+
         const glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), rotation_angle, glm::vec3(0.0f, 1.0f, 0.0f));
+
+        // Sinusoidal morph around the user-set centers; keeps power inside the
+        // renderer's usable range and theta_offset naturally wraps through 2pi.
+        const float animated_power = std::clamp(
+            power + POWER_ANIM_AMPLITUDE * std::sin(power_phase), MIN_POWER, MAX_POWER);
+        const float animated_theta_offset =
+            theta_offset + THETA_OFFSET_ANIM_AMPLITUDE * std::sin(theta_offset_phase);
+        const float animated_step_angle = step_rotation_angle + step_rotation_phase;
+
+        const glm::vec3 axis = glm::length(step_rotation_axis) > 1e-4f
+            ? glm::normalize(step_rotation_axis)
+            : glm::vec3(0.0f, 1.0f, 0.0f);
+        const glm::mat4 step_rotation =
+            glm::rotate(glm::mat4(1.0f), animated_step_angle, axis);
 
         if (const auto cam = camera.lock())
         {
             renderer->setCamera(cam->getInverseView(), cam->getInverseProjection());
         }
         renderer->setRotation(rotation);
+        renderer->setStepRotation(step_rotation);
         renderer->setInitial(initial);
-        renderer->setPower(power);
+        renderer->setPower(animated_power);
+        renderer->setThetaOffset(animated_theta_offset);
         renderer->setMaxIterations(max_iterations);
         renderer->setColoringMode(parseColoringMode(coloring_mode));
     }
@@ -111,6 +133,15 @@ namespace RtEngine
         {
             config->addVector("initial", &initial);
             config->addFloat("power", &power, MIN_POWER, MAX_POWER);
+            config->addFloat("power_speed", &power_speed, -ROTATION_SPEED_BOUND, ROTATION_SPEED_BOUND);
+            config->addFloat("theta_offset", &theta_offset, -ANGLE_OFFSET_BOUND, ANGLE_OFFSET_BOUND);
+            config->addFloat(
+                "theta_offset_speed", &theta_offset_speed, -ROTATION_SPEED_BOUND, ROTATION_SPEED_BOUND);
+            config->addVector("step_rotation_axis", &step_rotation_axis);
+            config->addFloat("step_rotation_angle", &step_rotation_angle, -STEP_ROTATION_ANGLE_BOUND,
+                STEP_ROTATION_ANGLE_BOUND);
+            config->addFloat(
+                "step_rotation_speed", &step_rotation_speed, -ROTATION_SPEED_BOUND, ROTATION_SPEED_BOUND);
             config->addUint("max_iterations", &max_iterations, MIN_MAX_ITERATIONS, MAX_MAX_ITERATIONS);
             config->addFloat("rotation_speed", &rotation_speed, -ROTATION_SPEED_BOUND, ROTATION_SPEED_BOUND);
             config->addSelection("palette", &palette_name, ::color::ColorPaletteName::getAllNames());
