@@ -68,7 +68,8 @@ namespace mandelbrot
         last_tick_ = now;
 
         // Probe the actual on-screen view so speed reflects what the user
-        // is looking at, not a canonical reference.
+        // is looking at, not a canonical reference. Cache the score for
+        // the step_size track's zoom coupling.
         float target_speed = 1.0f;
         if (view_span > 0.0f) {
             const ProbeResult probe = probeInterest(
@@ -80,7 +81,10 @@ namespace mandelbrot
                 julia_mode,
                 MandelbrotAnimationGenerator::PROBE_MAX_ITER,
                 MandelbrotAnimationGenerator::PROBE_GRID_SIZE);
-            target_speed = computeSpeed(probe.edge_score);
+            last_view_edge_score_ = probe.edge_score;
+            target_speed          = computeSpeed(probe.edge_score);
+        } else {
+            last_view_edge_score_ = 0.0f;
         }
 
         const float alpha = 1.0f - std::exp(-dt / SPEED_SMOOTHING_TAU_SECONDS);
@@ -133,7 +137,7 @@ namespace mandelbrot
 
     void MandelbrotAnimationRunner::startStepSize()
     {
-        auto result = generator_.generateStepSizeAnimation(current_state_);
+        auto result = generator_.generateStepSizeAnimation(current_state_, last_view_edge_score_);
         step_track_.animation = std::move(result.animation);
     }
 

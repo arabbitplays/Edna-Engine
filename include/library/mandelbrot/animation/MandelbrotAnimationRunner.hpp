@@ -79,7 +79,8 @@ namespace mandelbrot
         Track initial_track_;
         Track palette_track_;
 
-        float smoothed_speed_ = 1.0f;
+        float last_view_edge_score_ = 0.0f;
+        float smoothed_speed_       = 1.0f;
 
         std::chrono::steady_clock::time_point last_tick_;
     };

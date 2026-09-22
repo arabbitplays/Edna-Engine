@@ -58,6 +58,13 @@ namespace mandelbrot
         // interpolation itself has to stay interesting, not just the target.
         static constexpr std::uint32_t PATH_WAYPOINT_COUNT      = 5u;
 
+        // Zoom coupling: step_size targets are biased in log space by the
+        // current view's edge score. Dense view -> zoom in; flat -> zoom out.
+        // ZOOM_EDGE_SATURATION mirrors the runner's speed cap threshold.
+        static constexpr float         ZOOM_BIAS_LOG            = 0.8f;
+        static constexpr float         ZOOM_NOISE_LOG           = 0.4f;
+        static constexpr float         ZOOM_EDGE_SATURATION     = 0.15f;
+
         MandelbrotAnimationGenerator(
             std::function<void(const glm::vec2&)>             set_offset,
             std::function<void(float)>                        set_step_size,
@@ -86,7 +93,8 @@ namespace mandelbrot
         // does not roll, so target selection sees the actual fractal being
         // rendered (in particular the current initial/c and julia_mode).
         Vec2AnimationResult    generateOffsetAnimation(const MandelbrotState& current);
-        FloatAnimationResult   generateStepSizeAnimation(const MandelbrotState& current);
+        FloatAnimationResult   generateStepSizeAnimation(const MandelbrotState& current,
+                                                         float current_view_edge_score);
         Vec2AnimationResult    generateInitialAnimation(const MandelbrotState& current);
         PaletteAnimationResult generatePaletteAnimation(const ::color::ColorPalette& current);
 

@@ -214,14 +214,21 @@ namespace mandelbrot
     }
 
     MandelbrotAnimationGenerator::FloatAnimationResult
-    MandelbrotAnimationGenerator::generateStepSizeAnimation(const MandelbrotState& current)
+    MandelbrotAnimationGenerator::generateStepSizeAnimation(const MandelbrotState& current,
+                                                            const float current_view_edge_score)
     {
-        // Uniform random in log space. Coupled-zoom targeting (a later
-        // commit) refines this.
-        const float log_target  = randomFloat(LOG_STEP_SIZE_MIN, LOG_STEP_SIZE_MAX);
-        const float target      = std::pow(10.0f, log_target);
+        // Bias log-delta by current view density: high edge score pushes the
+        // target downward (zoom in on detail), low pushes upward (zoom out to
+        // find something). Saturation matches the runner's speed threshold.
+        const float density   = std::clamp(current_view_edge_score / ZOOM_EDGE_SATURATION, 0.0f, 1.0f);
+        const float bias      = ZOOM_BIAS_LOG * (1.0f - 2.0f * density);
+        const float log_delta = bias + randomFloat(-ZOOM_NOISE_LOG, ZOOM_NOISE_LOG);
         const float log_current = std::log10(std::max(current.step_size, 1e-9f));
-        spdlog::info("Mandelbrot anim: step_size target={:.6f} (log={:.3f})", target, log_target);
+        const float log_target  = std::clamp(log_current + log_delta,
+                                             LOG_STEP_SIZE_MIN, LOG_STEP_SIZE_MAX);
+        const float target      = std::pow(10.0f, log_target);
+        spdlog::info("Mandelbrot anim: step_size target={:.6f} (log_delta={:.3f} density={:.2f})",
+                     target, log_delta, density);
 
         auto set = set_step_size_;
         auto animation = std::make_unique<::Animation::FloatAnimation>(
