@@ -6,5 +6,6 @@ src += files(
   'GlitchRenderer.cpp',
   'CyclicalCellularAutomatonRenderer.cpp',
   'CompositionRenderer.cpp',
+  'MandelbulbRenderer.cpp',
   'MandelbrotRenderer.cpp',
 )
