@@ -1,0 +1,187 @@
+#version 450
+
+const uint MAX_COLOR_COUNT = 256;
+
+layout (binding = 0, rgba32f) uniform writeonly image2D targetImage;
+layout (binding = 1)          uniform ColorPalette {
+    vec4 colors[MAX_COLOR_COUNT];
+} palette;
+layout (binding = 2)          uniform CameraData {
+    mat4 inverse_view;
+    mat4 inverse_projection;
+    mat4 rotation;
+    mat4 step_rotation;
+} camera;
+
+const uint COLORING_ITERATIONS = 0u;
+const uint COLORING_ORBIT_TRAP = 1u;
+const uint COLORING_RADIUS     = 2u;
+
+layout (push_constant) uniform PushConstants {
+    vec4  initial;
+    float power;
+    float theta_offset;
+    float diffuse_weight;
+    float rim_weight;
+    uint  max_iterations;
+    uint  color_count;
+    uint  coloring_mode;
+    uint  _pad_0;
+} push;
+
+layout (local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
+
+const float DE_BAILOUT     = 2.0;
+const int   MARCH_STEPS    = 256;
+const float MARCH_EPS_MIN  = 0.00025;
+// Grow the hit threshold with distance so sub-pixel features at grazing angles
+// count as hits and don't leave see-through holes at the silhouette.
+const float MARCH_EPS_REL  = 0.0015;
+const float MARCH_MAX_DIST = 32.0;
+const float NORMAL_EPS     = 0.0015;
+
+vec4 samplePalette(float t)
+{
+    if (push.color_count == 0u) return vec4(0.0, 0.0, 0.0, 1.0);
+    if (push.color_count == 1u) return palette.colors[0];
+
+    t = clamp(t, 0.0, 1.0);
+    float scaled = t * float(push.color_count - 1u);
+    uint  lo     = uint(floor(scaled));
+    uint  hi     = min(lo + 1u, push.color_count - 1u);
+    float f      = scaled - float(lo);
+    return mix(palette.colors[lo], palette.colors[hi], f);
+}
+
+// Distance estimator for the mandelbulb; iterates z_{n+1} = R * z_n^power + c.
+// A theta_offset twists the exponentiation output; a per-step rotation R
+// (from the UBO) applies before adding c. Returns (distance, iteration_count,
+// orbit_trap).
+vec3 mandelbulbDE(vec3 pos)
+{
+    vec3  z    = push.initial.xyz;
+    vec3  c    = pos;
+
+    float dr   = 1.0;
+    float r    = length(z);
+    float trap = r;
+    uint  iter = 0u;
+
+    // step_rotation is a mat4 from the UBO; we only need its 3x3 upper block.
+    mat3 R = mat3(camera.step_rotation);
+
+    for (; iter < push.max_iterations; iter++) {
+        r = length(z);
+        if (r > DE_BAILOUT) break;
+        trap = min(trap, r);
+
+        float theta = acos(clamp(z.z / r, -1.0, 1.0));
+        float phi   = atan(z.y, z.x);
+        dr = pow(r, push.power - 1.0) * push.power * dr + 1.0;
+
+        float zr        = pow(r, push.power);
+        float new_theta = theta * push.power + push.theta_offset;
+        float new_phi   = phi   * push.power;
+
+        z = zr * vec3(
+            sin(new_theta) * cos(new_phi),
+            sin(new_theta) * sin(new_phi),
+            cos(new_theta));
+        z = R * z;
+        z += c;
+    }
+
+    float dist = 0.5 * log(max(r, 1e-6)) * r / max(dr, 1e-6);
+    return vec3(dist, float(iter), trap);
+}
+
+// Tetrahedron-sampled gradient of the DE. Four evaluations instead of six.
+vec3 calcNormal(vec3 p)
+{
+    const vec2 k = vec2(1.0, -1.0);
+    return normalize(
+        k.xyy * mandelbulbDE(p + k.xyy * NORMAL_EPS).x +
+        k.yyx * mandelbulbDE(p + k.yyx * NORMAL_EPS).x +
+        k.yxy * mandelbulbDE(p + k.yxy * NORMAL_EPS).x +
+        k.xxx * mandelbulbDE(p + k.xxx * NORMAL_EPS).x);
+}
+
+void main()
+{
+    ivec2 pixel = ivec2(gl_GlobalInvocationID.xy);
+    ivec2 size  = imageSize(targetImage);
+    if (pixel.x >= size.x || pixel.y >= size.y) return;
+
+    vec2 uv    = (vec2(pixel) + 0.5) / vec2(size);
+    vec2 ndc   = uv * 2.0 - 1.0;
+
+    vec4 target_view = camera.inverse_projection * vec4(ndc, 1.0, 1.0);
+    vec3 dir_view    = normalize(target_view.xyz / target_view.w);
+    vec3 dir_world   = normalize((camera.inverse_view * vec4(dir_view, 0.0)).xyz);
+    vec3 origin_world = (camera.inverse_view * vec4(0.0, 0.0, 0.0, 1.0)).xyz;
+
+    // rotation is object->world; rotate rays into object space with its transpose.
+    mat3 rot_inv = transpose(mat3(camera.rotation));
+    vec3 ro      = rot_inv * origin_world;
+    vec3 rd      = rot_inv * dir_world;
+
+    float t        = 0.0;
+    float hit_trap = 0.0;
+    uint  hit_iter = 0u;
+    int   step_i   = 0;
+    bool  hit      = false;
+    for (; step_i < MARCH_STEPS; step_i++) {
+        vec3  p    = ro + rd * t;
+        vec3  de   = mandelbulbDE(p);
+        float d    = de.x;
+        float eps  = max(MARCH_EPS_MIN, MARCH_EPS_REL * t);
+        if (d < eps) {
+            hit      = true;
+            hit_iter = uint(de.y);
+            hit_trap = de.z;
+            break;
+        }
+        t += d;
+        if (t > MARCH_MAX_DIST) break;
+    }
+
+    vec4 color;
+    if (hit) {
+        vec3  p       = ro + rd * t;
+        vec3  n       = calcNormal(p);
+
+        // Light + view live in the ray's frame (object space) so the fractal
+        // relights as it rotates and grazing folds catch highlights.
+        vec3  light_dir = normalize(vec3(0.55, 0.75, -0.35));
+        float diffuse   = max(dot(n, light_dir), 0.0);
+        float ambient   = 0.22;
+        float rim       = pow(1.0 - max(dot(n, -rd), 0.0), 3.0);
+
+        // Step-count AO: crevices need more steps to converge, so they get
+        // slightly darker and gain contrast without needing extra samples.
+        float ao        = 1.0 - clamp(float(step_i) / float(MARCH_STEPS), 0.0, 1.0);
+        ao              = mix(0.45, 1.0, ao);
+
+        float palette_t;
+        if (push.coloring_mode == COLORING_ITERATIONS) {
+            palette_t = sqrt(float(hit_iter) / float(max(push.max_iterations, 1u)));
+        } else if (push.coloring_mode == COLORING_RADIUS) {
+            // Radius of the hit point: mandelbulb sits within |p| ~ 1.25.
+            palette_t = clamp(length(p) / 1.25, 0.0, 1.0);
+        } else {
+            // Orbit trap: min |z| lies in [0, DE_BAILOUT]; sqrt stretches the
+            // palette across the crowded low-radius region.
+            palette_t = sqrt(clamp(hit_trap / DE_BAILOUT, 0.0, 1.0));
+        }
+        color = samplePalette(palette_t);
+
+        float shade = (ambient + push.diffuse_weight * diffuse) * ao;
+        color.rgb   = color.rgb * shade + rim * push.rim_weight;
+        color.a     = 1.0;
+    } else {
+        color = palette.colors[0];
+        color.a = 1.0;
+    }
+
+    imageStore(targetImage, pixel, color);
+}

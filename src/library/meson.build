@@ -3,6 +3,7 @@
 subdir('rave_visualizer')
 subdir('color')
 subdir('cellular_automaton')
+subdir('mandelbulb')
 subdir('animation')
 subdir('mandelbrot')
 

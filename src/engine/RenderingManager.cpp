@@ -195,12 +195,18 @@ namespace RtEngine
     {
         VkExtent2D extent(width, height);
         vulkan_context->device_manager->waitForIdle();
-        rt_target_connector->recreate(extent);
-        // Downstream renderers (e.g. GlitchRenderer) hold a descriptor set that references
-        // the now-destroyed image views. Re-write them against the freshly recreated ones.
-        for (const auto& renderer : renderer_stack->getRenderers())
+        // Empty (compute-only) stacks have no shared raytracing target; each RenderTarget
+        // owns its own connector in that case.
+        if (rt_target_connector)
         {
-            renderer->invalidateDescriptors();
+            rt_target_connector->recreate(extent);
+            // Downstream renderers (e.g. GlitchRenderer) hold a descriptor set that
+            // references the now-destroyed image views. Re-write them against the
+            // freshly recreated ones.
+            for (const auto& renderer : renderer_stack->getRenderers())
+            {
+                renderer->invalidateDescriptors();
+            }
         }
         return std::make_shared<RenderTarget>(
             vulkan_context->resource_builder, extent, max_frames_in_flight, rt_target_connector);
