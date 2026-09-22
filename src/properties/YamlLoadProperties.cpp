@@ -55,6 +55,17 @@ namespace RtEngine {
         return getConfigValue<std::string>(name, var);
     }
 
+    bool YamlLoadProperties::addVector(const std::string &name, glm::vec2 *var, uint32_t flags) {
+        return getConfigValue<glm::vec2>(name, var);
+    }
+
+    bool YamlLoadProperties::addVector(const std::string &name, glm::vec2 *var, float min, float max, uint32_t flags) {
+        if (!getConfigValue<glm::vec2>(name, var)) return false;
+        var->x = std::clamp(var->x, min, max);
+        var->y = std::clamp(var->y, min, max);
+        return true;
+    }
+
     bool YamlLoadProperties::addVector(const std::string &name, glm::vec3 *var, uint32_t flags) {
         return getConfigValue<glm::vec3>(name, var);
     }

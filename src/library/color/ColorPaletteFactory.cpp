@@ -1,6 +1,6 @@
-#include <library/cellular_automaton/colors/ColorPaletteFactory.hpp>
+#include <library/color/ColorPaletteFactory.hpp>
 
-namespace cellular_automaton
+namespace color
 {
     ColorPalette ColorPaletteFactory::create(ColorPaletteName name)
     {

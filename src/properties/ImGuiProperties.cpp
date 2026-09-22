@@ -55,6 +55,14 @@ namespace RtEngine {
         return false;
     }
 
+    bool ImGuiProperties::addVector(const std::string &name, glm::vec2 *var, uint32_t flags) {
+        return ImGui::InputFloat2(name.c_str(), &var->x);
+    }
+
+    bool ImGuiProperties::addVector(const std::string &name, glm::vec2 *var, float min, float max, uint32_t flags) {
+        return ImGui::SliderFloat2(name.c_str(), &var->x, min, max);
+    }
+
     bool ImGuiProperties::addVector(const std::string &name, glm::vec3 *var, uint32_t flags) {
         return ImGui::InputFloat3(name.c_str(), &var->x);
     }

@@ -9,6 +9,7 @@ shaders = [
     'metalRough/metal_rough_raygen.rgen',
     'compute/glitch.comp',
     'compute/cyclical_cellular_automaton.comp',
+    'compute/mandelbrot.comp',
 ]
 
 foreach s : shaders

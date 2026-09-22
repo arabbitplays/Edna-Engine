@@ -36,6 +36,10 @@ namespace RtEngine {
 
         bool addString(const std::string &name, std::string *var, uint32_t flags) override;
 
+        bool addVector(const std::string &name, glm::vec2 *var, uint32_t flags) override;
+
+        bool addVector(const std::string &name, glm::vec2 *var, float min, float max, uint32_t flags) override;
+
         bool addVector(const std::string &name, glm::vec3 *var, uint32_t flags) override;
 
         bool addVector(const std::string &name, glm::vec4 *var, uint32_t flags) override;

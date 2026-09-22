@@ -58,6 +58,16 @@ namespace RtEngine {
         return true;
     }
 
+    bool YamlDumpProperties::addVector(const std::string &name, glm::vec2 *var, uint32_t flags) {
+        nodes.back()[name] = YAML::convert<glm::vec2>::encode(*var);
+        return true;
+    }
+
+    bool YamlDumpProperties::addVector(const std::string &name, glm::vec2 *var, float min, float max, uint32_t flags) {
+        nodes.back()[name] = YAML::convert<glm::vec2>::encode(*var);
+        return true;
+    }
+
     bool YamlDumpProperties::addVector(const std::string &name, glm::vec3 *var, uint32_t flags) {
         nodes.back()[name] = YAML::convert<glm::vec3>::encode(*var);
         return true;

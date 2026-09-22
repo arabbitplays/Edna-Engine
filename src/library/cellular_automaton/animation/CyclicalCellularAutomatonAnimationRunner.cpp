@@ -23,7 +23,7 @@ namespace cellular_automaton
     CyclicalCellularAutomatonAnimationRunner::CyclicalCellularAutomatonAnimationRunner(
         CyclicalCellularAutomatonAnimationGenerator generator,
         float initial_mutation_chance,
-        ColorPalette initial_palette)
+        ::color::ColorPalette initial_palette)
         : generator_(std::move(generator)),
           mutation_current_(initial_mutation_chance),
           palette_current_(std::move(initial_palette)),

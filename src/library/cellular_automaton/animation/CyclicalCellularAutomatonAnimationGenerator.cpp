@@ -12,10 +12,10 @@
 #include <library/animation/easing_functions/EasingDirection.hpp>
 #include <library/animation/easing_functions/EasingFunction.hpp>
 #include <library/animation/easing_functions/EasingFunctionFactory.hpp>
-#include <library/cellular_automaton/colors/ColorPaletteFactory.hpp>
-#include <library/cellular_automaton/colors/ColorPaletteName.hpp>
 #include <library/cellular_automaton/neighborhoods/NeighborhoodFactory.hpp>
 #include <library/cellular_automaton/neighborhoods/NeighborhoodShape.hpp>
+#include <library/color/ColorPaletteFactory.hpp>
+#include <library/color/ColorPaletteName.hpp>
 #include <util/RandomUtil.hpp>
 
 namespace cellular_automaton
@@ -51,7 +51,7 @@ namespace cellular_automaton
 
     CyclicalCellularAutomatonAnimationGenerator::CyclicalCellularAutomatonAnimationGenerator(
         std::function<void(float)> set_mutation_chance,
-        std::function<void(const ColorPalette&)> set_palette,
+        std::function<void(const ::color::ColorPalette&)> set_palette,
         std::function<void(const std::vector<glm::ivec2>&)> set_neighborhood,
         std::function<void(uint32_t)> set_threshold)
         : set_mutation_chance_(std::move(set_mutation_chance)),
@@ -78,16 +78,16 @@ namespace cellular_automaton
     }
 
     CyclicalCellularAutomatonAnimationGenerator::PaletteAnimation
-    CyclicalCellularAutomatonAnimationGenerator::generatePaletteAnimation(const ColorPalette& current)
+    CyclicalCellularAutomatonAnimationGenerator::generatePaletteAnimation(const ::color::ColorPalette& current)
     {
-        ColorPalette target = pickRandomPalette();
+        ::color::ColorPalette target = pickRandomPalette();
 
         auto set = set_palette_;
-        auto animation = std::make_unique<ColorPaletteAnimation>(
+        auto animation = std::make_unique<::color::ColorPaletteAnimation>(
             current,
             target,
             randomStepCount(),
-            [set](const ColorPalette& p) { if (set) set(p); },
+            [set](const ::color::ColorPalette& p) { if (set) set(p); },
             randomInOutEasing());
 
         return {std::move(animation), std::move(target)};
@@ -108,14 +108,14 @@ namespace cellular_automaton
         return target;
     }
 
-    ColorPalette CyclicalCellularAutomatonAnimationGenerator::pickRandomPalette()
+    ::color::ColorPalette CyclicalCellularAutomatonAnimationGenerator::pickRandomPalette()
     {
-        const auto all_names = ColorPaletteName::getAllNames();
+        const auto all_names = ::color::ColorPaletteName::getAllNames();
         const std::size_t idx = RtEngine::RandomUtil::generateInt() % all_names.size();
         const auto& picked_name = all_names[idx];
         spdlog::info("CCA anim: rolled palette target = {}", picked_name);
-        return ColorPaletteFactory::create(
-            ColorPaletteName::fromString(picked_name, ColorPaletteName::Fire));
+        return ::color::ColorPaletteFactory::create(
+            ::color::ColorPaletteName::fromString(picked_name, ::color::ColorPaletteName::Fire));
     }
 
     CyclicalCellularAutomatonAnimationGenerator::NeighborhoodPick

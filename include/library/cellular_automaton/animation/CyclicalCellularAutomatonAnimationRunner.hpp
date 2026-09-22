@@ -5,15 +5,12 @@
 
 #include <library/animation/animations/IAnimation.hpp>
 #include <library/cellular_automaton/animation/CyclicalCellularAutomatonAnimationGenerator.hpp>
-#include <library/cellular_automaton/colors/ColorPalette.hpp>
+#include <library/color/ColorPalette.hpp>
 
 namespace cellular_automaton
 {
-    // Owns the two CCA animation tracks (mutation chance + palette). Each track
-    // advances independently: when its current animation finishes, a random
-    // cooldown in [COOLDOWN_MIN_SECONDS, COOLDOWN_MAX_SECONDS] elapses before the
-    // next animation is generated and chained from the value the previous one
-    // ended on.
+    // Drives the CCA mutation-chance and palette animations, each on its own
+    // random cooldown in [COOLDOWN_MIN_SECONDS, COOLDOWN_MAX_SECONDS].
     class CyclicalCellularAutomatonAnimationRunner
     {
     public:
@@ -23,7 +20,7 @@ namespace cellular_automaton
         CyclicalCellularAutomatonAnimationRunner(
             CyclicalCellularAutomatonAnimationGenerator generator,
             float initial_mutation_chance,
-            ColorPalette initial_palette);
+            ::color::ColorPalette initial_palette);
 
         void update();
 
@@ -43,8 +40,8 @@ namespace cellular_automaton
         Track        mutation_track_;
         float        mutation_current_;
 
-        Track        palette_track_;
-        ColorPalette palette_current_;
+        Track                 palette_track_;
+        ::color::ColorPalette palette_current_;
 
         float neighborhood_cooldown_seconds_ = 0.0f;
 

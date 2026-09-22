@@ -1,10 +1,10 @@
 #ifndef EDNA_ENGINE_COLORPALETTEANIMATION_HPP
 #define EDNA_ENGINE_COLORPALETTEANIMATION_HPP
 
-#include <library/cellular_automaton/colors/ColorPalette.hpp>
 #include <library/animation/animations/Animation.hpp>
+#include <library/color/ColorPalette.hpp>
 
-namespace cellular_automaton
+namespace color
 {
     class ColorPaletteAnimation : public ::Animation::Animation<ColorPalette>
     {

@@ -9,8 +9,8 @@
 #include <glm/vec2.hpp>
 
 #include <library/animation/animations/FloatAnimation.hpp>
-#include <library/cellular_automaton/colors/ColorPalette.hpp>
-#include <library/cellular_automaton/colors/ColorPaletteAnimation.hpp>
+#include <library/color/ColorPalette.hpp>
+#include <library/color/ColorPaletteAnimation.hpp>
 
 namespace cellular_automaton
 {
@@ -24,7 +24,7 @@ namespace cellular_automaton
 
         CyclicalCellularAutomatonAnimationGenerator(
             std::function<void(float)> set_mutation_chance,
-            std::function<void(const ColorPalette&)> set_palette,
+            std::function<void(const ::color::ColorPalette&)> set_palette,
             std::function<void(const std::vector<glm::ivec2>&)> set_neighborhood,
             std::function<void(uint32_t)> set_threshold);
 
@@ -36,15 +36,14 @@ namespace cellular_automaton
 
         struct PaletteAnimation
         {
-            std::unique_ptr<ColorPaletteAnimation> animation;
-            ColorPalette target;
+            std::unique_ptr<::color::ColorPaletteAnimation> animation;
+            ::color::ColorPalette target;
         };
 
         MutationChanceAnimation generateMutationChanceAnimation(float current);
-        PaletteAnimation        generatePaletteAnimation(const ColorPalette& current);
+        PaletteAnimation        generatePaletteAnimation(const ::color::ColorPalette& current);
 
-        // Neighborhood + threshold are re-rolled together but not interpolated;
-        // the setters fire once with the newly-chosen values.
+        // Neighborhood + threshold are re-rolled together, not interpolated.
         void applyRandomNeighborhood();
 
     private:
@@ -54,12 +53,12 @@ namespace cellular_automaton
             uint32_t threshold;
         };
 
-        float             pickRandomMutationChance();
-        ColorPalette      pickRandomPalette();
-        NeighborhoodPick  pickRandomNeighborhood();
+        float                  pickRandomMutationChance();
+        ::color::ColorPalette  pickRandomPalette();
+        NeighborhoodPick       pickRandomNeighborhood();
 
         std::function<void(float)> set_mutation_chance_;
-        std::function<void(const ColorPalette&)> set_palette_;
+        std::function<void(const ::color::ColorPalette&)> set_palette_;
         std::function<void(const std::vector<glm::ivec2>&)> set_neighborhood_;
         std::function<void(uint32_t)> set_threshold_;
     };
