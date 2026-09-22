@@ -1,11 +1,9 @@
-#include <library/animation/animations/VectorAnimation.hpp>
-
 #include <glm/glm.hpp>
+#include <library/animation/animations/VectorAnimation.hpp>
 
 namespace Animation
 {
-    template <typename T>
-    T VectorAnimation<T>::interpolate(float t) const
+    template <typename T> T VectorAnimation<T>::interpolate(float t) const
     {
         return glm::mix(this->start, this->target, t);
     }
@@ -17,4 +15,4 @@ namespace Animation
     template class VectorAnimation<glm::vec2>;
     template class VectorAnimation<glm::vec3>;
     template class VectorAnimation<glm::vec4>;
-}
+} // namespace Animation

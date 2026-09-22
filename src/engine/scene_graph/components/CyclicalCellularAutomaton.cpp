@@ -1,30 +1,34 @@
 #include "CyclicalCellularAutomaton.hpp"
 
-#include <glm/glm.hpp>
+#include "compute/CyclicalCellularAutomatonRenderer.hpp"
 
+#include <glm/glm.hpp>
 #include <library/cellular_automaton/animation/CyclicalCellularAutomatonAnimationGenerator.hpp>
+#include <library/cellular_automaton/neighborhoods/NeighborhoodFactory.hpp>
 #include <library/color/ColorPaletteFactory.hpp>
 #include <library/color/ColorPaletteName.hpp>
-#include <library/cellular_automaton/neighborhoods/NeighborhoodFactory.hpp>
-
-#include "compute/CyclicalCellularAutomatonRenderer.hpp"
 
 using namespace cellular_automaton;
 
-namespace RtEngine {
-    namespace {
-        std::vector<glm::vec4> loadPaletteColors(const std::string& name) {
+namespace RtEngine
+{
+    namespace
+    {
+        std::vector<glm::vec4> loadPaletteColors(const std::string& name)
+        {
             const auto palette_name = ::color::ColorPaletteName::fromString(name, ::color::ColorPaletteName::Sunburn);
             return ::color::ColorPaletteFactory::create(palette_name).colors;
         }
 
-        std::vector<glm::ivec2> loadNeighborhoodOffsets(const std::string& shape_name, uint32_t size) {
+        std::vector<glm::ivec2> loadNeighborhoodOffsets(const std::string& shape_name, uint32_t size)
+        {
             const auto shape = NeighborhoodShape::fromString(shape_name, NeighborhoodShape::Box);
             return NeighborhoodFactory::create(shape, static_cast<int>(size)).offsets;
         }
-    }
+    } // namespace
 
-    void CyclicalCellularAutomaton::OnStart() {
+    void CyclicalCellularAutomaton::OnStart()
+    {
         const std::shared_ptr<RenderingManager> rendering_manager = context->rendering_manager;
         const std::shared_ptr<VulkanContext> vulkan_context = rendering_manager->getVulkanContext();
         const VkExtent2D extent = vulkan_context->swapchain->extent;
@@ -46,60 +50,87 @@ namespace RtEngine {
         rendering_manager->addComputeRenderer(renderer, renderer->getOutputConnector());
 
         std::weak_ptr<CyclicalCellularAutomatonRenderer> weak_renderer = renderer;
-        CyclicalCellularAutomatonAnimationGenerator generator{
-            [weak_renderer](float value) {
-                if (const auto r = weak_renderer.lock()) r->setMutationChance(value);
+        CyclicalCellularAutomatonAnimationGenerator generator{[weak_renderer](float value)
+            {
+                if (const auto r = weak_renderer.lock())
+                {
+                    r->setMutationChance(value);
+                }
             },
-            [weak_renderer](const ::color::ColorPalette& palette) {
-                if (const auto r = weak_renderer.lock()) r->setPalette(palette.colors);
+            [weak_renderer](const ::color::ColorPalette& palette)
+            {
+                if (const auto r = weak_renderer.lock())
+                {
+                    r->setPalette(palette.colors);
+                }
             },
-            [weak_renderer](const std::vector<glm::ivec2>& offsets) {
-                if (const auto r = weak_renderer.lock()) r->setNeighborhood(offsets);
+            [weak_renderer](const std::vector<glm::ivec2>& offsets)
+            {
+                if (const auto r = weak_renderer.lock())
+                {
+                    r->setNeighborhood(offsets);
+                }
             },
-            [weak_renderer](uint32_t value) {
-                if (const auto r = weak_renderer.lock()) r->setThreshold(value);
+            [weak_renderer](uint32_t value)
+            {
+                if (const auto r = weak_renderer.lock())
+                {
+                    r->setThreshold(value);
+                }
             }};
 
         animation_runner = std::make_unique<CyclicalCellularAutomatonAnimationRunner>(
             std::move(generator), mutation_chance, ::color::ColorPalette{colors});
 
         resize_callback_handle = context->swapchain_manager->addRecreateCallback(
-            [this](uint32_t width, uint32_t height) {
-                renderer->handleResize(VkExtent2D{width, height});
-            });
+            [this](uint32_t width, uint32_t height) { renderer->handleResize(VkExtent2D{width, height}); });
     }
 
-    void CyclicalCellularAutomaton::OnDestroy() {
-        if (resize_callback_handle != 0 && context && context->swapchain_manager) {
+    void CyclicalCellularAutomaton::OnDestroy()
+    {
+        if (resize_callback_handle != 0 && context && context->swapchain_manager)
+        {
             context->swapchain_manager->removeRecreateCallback(resize_callback_handle);
             resize_callback_handle = 0;
         }
     }
 
-    void CyclicalCellularAutomaton::OnUpdate() {
-        if (!renderer) return;
+    void CyclicalCellularAutomaton::OnUpdate()
+    {
+        if (!renderer)
+        {
+            return;
+        }
 
         // Push setUpdate every frame so state advances exactly once per gate
         // tick — otherwise the flag latches on and the CA would step every
         // render frame between gate fires.
         const bool advance = update_gate.tick();
         renderer->setUpdate(advance);
-        if (!advance) return;
+        if (!advance)
+        {
+            return;
+        }
 
         renderer->setUpdateChance(update_chance);
 
-        if (animate && animation_runner) {
+        if (animate && animation_runner)
+        {
             animation_runner->update();
-        } else {
+        }
+        else
+        {
             renderer->setThreshold(threshold);
             renderer->setMutationChance(mutation_chance);
 
-            if (palette_name != applied_palette_name) {
+            if (palette_name != applied_palette_name)
+            {
                 renderer->setPalette(loadPaletteColors(palette_name));
                 applied_palette_name = palette_name;
             }
 
-            if (neighborhood_shape != applied_neighborhood_shape || neighborhood_size != applied_neighborhood_size) {
+            if (neighborhood_shape != applied_neighborhood_shape || neighborhood_size != applied_neighborhood_size)
+            {
                 renderer->setNeighborhood(loadNeighborhoodOffsets(neighborhood_shape, neighborhood_size));
                 applied_neighborhood_shape = neighborhood_shape;
                 applied_neighborhood_size = neighborhood_size;
@@ -107,22 +138,25 @@ namespace RtEngine {
         }
     }
 
-    std::shared_ptr<ImageConnector> CyclicalCellularAutomaton::getOutputConnector() const {
+    std::shared_ptr<ImageConnector> CyclicalCellularAutomaton::getOutputConnector() const
+    {
         return renderer ? renderer->getOutputConnector() : nullptr;
     }
 
-    void CyclicalCellularAutomaton::initProperties(const std::shared_ptr<IProperties>& config,
-                                                    const UpdateFlagsHandle&) {
-        if (config->startChild(COMPONENT_NAME)) {
-            config->addUint("threshold", &threshold, 1u, 8u);
-            config->addFloat("update_chance", &update_chance, 0.0f, 1.0f);
-            config->addFloat("mutation_chance", &mutation_chance, 0.0f, 1.0f);
+    void CyclicalCellularAutomaton::initProperties(
+        const std::shared_ptr<IProperties>& config, const UpdateFlagsHandle& /*update_flags*/)
+    {
+        if (config->startChild(COMPONENT_NAME))
+        {
+            config->addUint("threshold", &threshold, 1U, 8U);
+            config->addFloat("update_chance", &update_chance, 0.0F, 1.0F);
+            config->addFloat("mutation_chance", &mutation_chance, 0.0F, 1.0F);
             config->addSelection("palette", &palette_name, ::color::ColorPaletteName::getAllNames());
-            config->addSelection("neighborhood_shape", &neighborhood_shape,
-                                 cellular_automaton::NeighborhoodShape::getAllNames());
-            config->addUint("neighborhood_size", &neighborhood_size, 1u, MAX_NEIGHBORHOOD_SIZE);
+            config->addSelection(
+                "neighborhood_shape", &neighborhood_shape, cellular_automaton::NeighborhoodShape::getAllNames());
+            config->addUint("neighborhood_size", &neighborhood_size, 1U, MAX_NEIGHBORHOOD_SIZE);
             config->addBool("animate", &animate);
             config->endChild();
         }
     }
-} // RtEngine
+} // namespace RtEngine

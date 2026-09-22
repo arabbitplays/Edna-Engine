@@ -1,7 +1,5 @@
-#include <library/cellular_automaton/neighborhoods/NeighborhoodFactory.hpp>
-
 #include <cstdlib>
-
+#include <library/cellular_automaton/neighborhoods/NeighborhoodFactory.hpp>
 
 namespace cellular_automaton
 {
@@ -10,16 +8,20 @@ namespace cellular_automaton
         Neighborhood makeBoxNeighborhood(int size)
         {
             Neighborhood n;
-            n.offsets.reserve(static_cast<size_t>((2 * size + 1) * (2 * size + 1) - 1));
+            n.offsets.reserve(static_cast<size_t>(((2 * size + 1) * (2 * size + 1)) - 1));
 
             for (int dy = -size; dy <= size; ++dy)
+            {
                 for (int dx = -size; dx <= size; ++dx)
                 {
                     if (dx == 0 && dy == 0)
+                    {
                         continue;
+                    }
 
                     n.offsets.emplace_back(dx, dy);
                 }
+            }
 
             return n;
         }
@@ -35,7 +37,9 @@ namespace cellular_automaton
                 for (int dx = -span; dx <= span; ++dx)
                 {
                     if (dx == 0 && dy == 0)
+                    {
                         continue;
+                    }
 
                     n.offsets.emplace_back(dx, dy);
                 }
@@ -43,19 +47,23 @@ namespace cellular_automaton
 
             return n;
         }
-    }
+    } // namespace
 
     Neighborhood NeighborhoodFactory::create(NeighborhoodShape shape, int size)
     {
         if (size <= 0)
+        {
             return {};
+        }
 
         switch (shape)
         {
-            case NeighborhoodShape::Box:     return makeBoxNeighborhood(size);
-            case NeighborhoodShape::Diamond: return makeDiamondNeighborhood(size);
+        case NeighborhoodShape::Box:
+            return makeBoxNeighborhood(size);
+        case NeighborhoodShape::Diamond:
+            return makeDiamondNeighborhood(size);
         }
 
         return {};
     }
-}
+} // namespace cellular_automaton

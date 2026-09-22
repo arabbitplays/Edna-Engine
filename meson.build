@@ -36,7 +36,7 @@ glfw = dependency('glfw3', version: ['>=3.4.0'], fallback: ['glfw', 'glfw_dep'])
 glm = dependency('glm', fallback : ['glm', 'glm_dep'], version: ['>=0.9.9.8'])
 imgui = dependency('imgui', fallback: ['imgui', 'imgui_dep'])
 stb = dependency('stb', fallback: ['stb', 'stb_dep'], default_options : ['stb_libraries=[\'stb_image\', \'stb_image_write\']'])
-spdlog = dependency('spdlog', fallback: ['spdlog', 'spdlog_dep'])
+logging_dep = dependency('logging_lib', fallback: ['logging', 'logging_dep'])
 assimp = dependency('assimp')
 yaml = dependency('yaml-cpp')
 openmp = dependency('openmp', required: true)
@@ -94,7 +94,7 @@ exe = executable(
         glm,
         imgui,
         stb,
-        spdlog,
+        logging_dep,
         vulkan,
         assimp,
         yaml,
@@ -103,3 +103,37 @@ exe = executable(
     include_directories: incdirs,
     install : true
 )
+
+clang_format = find_program('clang-format', required: false)
+if clang_format.found()
+    run_target('format-engine',
+        command: [
+            find_program('bash'),
+            meson.project_source_root() / 'scripts' / 'format.sh',
+            meson.project_source_root(),
+            clang_format.full_path(),
+        ]
+    )
+endif
+
+clang_tidy = find_program('clang-tidy', required: false)
+if clang_tidy.found()
+    run_target('tidy-engine',
+        command: [
+            find_program('bash'),
+            meson.project_source_root() / 'scripts' / 'tidy.sh',
+            meson.project_source_root(),
+            meson.project_build_root(),
+            clang_tidy.full_path(),
+        ]
+    )
+    run_target('fix-engine',
+        command: [
+            find_program('bash'),
+            meson.project_source_root() / 'scripts' / 'fix.sh',
+            meson.project_source_root(),
+            meson.project_build_root(),
+            clang_tidy.full_path(),
+        ]
+    )
+endif

@@ -16,7 +16,10 @@ namespace Animation
     class Linear : public EasingFunction
     {
     public:
-        float apply(float x) const override { return x; }
+        float apply(float x) const override
+        {
+            return x;
+        }
     };
 
     // -------- Cubic --------
@@ -24,7 +27,10 @@ namespace Animation
     class EaseInCubic : public EasingFunction
     {
     public:
-        float apply(float x) const override { return x * x * x; }
+        float apply(float x) const override
+        {
+            return x * x * x;
+        }
     };
 
     class EaseOutCubic : public EasingFunction
@@ -57,8 +63,10 @@ namespace Animation
     public:
         float apply(float x) const override
         {
-            if (x <= 0.0f) return 0.0f;
-            if (x >= 1.0f) return 1.0f;
+            if (x <= 0.0f)
+                return 0.0f;
+            if (x >= 1.0f)
+                return 1.0f;
 
             constexpr float c4 = (2.0f * std::numbers::pi_v<float>) / 3.0f;
             return -std::pow(2.0f, 10.0f * x - 10.0f) * std::sin((x * 10.0f - 10.75f) * c4);
@@ -70,8 +78,10 @@ namespace Animation
     public:
         float apply(float x) const override
         {
-            if (x <= 0.0f) return 0.0f;
-            if (x >= 1.0f) return 1.0f;
+            if (x <= 0.0f)
+                return 0.0f;
+            if (x >= 1.0f)
+                return 1.0f;
 
             constexpr float c4 = (2.0f * std::numbers::pi_v<float>) / 3.0f;
             return std::pow(2.0f, -10.0f * x) * std::sin((x * 10.0f - 0.75f) * c4) + 1.0f;
@@ -83,8 +93,10 @@ namespace Animation
     public:
         float apply(float x) const override
         {
-            if (x <= 0.0f) return 0.0f;
-            if (x >= 1.0f) return 1.0f;
+            if (x <= 0.0f)
+                return 0.0f;
+            if (x >= 1.0f)
+                return 1.0f;
 
             constexpr float c5 = (2.0f * std::numbers::pi_v<float>) / 4.5f;
             if (x < 0.5f)
@@ -123,13 +135,19 @@ namespace Animation
     class EaseInBounce : public EasingFunction
     {
     public:
-        float apply(float x) const override { return 1.0f - outBounce(1.0f - x); }
+        float apply(float x) const override
+        {
+            return 1.0f - outBounce(1.0f - x);
+        }
     };
 
     class EaseOutBounce : public EasingFunction
     {
     public:
-        float apply(float x) const override { return outBounce(x); }
+        float apply(float x) const override
+        {
+            return outBounce(x);
+        }
     };
 
     class EaseInOutBounce : public EasingFunction
@@ -143,6 +161,6 @@ namespace Animation
             return (1.0f + outBounce(2.0f * x - 1.0f)) * 0.5f;
         }
     };
-}
+} // namespace Animation
 
-#endif //EDNA_ENGINE_EASINGFUNCTION_HPP
+#endif // EDNA_ENGINE_EASINGFUNCTION_HPP

@@ -26,6 +26,8 @@
         vulkan-tools
         vulkan-validation-layers
         pkg-config
+        clang-tools # clang-format, clang-tidy
+        llvmPackages.clang-unwrapped # run-clang-tidy driver
         doxygen
         python3
         (pkgs.python3.withPackages (python-pkgs: with python-pkgs; [
@@ -38,7 +40,6 @@
       buildInputs = with pkgs; [
         glfw
         glm
-        spdlog
         # imgui # no backend vulkan implementation in the nixpkgs version, let it build over meson
         stb
         assimp

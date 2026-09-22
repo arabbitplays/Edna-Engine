@@ -2,16 +2,24 @@
 #define VULKAN_RAYTRACING_COMPUTEPIPELINE_HPP
 #include "VulkanContext.hpp"
 
-namespace RtEngine {
-    class ComputePipeline {
+namespace RtEngine
+{
+    class ComputePipeline
+    {
     public:
-        ComputePipeline() { clear(); }
-        ComputePipeline(const std::shared_ptr<VulkanContext> &context) : context(context) { clear(); }
+        ComputePipeline()
+        {
+            clear();
+        }
+        ComputePipeline(const std::shared_ptr<VulkanContext>& context) : context(context)
+        {
+            clear();
+        }
 
         void build();
 
         void setShaderStage(VkShaderModule shaderModule);
-        void setDescriptorSetLayouts(std::vector<VkDescriptorSetLayout> &descriptorSetLayouts);
+        void setDescriptorSetLayouts(std::vector<VkDescriptorSetLayout>& descriptorSetLayouts);
         void addPushConstant(uint32_t size, VkShaderStageFlags shaderStage);
 
         void clear();
@@ -31,6 +39,6 @@ namespace RtEngine {
         std::vector<VkPushConstantRange> pushConstants{};
         VkPipelineShaderStageCreateInfo shader_stage{};
     };
-} // RtEngine
+} // namespace RtEngine
 
-#endif //VULKAN_RAYTRACING_COMPUTEPIPELINE_HPP
+#endif // VULKAN_RAYTRACING_COMPUTEPIPELINE_HPP

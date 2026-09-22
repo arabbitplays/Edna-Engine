@@ -1,40 +1,43 @@
 #ifndef BENCHMARKRENDERER_HPP
 #define BENCHMARKRENDERER_HPP
-#include <../rendering/renderer/RaytracingRenderer.hpp>
-
 #include "Runner.hpp"
 
-namespace RtEngine {
-	class BenchmarkRunner : public Runner {
-	public:
-		BenchmarkRunner(const std::shared_ptr<EngineContext> &engine_context, const std::shared_ptr<SceneManager> &scene_manager);
+#include <../rendering/renderer/RaytracingRenderer.hpp>
 
-		void loadScene(const std::string &scene_path) override;
-		void renderScene() override;
-		void drawFrame(const std::shared_ptr<DrawContext> &draw_context) override;
-		//void initProperties() override;
+namespace RtEngine
+{
+    class BenchmarkRunner : public Runner
+    {
+    public:
+        BenchmarkRunner(
+            const std::shared_ptr<EngineContext>& engine_context, const std::shared_ptr<SceneManager>& scene_manager);
 
-	private:
-		void prepareFrame(const std::shared_ptr<DrawContext> &draw_context, uint32_t frame_idx) override;
+        void loadScene(const std::string& scene_path) override;
+        void renderScene() override;
+        void drawFrame(const std::shared_ptr<DrawContext>& draw_context) override;
+        // void initProperties() override;
 
-		std::string getTmpImagePath(uint32_t samples);
-		std::string getOutputFilePath();
-		std::string getRefFilePath();
-		void clearTmpfolder();
+    private:
+        void prepareFrame(const std::shared_ptr<DrawContext>& draw_context, uint32_t frame_idx) override;
 
-		void outputBenchmarkDataToCsv();
+        std::string getTmpImagePath(uint32_t samples);
+        std::string getOutputFilePath();
+        std::string getRefFilePath();
+        void clearTmpfolder();
 
-		float calculateMSE(uint8_t *ref_data, uint8_t *data, uint32_t size);
+        void outputBenchmarkDataToCsv();
 
-		std::string TMP_FOLDER = "./tmp";
-		std::string OUT_FOLDER = "../resources/benchmarks";
-		std::string REF_FOLDER = "../resources/references";
+        static float calculateMSE(const uint8_t* ref_data, const uint8_t* data, uint32_t size);
 
-		std::shared_ptr<DrawContext> draw_context;
+        std::string TMP_FOLDER = "./tmp";
+        std::string OUT_FOLDER = "../resources/benchmarks";
+        std::string REF_FOLDER = "../resources/references";
 
-		uint32_t error_calculation_sample_count = 1;
-		uint32_t final_sample_count = 1 << 12;
-	};
+        std::shared_ptr<DrawContext> draw_context;
+
+        uint32_t error_calculation_sample_count = 1;
+        uint32_t final_sample_count = 1 << 12;
+    };
 
 } // namespace RtEngine
 #endif // BENCHMARKRENDERER_HPP

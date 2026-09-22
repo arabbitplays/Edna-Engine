@@ -12,12 +12,12 @@ namespace RaveVisualizer
         // Which visualization is currently shown as the "front" input.
         VisualizationType current = VisualizationType::CCA;
         // Target visualization during a fade; equals `current` outside FADE.
-        VisualizationType target  = VisualizationType::CCA;
+        VisualizationType target = VisualizationType::CCA;
 
         float fade_progress = 0.0f;
 
         bool invert_color = false;
     };
-} // RaveVisualizer
+} // namespace RaveVisualizer
 
-#endif //EDNA_ENGINE_RAVESTATE_HPP
+#endif // EDNA_ENGINE_RAVESTATE_HPP

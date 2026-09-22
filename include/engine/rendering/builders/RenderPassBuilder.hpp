@@ -3,16 +3,18 @@
 
 #include <vulkan/vulkan_core.h>
 
-namespace RtEngine {
-	class RenderPassBuilder {
-		VkFormat colorAttachmentFormat;
-		VkFormat depthFormat;
+namespace RtEngine
+{
+    class RenderPassBuilder
+    {
+        VkFormat colorAttachmentFormat;
+        VkFormat depthFormat;
 
-	public:
-		VkRenderPass createRenderPass(VkDevice device, bool addDepthAttachment = false);
-		void setColorAttachmentFormat(VkFormat colorFormat);
-		void setDepthFormat(VkFormat depthFormat);
-	};
+    public:
+        VkRenderPass createRenderPass(VkDevice device, bool addDepthAttachment = false);
+        void setColorAttachmentFormat(VkFormat colorFormat);
+        void setDepthFormat(VkFormat depthFormat);
+    };
 
 } // namespace RtEngine
 #endif // BASICS_RENDERPASSBUILDER_HPP

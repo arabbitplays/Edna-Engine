@@ -5,20 +5,23 @@
 #include "SwapchainManager.hpp"
 #include "Transform.hpp"
 
-namespace RtEngine {
-    class Camera : public Component {
+namespace RtEngine
+{
+    class Camera : public Component
+    {
     public:
         Camera() = default;
-        Camera(const std::shared_ptr<EngineContext>& context, const std::shared_ptr<Node>& node) : Component(context, node) { };
+        Camera(const std::shared_ptr<EngineContext>& context, const std::shared_ptr<Node>& node)
+            : Component(context, node) {};
 
         static constexpr std::string COMPONENT_NAME = "Camera";
 
         void OnStart() override;
-        void OnRender(DrawContext &ctx) override;
+        void OnRender(DrawContext& ctx) override;
         void OnUpdate() override;
         void OnDestroy() override;
 
-        void initProperties(const std::shared_ptr<IProperties> &config, const UpdateFlagsHandle &update_flags) override;
+        void initProperties(const std::shared_ptr<IProperties>& config, const UpdateFlagsHandle& update_flags) override;
 
         [[nodiscard]] glm::mat4 getView() const;
         [[nodiscard]] glm::mat4 getInverseView() const;
@@ -66,6 +69,6 @@ namespace RtEngine {
         glm::vec2 last_mouse_pos = glm::vec2(0.0f);
         bool firstMouse = true;
     };
-} // RtEngine
+} // namespace RtEngine
 
-#endif //VULKAN_RAYTRACING_CAMERA_HPP
+#endif // VULKAN_RAYTRACING_CAMERA_HPP

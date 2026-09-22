@@ -11,6 +11,6 @@ namespace color
     public:
         static ColorPalette create(ColorPaletteName name);
     };
-}
+} // namespace color
 
-#endif //EDNA_ENGINE_COLORPALETTEFACTORY_HPP
+#endif // EDNA_ENGINE_COLORPALETTEFACTORY_HPP

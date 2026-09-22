@@ -5,11 +5,12 @@
 #include "RenderTarget.hpp"
 #include "VulkanContext.hpp"
 
-namespace RtEngine {
-    class Renderer {
+namespace RtEngine
+{
+    class Renderer
+    {
     public:
-        Renderer(std::shared_ptr<VulkanContext> vulkan_context,
-                 uint32_t max_frames_in_flight);
+        Renderer(std::shared_ptr<VulkanContext> vulkan_context, uint32_t max_frames_in_flight);
 
         virtual ~Renderer() = default;
 
@@ -19,7 +20,9 @@ namespace RtEngine {
         // Called when a bound connector's underlying resources are recreated (e.g. an
         // ImageConnector is resized) so subclasses can re-write their descriptor sets.
         // No-op by default.
-        virtual void invalidateDescriptors() {}
+        virtual void invalidateDescriptors()
+        {
+        }
 
         virtual VkCommandBuffer recordCommandBuffer(uint32_t frame_idx) = 0;
 
@@ -41,6 +44,6 @@ namespace RtEngine {
     };
 
     using RendererHandle = std::shared_ptr<Renderer>;
-} // RtEngine
+} // namespace RtEngine
 
-#endif //VULKAN_RAYTRACING_RENDERER_HPP
+#endif // VULKAN_RAYTRACING_RENDERER_HPP

@@ -2,21 +2,18 @@
 #define EDNA_ENGINE_ANIMATIONBUILDER_HPP
 
 #include <functional>
-#include <memory>
-
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
-
 #include <library/animation/animations/Animation.hpp>
 #include <library/animation/easing_functions/EasingCurve.hpp>
 #include <library/animation/easing_functions/EasingDirection.hpp>
 #include <library/animation/easing_functions/EasingFunction.hpp>
+#include <memory>
 
 namespace Animation
 {
-    template <typename T>
-    class AnimationBuilder
+    template <typename T> class AnimationBuilder
     {
     public:
         AnimationBuilder& from(T value);
@@ -45,6 +42,6 @@ namespace Animation
     using Vec2AnimationBuilder = AnimationBuilder<glm::vec2>;
     using Vec3AnimationBuilder = AnimationBuilder<glm::vec3>;
     using Vec4AnimationBuilder = AnimationBuilder<glm::vec4>;
-}
+} // namespace Animation
 
-#endif //EDNA_ENGINE_ANIMATIONBUILDER_HPP
+#endif // EDNA_ENGINE_ANIMATIONBUILDER_HPP

@@ -1,10 +1,8 @@
-#include <library/cellular_automaton/animation/CyclicalCellularAutomatonAnimationRunner.hpp>
-
 #include <cstdint>
+#include <library/cellular_automaton/animation/CyclicalCellularAutomatonAnimationRunner.hpp>
 #include <limits>
-#include <utility>
-
 #include <util/RandomUtil.hpp>
+#include <utility>
 
 namespace cellular_automaton
 {
@@ -15,19 +13,15 @@ namespace cellular_automaton
             using Runner = CyclicalCellularAutomatonAnimationRunner;
             const float t = static_cast<float>(RtEngine::RandomUtil::generateInt()) /
                             static_cast<float>(std::numeric_limits<uint32_t>::max());
-            return Runner::COOLDOWN_MIN_SECONDS +
-                   t * (Runner::COOLDOWN_MAX_SECONDS - Runner::COOLDOWN_MIN_SECONDS);
+            return Runner::COOLDOWN_MIN_SECONDS + (t * (Runner::COOLDOWN_MAX_SECONDS - Runner::COOLDOWN_MIN_SECONDS));
         }
-    }
+    } // namespace
 
     CyclicalCellularAutomatonAnimationRunner::CyclicalCellularAutomatonAnimationRunner(
-        CyclicalCellularAutomatonAnimationGenerator generator,
-        float initial_mutation_chance,
+        CyclicalCellularAutomatonAnimationGenerator generator, float initial_mutation_chance,
         ::color::ColorPalette initial_palette)
-        : generator_(std::move(generator)),
-          mutation_current_(initial_mutation_chance),
-          palette_current_(std::move(initial_palette)),
-          last_tick_(std::chrono::steady_clock::now())
+        : generator_(std::move(generator)), mutation_current_(initial_mutation_chance),
+          palette_current_(std::move(initial_palette)), last_tick_(std::chrono::steady_clock::now())
     {
         startMutation();
         startPalette();
@@ -42,10 +36,11 @@ namespace cellular_automaton
         last_tick_ = now;
 
         tick(mutation_track_, dt, &CyclicalCellularAutomatonAnimationRunner::startMutation);
-        tick(palette_track_,  dt, &CyclicalCellularAutomatonAnimationRunner::startPalette);
+        tick(palette_track_, dt, &CyclicalCellularAutomatonAnimationRunner::startPalette);
 
         neighborhood_cooldown_seconds_ -= dt;
-        if (neighborhood_cooldown_seconds_ <= 0.0f) {
+        if (neighborhood_cooldown_seconds_ <= 0.0F)
+        {
             generator_.applyRandomNeighborhood();
             neighborhood_cooldown_seconds_ = randomCooldown();
         }
@@ -54,9 +49,11 @@ namespace cellular_automaton
     void CyclicalCellularAutomatonAnimationRunner::tick(
         Track& track, float dt, void (CyclicalCellularAutomatonAnimationRunner::*start)())
     {
-        if (track.animation) {
+        if (track.animation)
+        {
             track.animation->step();
-            if (track.animation->finished()) {
+            if (track.animation->finished())
+            {
                 track.animation.reset();
                 track.cooldown_seconds = randomCooldown();
             }
@@ -64,8 +61,9 @@ namespace cellular_automaton
         }
 
         track.cooldown_seconds -= dt;
-        if (track.cooldown_seconds <= 0.0f) {
-            track.cooldown_seconds = 0.0f;
+        if (track.cooldown_seconds <= 0.0F)
+        {
+            track.cooldown_seconds = 0.0F;
             (this->*start)();
         }
     }
@@ -83,4 +81,4 @@ namespace cellular_automaton
         palette_current_ = std::move(palette.target);
         palette_track_.animation = std::move(palette.animation);
     }
-}
+} // namespace cellular_automaton

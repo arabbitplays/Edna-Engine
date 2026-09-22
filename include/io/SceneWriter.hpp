@@ -5,20 +5,22 @@
 #include <string>
 #include <yaml-cpp/yaml.h>
 
-namespace RtEngine {
-	class SceneWriter {
-	public:
-		SceneWriter() = default;
+namespace RtEngine
+{
+    class SceneWriter
+    {
+    public:
+        SceneWriter() = default;
 
-		void writeScene(const std::string &filename, std::shared_ptr<Scene> scene);
+        void writeScene(const std::string& filename, const std::shared_ptr<Scene>& scene);
 
-	private:
-		void writeMaterial(YAML::Emitter &out, const std::shared_ptr<Material> &material);
-		void writeSceneLights(YAML::Emitter &out, const std::shared_ptr<Scene> &scene);
+    private:
+        static void writeMaterial(YAML::Emitter& out, const std::shared_ptr<Material>& material);
+        static void writeSceneLights(YAML::Emitter& out, const std::shared_ptr<Scene>& scene);
 
-		YAML::Node writeComponents(const std::shared_ptr<Node> &node);
-		void writeSceneNode(YAML::Emitter &out, const std::shared_ptr<Node> &node);
-	};
+        static YAML::Node writeComponents(const std::shared_ptr<Node>& node);
+        void writeSceneNode(YAML::Emitter& out, const std::shared_ptr<Node>& node);
+    };
 
 } // namespace RtEngine
 #endif // SCENEWRITER_H

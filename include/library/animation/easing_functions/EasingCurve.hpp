@@ -12,4 +12,4 @@ namespace Animation
     };
 }
 
-#endif //EDNA_ENGINE_EASINGCURVE_HPP
+#endif // EDNA_ENGINE_EASINGCURVE_HPP

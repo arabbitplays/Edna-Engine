@@ -8,10 +8,13 @@
 #include "InspectorWindow.hpp"
 #include "SceneManager.hpp"
 
-namespace RtEngine {
-    class GuiManager {
+namespace RtEngine
+{
+    class GuiManager
+    {
     public:
-        GuiManager(std::shared_ptr<SceneManager> scene_manager, const std::shared_ptr<GuiRenderer> &gui_renderer);
+        GuiManager(
+            const std::shared_ptr<SceneManager>& scene_manager, const std::shared_ptr<GuiRenderer>& gui_renderer);
 
         void addCallbackToAll(const std::function<void(const UpdateFlagsHandle&)>& callback) const;
 
@@ -20,11 +23,10 @@ namespace RtEngine {
         std::shared_ptr<OptionsWindow> options_window;
         std::shared_ptr<InspectorWindow> inspector_window;
         std::shared_ptr<HierarchyWindow> hierarchy_window;
+
     private:
         std::shared_ptr<SceneManager> scene_manager;
     };
-}
+} // namespace RtEngine
 
-
-
-#endif //VULKAN_RAYTRACING_GUIMANAGER_HPP
+#endif // VULKAN_RAYTRACING_GUIMANAGER_HPP

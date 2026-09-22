@@ -7,82 +7,98 @@
 #include <vector>
 #include <vulkan/vulkan_core.h>
 
-namespace RtEngine {
-	struct QueueFamilyIndices {
-		std::optional<uint32_t> graphicsAndComputeFamily;
-		std::optional<uint32_t> presentFamily;
+namespace RtEngine
+{
+    struct QueueFamilyIndices
+    {
+        std::optional<uint32_t> graphicsAndComputeFamily;
+        std::optional<uint32_t> presentFamily;
 
-		bool isComplete() const { return graphicsAndComputeFamily.has_value() && presentFamily.has_value(); }
-	};
+        bool isComplete() const
+        {
+            return graphicsAndComputeFamily.has_value() && presentFamily.has_value();
+        }
+    };
 
-	class VulkanUtil {
-		VulkanUtil() = delete;
+    class VulkanUtil
+    {
+        VulkanUtil() = delete;
 
-	public:
-		static VkShaderModule createShaderModule(VkDevice device, const std::size_t spv_size, const uint32_t spv[]) {
-			VkShaderModuleCreateInfo createInfo{};
-			createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-			createInfo.codeSize = spv_size;
-			createInfo.pCode = spv;
+    public:
+        static VkShaderModule createShaderModule(VkDevice device, const std::size_t spv_size, const uint32_t spv[])
+        {
+            VkShaderModuleCreateInfo createInfo{};
+            createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+            createInfo.codeSize = spv_size;
+            createInfo.pCode = spv;
 
-			VkShaderModule shaderModule;
-			if (vkCreateShaderModule(device, &createInfo, nullptr, &shaderModule) != VK_SUCCESS) {
-				throw std::runtime_error("failed to create shader module!");
-			}
-			return shaderModule;
-		}
+            VkShaderModule shaderModule;
+            if (vkCreateShaderModule(device, &createInfo, nullptr, &shaderModule) != VK_SUCCESS)
+            {
+                throw std::runtime_error("failed to create shader module!");
+            }
+            return shaderModule;
+        }
 
-		static QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR surface) {
-			QueueFamilyIndices indices;
+        static QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR surface)
+        {
+            QueueFamilyIndices indices;
 
-			uint32_t queueFamilyCount = 0;
-			vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
-			std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
-			vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
+            uint32_t queueFamilyCount = 0;
+            vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
+            std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
+            vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
 
-			int i = 0;
-			for (const auto &queueFamily: queueFamilies) {
-				if ((queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) && (queueFamily.queueFlags & VK_QUEUE_COMPUTE_BIT)) {
-					indices.graphicsAndComputeFamily = i;
-				}
+            int i = 0;
+            for (const auto& queueFamily : queueFamilies)
+            {
+                if ((queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) && (queueFamily.queueFlags & VK_QUEUE_COMPUTE_BIT))
+                {
+                    indices.graphicsAndComputeFamily = i;
+                }
 
-				VkBool32 presentSupport = false;
-				vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface, &presentSupport);
-				if (presentSupport) {
-					indices.presentFamily = i;
-				}
+                VkBool32 presentSupport = false;
+                vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface, &presentSupport);
+                if (presentSupport)
+                {
+                    indices.presentFamily = i;
+                }
 
-				if (indices.isComplete()) {
-					break;
-				}
+                if (indices.isComplete())
+                {
+                    break;
+                }
 
-				i++;
-			}
-			return indices;
-		}
+                i++;
+            }
+            return indices;
+        }
 
-		static inline uint32_t alignedSize(uint32_t value, uint32_t alignment) {
-			return (value + (alignment - 1)) & ~(alignment - 1);
-		}
+        static inline uint32_t alignedSize(uint32_t value, uint32_t alignment)
+        {
+            return (value + (alignment - 1)) & ~(alignment - 1);
+        }
 
-	private:
-		static std::vector<char> readFile(const std::string &filename) {
-			std::ifstream file(filename, std::ios::ate | std::ios::binary);
+    private:
+        static std::vector<char> readFile(const std::string& filename)
+        {
+            std::ifstream file(filename, std::ios::ate | std::ios::binary);
 
-			if (!file.is_open()) {
-				throw std::runtime_error("failed to open file " + filename);
-			}
+            if (!file.is_open())
+            {
+                throw std::runtime_error("failed to open file " + filename);
+            }
 
-			size_t fileSize = (size_t) file.tellg();
-			std::vector<char> buffer(fileSize);
+            size_t fileSize = (size_t)file.tellg();
+            std::vector<char> buffer(fileSize);
 
-			file.seekg(0);
-			file.read(buffer.data(), fileSize);
+            file.seekg(0);
+            file.read(buffer.data(), fileSize);
 
-			file.close();
-			return buffer;
-		}
-	};
+            file.close();
+            return buffer;
+        }
+    };
 } // namespace RtEngine
 
 #endif // BASICS_VULKANUTIL_HPP

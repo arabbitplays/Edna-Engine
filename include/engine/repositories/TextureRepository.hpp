@@ -5,79 +5,91 @@
 #ifndef VULKAN_RAYTRACING_TEXTUREREPOSITORY_HPP
 #define VULKAN_RAYTRACING_TEXTUREREPOSITORY_HPP
 
-#include <glm/packing.hpp>
-#include <glm/vec4.hpp>
-#include <spdlog/spdlog.h>
-
 #include "ResourceBuilder.hpp"
 #include "Texture.hpp"
 
-namespace RtEngine {
-    class TextureRepository {
+#include <format>
+#include <glm/packing.hpp>
+#include <glm/vec4.hpp>
+#include <logging/LogManager.hpp>
+
+namespace RtEngine
+{
+    class TextureRepository
+    {
     public:
-        TextureRepository(const std::shared_ptr<ResourceBuilder> &resource_builder) : resource_builder(resource_builder) {
+        TextureRepository(const std::shared_ptr<ResourceBuilder>& resource_builder) : resource_builder(resource_builder)
+        {
             initDefaultTextures();
         }
 
-        std::shared_ptr<Texture> addTexture(std::string path, TextureType type) {
-            if (texture_path_cache.contains(path)) {
-                spdlog::debug("Texture cache hit with path: {}", path);
+        std::shared_ptr<Texture> addTexture(std::string path, TextureType type)
+        {
+            if (texture_path_cache.contains(path))
+            {
+                logger->debug(std::format("Texture cache hit with path: {}", path));
                 return texture_path_cache[path];
             }
 
-            const std::shared_ptr<Texture> tex = std::make_shared<Texture>(resource_builder->loadTextureImage(path, type));
+            const std::shared_ptr<Texture> tex =
+                std::make_shared<Texture>(resource_builder->loadTextureImage(path, type));
             texture_name_cache[tex->name] = tex;
             texture_path_cache[tex->path] = tex;
             return tex;
         }
 
-        std::shared_ptr<Texture> getTextureByName(const std::string& name) {
-            if (!texture_name_cache.contains(name)) {
+        std::shared_ptr<Texture> getTextureByName(const std::string& name)
+        {
+            if (!texture_name_cache.contains(name))
+            {
                 return error_tex;
             }
             return texture_name_cache[name];
         }
 
-        void initDefaultTextures() {
+        void initDefaultTextures()
+        {
             uint32_t black = glm::packUnorm4x8(glm::vec4(0, 0, 0, 0));
-            default_tex = std::make_shared<Texture>(
-                    "def_prop", PARAMETER, "",
-                    resource_builder->createImage((void *) &black, VkExtent3D{1, 1, 1}, VK_FORMAT_R8G8B8A8_SRGB,
-                                                  VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_SAMPLED_BIT,
-                                                  VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL));
+            default_tex = std::make_shared<Texture>("def_prop", PARAMETER, "",
+                resource_builder->createImage((void*)&black, VkExtent3D{1, 1, 1}, VK_FORMAT_R8G8B8A8_SRGB,
+                    VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_SAMPLED_BIT, VK_IMAGE_ASPECT_COLOR_BIT,
+                    VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL));
 
             uint32_t blue = glm::packUnorm4x8(glm::vec4(0.5f, 0.5f, 1, 0));
-            default_normal_tex = std::make_shared<Texture>(
-                    "def_normal", NORMAL, "",
-                    resource_builder->createImage((void *) &blue, VkExtent3D{1, 1, 1}, VK_FORMAT_R8G8B8A8_UNORM,
-                                                  VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_SAMPLED_BIT,
-                                                  VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL));
+            default_normal_tex = std::make_shared<Texture>("def_normal", NORMAL, "",
+                resource_builder->createImage((void*)&blue, VkExtent3D{1, 1, 1}, VK_FORMAT_R8G8B8A8_UNORM,
+                    VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_SAMPLED_BIT, VK_IMAGE_ASPECT_COLOR_BIT,
+                    VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL));
 
             // checkerboard image
             const uint32_t magenta = glm::packUnorm4x8(glm::vec4(1, 0, 1, 1));
             std::array<uint32_t, 16 * 16> pixels{}; // for 16x16 checkerboard texture
-            for (int x = 0; x < 16; x++) {
-                for (int y = 0; y < 16; y++) {
+            for (int x = 0; x < 16; x++)
+            {
+                for (int y = 0; y < 16; y++)
+                {
                     pixels[y * 16 + x] = ((x % 2) ^ (y % 2)) ? magenta : black;
                 }
             }
-            error_tex = std::make_shared<Texture>(
-                    "error", NORMAL, "",
-                    resource_builder->createImage(
-                    pixels.data(), VkExtent3D{16, 16, 1}, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL,
-                    VK_IMAGE_USAGE_SAMPLED_BIT, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL));
+            error_tex = std::make_shared<Texture>("error", NORMAL, "",
+                resource_builder->createImage(pixels.data(), VkExtent3D{16, 16, 1}, VK_FORMAT_R8G8B8A8_SRGB,
+                    VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_SAMPLED_BIT, VK_IMAGE_ASPECT_COLOR_BIT,
+                    VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL));
 
             addTexture(default_tex);
             addTexture(default_normal_tex);
             addTexture(error_tex);
         }
 
-        std::shared_ptr<Texture> getDefaultTex(const TextureType type) {
+        std::shared_ptr<Texture> getDefaultTex(const TextureType type)
+        {
             return type == PARAMETER || type == ENVIRONMENT ? default_tex : default_normal_tex;
         }
 
-        void destroy() {
-            for (const auto&[_, tex] : texture_name_cache) {
+        void destroy()
+        {
+            for (const auto& [_, tex] : texture_name_cache)
+            {
                 resource_builder->destroyImage(tex->image);
             }
             texture_name_cache.clear();
@@ -85,7 +97,8 @@ namespace RtEngine {
         }
 
     private:
-        std::shared_ptr<Texture> addTexture(std::shared_ptr<Texture> tex) {
+        std::shared_ptr<Texture> addTexture(std::shared_ptr<Texture> tex)
+        {
             texture_name_cache[tex->name] = tex;
             texture_path_cache[tex->path] = tex;
             return tex;
@@ -96,8 +109,8 @@ namespace RtEngine {
 
         std::shared_ptr<Texture> default_tex, default_normal_tex, error_tex;
 
-
+        Logging::LoggerHandle logger = Logging::LogManager::getClassLogger<TextureRepository>();
     };
-} // RtEngine
+} // namespace RtEngine
 
-#endif //VULKAN_RAYTRACING_TEXTUREREPOSITORY_HPP
+#endif // VULKAN_RAYTRACING_TEXTUREREPOSITORY_HPP

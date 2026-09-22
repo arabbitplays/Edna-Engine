@@ -10,4 +10,4 @@ namespace RaveVisualizer
     };
 }
 
-#endif //EDNA_ENGINE_VISUALIZATIONPHASE_HPP
+#endif // EDNA_ENGINE_VISUALIZATIONPHASE_HPP

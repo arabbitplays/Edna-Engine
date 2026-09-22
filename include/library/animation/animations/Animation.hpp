@@ -3,23 +3,18 @@
 
 #include <algorithm>
 #include <functional>
+#include <library/animation/animations/IAnimation.hpp>
+#include <library/animation/easing_functions/EasingFunction.hpp>
 #include <memory>
 #include <utility>
 
-#include <library/animation/animations/IAnimation.hpp>
-#include <library/animation/easing_functions/EasingFunction.hpp>
-
 namespace Animation
 {
-    template <typename T>
-    class Animation : public IAnimation
+    template <typename T> class Animation : public IAnimation
     {
     public:
-        Animation(T start,
-                  T target,
-                  int step_count,
-                  std::function<void(const T&)> on_update,
-                  std::shared_ptr<EasingFunction> easing = std::make_shared<Linear>());
+        Animation(T start, T target, int step_count, std::function<void(const T&)> on_update,
+            std::shared_ptr<EasingFunction> easing = std::make_shared<Linear>());
 
         void step() override;
         void reset() override;
@@ -39,22 +34,14 @@ namespace Animation
     };
 
     template <typename T>
-    Animation<T>::Animation(T start,
-                            T target,
-                            int step_count,
-                            std::function<void(const T&)> on_update,
-                            std::shared_ptr<EasingFunction> easing)
-        : start(std::move(start)),
-          target(std::move(target)),
-          step_count(step_count > 0 ? step_count : 1),
-          current_step(0),
-          on_update(std::move(on_update)),
-          easing_function(std::move(easing))
+    Animation<T>::Animation(T start, T target, int step_count, std::function<void(const T&)> on_update,
+        std::shared_ptr<EasingFunction> easing)
+        : start(std::move(start)), target(std::move(target)), step_count(step_count > 0 ? step_count : 1),
+          current_step(0), on_update(std::move(on_update)), easing_function(std::move(easing))
     {
     }
 
-    template <typename T>
-    void Animation<T>::step()
+    template <typename T> void Animation<T>::step()
     {
         if (current_step >= step_count)
             return;
@@ -68,17 +55,15 @@ namespace Animation
             on_update(interpolate(t));
     }
 
-    template <typename T>
-    void Animation<T>::reset()
+    template <typename T> void Animation<T>::reset()
     {
         current_step = 0;
     }
 
-    template <typename T>
-    bool Animation<T>::finished() const
+    template <typename T> bool Animation<T>::finished() const
     {
         return current_step >= step_count;
     }
-}
+} // namespace Animation
 
-#endif //EDNA_ENGINE_ANIMATION_HPP
+#endif // EDNA_ENGINE_ANIMATION_HPP

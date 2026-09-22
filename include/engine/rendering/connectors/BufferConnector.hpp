@@ -11,9 +11,8 @@ namespace RtEngine
     {
     public:
         BufferConnector(std::shared_ptr<ResourceBuilder> resource_builder,
-                        std::shared_ptr<DeviceManager> device_manager,
-                        VkDescriptorType type, VkDeviceSize buffer_size, uint32_t buffer_count,
-                        VkBufferUsageFlags usage, VkMemoryPropertyFlags memory_properties);
+            std::shared_ptr<DeviceManager> device_manager, VkDescriptorType type, VkDeviceSize buffer_size,
+            uint32_t buffer_count, VkBufferUsageFlags usage, VkMemoryPropertyFlags memory_properties);
         ~BufferConnector() override = default;
 
         void uploadData(uint32_t index, const void* data, VkDeviceSize size, VkDeviceSize offset = 0);
@@ -22,7 +21,10 @@ namespace RtEngine
         uint32_t getBufferCount() const;
         VkDeviceSize getBufferSize() const;
 
-        uint32_t getDescriptorCount() const override { return buffer_count; }
+        uint32_t getDescriptorCount() const override
+        {
+            return buffer_count;
+        }
 
         void destroy();
 
@@ -41,6 +43,6 @@ namespace RtEngine
 
         std::vector<AllocatedBuffer> buffers;
     };
-} // RtEngine
+} // namespace RtEngine
 
-#endif //EDNA_ENGINE_BUFFERCONNECTOR_HPP
+#endif // EDNA_ENGINE_BUFFERCONNECTOR_HPP

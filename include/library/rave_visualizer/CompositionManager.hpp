@@ -1,12 +1,16 @@
 #ifndef EDNA_ENGINE_COMPOSITIONMANAGER_HPP
 #define EDNA_ENGINE_COMPOSITIONMANAGER_HPP
 
-#include <memory>
-
 #include "RaveState.hpp"
 #include "VisualizationType.hpp"
 
-namespace RtEngine { class CompositionRenderer; class Glitch; }
+#include <memory>
+
+namespace RtEngine
+{
+    class CompositionRenderer;
+    class Glitch;
+} // namespace RtEngine
 
 namespace RaveVisualizer
 {
@@ -17,15 +21,18 @@ namespace RaveVisualizer
         static constexpr float FADE_DURATION_S = 2.0f;
         static constexpr float INVERSION_STACCATO_HZ = 10.0f;
 
-        CompositionManager(std::shared_ptr<RtEngine::CompositionRenderer> composition,
-                           std::shared_ptr<RtEngine::Glitch> glitch);
+        CompositionManager(
+            std::shared_ptr<RtEngine::CompositionRenderer> composition, std::shared_ptr<RtEngine::Glitch> glitch);
 
         void tick(float dt);
 
         void TryChangeType(VisualizationType new_type);
 
         void setInversionStaccato(bool active);
-        bool isInversionStaccatoActive() const { return inversion_staccato_active; }
+        bool isInversionStaccatoActive() const
+        {
+            return inversion_staccato_active;
+        }
 
         // No-op if the Glitch component is null or hasn't produced its renderer.
         void setGlitchShakePower(float v);
@@ -34,7 +41,10 @@ namespace RaveVisualizer
         void setGlitchShakeBlockSize(float v);
         void setGlitchShakeColorRate(float v);
 
-        const RaveState& state() const { return rave_state; }
+        const RaveState& state() const
+        {
+            return rave_state;
+        }
 
     private:
         // input_a = CCA (fade 0.0), input_b = MANDELBROT (fade 1.0).
@@ -43,15 +53,15 @@ namespace RaveVisualizer
         void pushToComposition();
 
         std::shared_ptr<RtEngine::CompositionRenderer> composition;
-        std::shared_ptr<RtEngine::Glitch>              glitch;
+        std::shared_ptr<RtEngine::Glitch> glitch;
         RaveState rave_state;
 
         float rotation_elapsed_s = 0.0f;
-        float fade_elapsed_s     = 0.0f;
+        float fade_elapsed_s = 0.0f;
 
-        bool  inversion_staccato_active = false;
-        float staccato_elapsed_s        = 0.0f;
+        bool inversion_staccato_active = false;
+        float staccato_elapsed_s = 0.0f;
     };
-} // RaveVisualizer
+} // namespace RaveVisualizer
 
-#endif //EDNA_ENGINE_COMPOSITIONMANAGER_HPP
+#endif // EDNA_ENGINE_COMPOSITIONMANAGER_HPP

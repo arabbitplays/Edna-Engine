@@ -1,8 +1,6 @@
-#include <library/color/ColorPaletteAnimation.hpp>
-
 #include <algorithm>
-
 #include <glm/glm.hpp>
+#include <library/color/ColorPaletteAnimation.hpp>
 
 namespace color
 {
@@ -15,8 +13,10 @@ namespace color
         ColorPalette result;
         result.colors.reserve(n);
         for (size_t i = 0; i < n; ++i)
+        {
             result.colors.emplace_back(glm::mix(s[i], e[i], t));
+        }
 
         return result;
     }
-}
+} // namespace color
