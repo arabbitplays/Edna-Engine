@@ -9,11 +9,8 @@
 
 namespace cellular_automaton
 {
-    // Owns the two CCA animation tracks (mutation chance + palette). Each track
-    // advances independently: when its current animation finishes, a random
-    // cooldown in [COOLDOWN_MIN_SECONDS, COOLDOWN_MAX_SECONDS] elapses before the
-    // next animation is generated and chained from the value the previous one
-    // ended on.
+    // Drives the CCA mutation-chance and palette animations, each on its own
+    // random cooldown in [COOLDOWN_MIN_SECONDS, COOLDOWN_MAX_SECONDS].
     class CyclicalCellularAutomatonAnimationRunner
     {
     public:

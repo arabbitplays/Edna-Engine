@@ -43,8 +43,7 @@ namespace cellular_automaton
         MutationChanceAnimation generateMutationChanceAnimation(float current);
         PaletteAnimation        generatePaletteAnimation(const ::color::ColorPalette& current);
 
-        // Neighborhood + threshold are re-rolled together but not interpolated;
-        // the setters fire once with the newly-chosen values.
+        // Neighborhood + threshold are re-rolled together, not interpolated.
         void applyRandomNeighborhood();
 
     private:

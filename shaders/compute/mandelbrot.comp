@@ -60,8 +60,7 @@ void main()
         zy = push.initial_y;
     }
     uint   iter = 0u;
-    // Bailout well above 2 so the log-log smoothing formula stays accurate;
-    // any |z| > 2 escapes, larger radius just gives cleaner fractional counts.
+    // Large bailout keeps the log-log smoothing formula well-conditioned.
     const double escape_sq = 65536.0lf;
     double zx2 = 0.0lf;
     double zy2 = 0.0lf;
@@ -80,19 +79,15 @@ void main()
     if (iter >= push.max_iterations) {
         color = palette.colors[push.color_count - 1u];
     } else {
-        // Continuous escape time: mu = n + 1 - log2(log2(|z|)) removes the
-        // integer-iteration banding by resolving the fractional escape point.
+        // Continuous escape time mu = n + 1 - log2(log2(|z|)) removes banding.
         float log_mod_sq = log(float(zx2 + zy2));
         float nu         = log(0.5 * log_mod_sq / log(2.0)) / log(2.0);
         float mu         = float(iter) + 1.0 - nu;
 
-        // Bin the raw normalized iteration count (linear) so the entropy
-        // metric reflects the natural escape-time distribution.
         float linear = clamp(mu / float(push.max_iterations), 0.0, 1.0);
         uint  bin    = min(uint(linear * float(HISTOGRAM_BIN_COUNT)), HISTOGRAM_BIN_COUNT - 1u);
         atomicAdd(histogram.bins[bin], 1u);
 
-        // sqrt remap: stretches high-iteration detail near the boundary.
         float t = sqrt(linear);
         color = samplePalette(t);
     }

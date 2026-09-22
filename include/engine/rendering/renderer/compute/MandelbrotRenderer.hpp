@@ -29,11 +29,10 @@ namespace RtEngine {
 
         std::shared_ptr<ImageConnector> getOutputConnector() const;
 
-        // Origin is an absolute world/complex-plane coordinate; the view is
-        // centered on it when the offset is (0,0).
+        // Complex-plane coordinate the view centers on when offset is (0,0).
         void setOrigin(double x, double y) { world_origin_x = x; world_origin_y = y; }
-        // Offset is in "object space": each unit shifts the view by one
-        // screen width/height at the current step_size and image extent.
+        // Each offset unit shifts the view by one screen width/height at the
+        // current step_size and image extent.
         void setOffset(double x, double y) { screen_offset_x = x; screen_offset_y = y; }
         void setStepSize(double step) { push.step_size = step; }
         void setMaxIterations(uint32_t iterations) { push.max_iterations = iterations; }
@@ -44,11 +43,8 @@ namespace RtEngine {
 
         void handleResize(VkExtent2D new_extent);
 
-        // Shannon entropy (in bits, 0..log2(HISTOGRAM_BIN_COUNT)) over the
-        // fractional-iteration histogram written by the last completed dispatch.
-        // Higher values mean the frame contains a wider spread of escape
-        // depths, i.e. more visible detail. Returns 0 if no frame has been
-        // dispatched yet.
+        // Shannon entropy (bits, 0..log2(HISTOGRAM_BIN_COUNT)) of the last
+        // dispatch's fractional-iteration histogram. 0 before first dispatch.
         float readEntropy() const;
 
     protected:
