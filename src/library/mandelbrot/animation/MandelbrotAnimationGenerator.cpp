@@ -9,6 +9,8 @@
 
 #include <spdlog/spdlog.h>
 
+#include <glm/glm.hpp>
+
 #include <library/animation/animations/BezierAnimation.hpp>
 #include <library/animation/easing_functions/EasingCurve.hpp>
 #include <library/animation/easing_functions/EasingDirection.hpp>
@@ -78,6 +80,31 @@ namespace mandelbrot
             return p.edge_score;
         }
 
+        glm::vec2 cubicBezier(const glm::vec2& p0, const glm::vec2& c1,
+                              const glm::vec2& c2, const glm::vec2& p3, float t)
+        {
+            const float u = 1.0f - t;
+            return u*u*u * p0 + 3.0f * u*u * t * c1 + 3.0f * u * t*t * c2 + t*t*t * p3;
+        }
+
+        // Sample N waypoints along an animation and return the minimum
+        // probe score. Uses min because a good target reached through a
+        // boring corridor is not what we want.
+        template <typename Sample>
+        float scorePath(bool julia_mode, Sample&& sample_at)
+        {
+            using Gen = MandelbrotAnimationGenerator;
+            float worst = 1.0f;
+            const std::uint32_t n = Gen::PATH_WAYPOINT_COUNT;
+            for (std::uint32_t k = 0; k < n; ++k) {
+                const float t = static_cast<float>(k) / static_cast<float>(n - 1u);
+                const auto [offset, initial] = sample_at(t);
+                const ProbeResult probe = probeCandidate(offset, initial, julia_mode);
+                worst = std::min(worst, scoreProbe(probe));
+            }
+            return worst;
+        }
+
         // Probe a wide search area at fine resolution, return the cell centre
         // with the highest local boundary density (in offset units, in
         // [-OFFSET_MAX, OFFSET_MAX]). Beats dart-throwing because it examines
@@ -119,32 +146,29 @@ namespace mandelbrot
         }
 
         // Roll up to PROBE_MAX_ATTEMPTS candidates. Return the first one
-        // whose probe clears the gate; otherwise the highest-scoring one
+        // whose score clears the gate; otherwise the highest-scoring one
         // seen. Never blocks.
-        template <typename Candidate, typename Roll, typename Probe>
-        Candidate rejectionSample(Roll&& roll, Probe&& probe_of)
+        template <typename Candidate, typename Roll, typename Score>
+        Candidate rejectionSample(Roll&& roll, Score&& score_of)
         {
             using Gen = MandelbrotAnimationGenerator;
             Candidate best{};
             float best_score = -1.0f;
-            ProbeResult best_probe{};
             for (std::uint32_t attempt = 0; attempt < Gen::PROBE_MAX_ATTEMPTS; ++attempt) {
                 Candidate candidate = roll();
-                const ProbeResult probe = probe_of(candidate);
-                const float score = scoreProbe(probe);
+                const float score = score_of(candidate);
                 if (score >= Gen::PROBE_ACCEPT_EDGE) {
-                    spdlog::info("Mandelbrot anim: probe accepted after {} attempt(s), edge={:.3f} inside={:.2f}",
-                                 attempt + 1u, probe.edge_score, probe.inside_fraction);
+                    spdlog::info("Mandelbrot anim: candidate accepted after {} attempt(s), score={:.3f}",
+                                 attempt + 1u, score);
                     return candidate;
                 }
                 if (score > best_score) {
                     best_score = score;
-                    best_probe = probe;
                     best = candidate;
                 }
             }
-            spdlog::info("Mandelbrot anim: probe exhausted {} attempts, best edge={:.3f} inside={:.2f}",
-                         Gen::PROBE_MAX_ATTEMPTS, best_probe.edge_score, best_probe.inside_fraction);
+            spdlog::info("Mandelbrot anim: exhausted {} attempts, best score={:.3f}",
+                         Gen::PROBE_MAX_ATTEMPTS, best_score);
             return best;
         }
     }
@@ -166,8 +190,18 @@ namespace mandelbrot
     {
         const glm::vec2 target = pickDirectedOffset(current.initial, current.julia_mode);
 
-        const glm::vec2 c1 = randomVec2(OFFSET_MIN, OFFSET_MAX);
-        const glm::vec2 c2 = randomVec2(OFFSET_MIN, OFFSET_MAX);
+        // Target is fixed; rejection-sample the Bezier control points so the
+        // arc between current and target stays interesting.
+        using ControlPoints = std::pair<glm::vec2, glm::vec2>;
+        const auto [c1, c2] = rejectionSample<ControlPoints>(
+            []() { return ControlPoints{randomVec2(OFFSET_MIN, OFFSET_MAX),
+                                        randomVec2(OFFSET_MIN, OFFSET_MAX)}; },
+            [&](const ControlPoints& cp) {
+                return scorePath(current.julia_mode, [&](float t) {
+                    return std::pair{cubicBezier(current.offset, cp.first, cp.second, target, t),
+                                     current.initial};
+                });
+            });
         spdlog::info("Mandelbrot anim: offset target=({:.3f},{:.3f})", target.x, target.y);
 
         auto set = set_offset_;
@@ -204,7 +238,10 @@ namespace mandelbrot
         const glm::vec2 target = rejectionSample<glm::vec2>(
             []() { return randomVec2(INITIAL_MIN, INITIAL_MAX); },
             [&](const glm::vec2& candidate) {
-                return probeCandidate(current.offset, candidate, current.julia_mode);
+                return scorePath(current.julia_mode, [&](float t) {
+                    return std::pair{current.offset,
+                                     glm::mix(current.initial, candidate, t)};
+                });
             });
 
         spdlog::info("Mandelbrot anim: initial target=({:.3f},{:.3f})", target.x, target.y);

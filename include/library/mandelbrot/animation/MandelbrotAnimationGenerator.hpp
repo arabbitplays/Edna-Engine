@@ -53,6 +53,11 @@ namespace mandelbrot
         static constexpr float         DIRECTED_SEARCH_SPAN     = 6.0f;   // 2 * REFERENCE_SPAN
         static constexpr std::uint32_t DIRECTED_GRID_SIZE       = 32u;
 
+        // Number of waypoints sampled along a candidate animation for
+        // path-aware acceptance. Acceptance uses min-along-path so the
+        // interpolation itself has to stay interesting, not just the target.
+        static constexpr std::uint32_t PATH_WAYPOINT_COUNT      = 5u;
+
         MandelbrotAnimationGenerator(
             std::function<void(const glm::vec2&)>             set_offset,
             std::function<void(float)>                        set_step_size,
