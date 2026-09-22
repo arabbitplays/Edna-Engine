@@ -15,7 +15,7 @@ namespace RtEngine {
 		void loadData(std::string path, std::vector<Vertex> &vertices, std::vector<uint32_t> &indices) override;
 		void processNode(aiNode *node, const aiScene *scene, std::vector<Vertex> &vertices,
 						 std::vector<uint32_t> &indices);
-		void processMesh(aiMesh *mesh, const aiScene *scene, std::vector<Vertex> &vertices,
+		static void processMesh(aiMesh *mesh, const aiScene *scene, std::vector<Vertex> &vertices,
 						 std::vector<uint32_t> &indices);
 	};
 

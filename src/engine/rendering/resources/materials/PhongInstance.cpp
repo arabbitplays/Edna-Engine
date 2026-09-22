@@ -29,7 +29,7 @@ namespace RtEngine {
         resources->reflection = reflection;
         resources->transmission = transmission;
         resources->n = n;
-        resources->eta = glm::vec4(eta, 0.0f);
+        resources->eta = glm::vec4(eta, 0.0F);
 
         *size = sizeof(PhongResources);
         return resources.get();
@@ -37,48 +37,54 @@ namespace RtEngine {
 
     void PhongInstance::loadResources(YAML::Node yaml_node) {
         name = yaml_node["name"].as<std::string>();
-        if (yaml_node["diffuse"])
+        if (yaml_node["diffuse"]) {
             diffuse = yaml_node["diffuse"].as<glm::vec3>();
-        if (yaml_node["specular"])
+}
+        if (yaml_node["specular"]) {
             specular = yaml_node["specular"].as<glm::vec3>();
-        if (yaml_node["ambient"])
+}
+        if (yaml_node["ambient"]) {
             ambient = yaml_node["ambient"].as<glm::vec3>();
-        if (yaml_node["reflection"])
+}
+        if (yaml_node["reflection"]) {
             reflection = yaml_node["reflection"].as<glm::vec3>();
+}
         if (yaml_node["transmission"]) {
             transmission = yaml_node["transmission"].as<glm::vec3>();
-            if (yaml_node["eta"])
+            if (yaml_node["eta"]) {
                 eta = yaml_node["eta"].as<glm::vec3>();
-            else
-                eta = glm::vec3(1.0f);
+            } else {
+                eta = glm::vec3(1.0F);
+}
         }
 
-        if (yaml_node["n"])
+        if (yaml_node["n"]) {
             n = yaml_node["n"].as<float>();
+}
     }
 
     YAML::Node PhongInstance::writeResourcesToYaml() {
         YAML::Node out(YAML::NodeType::Map);
         out["name"] = name;
 
-        if (diffuse != glm::vec3(0.0f)) {
+        if (diffuse != glm::vec3(0.0F)) {
             out["diffuse"] = YAML::convert<glm::vec3>::encode(diffuse);
         }
 
-        if (specular != glm::vec3(0.0f)) {
+        if (specular != glm::vec3(0.0F)) {
             out["specular"] = YAML::convert<glm::vec3>::encode(specular);
             out["n"] = n;
         }
 
-        if (ambient != glm::vec3(0.0f)) {
+        if (ambient != glm::vec3(0.0F)) {
             out["ambient"] = YAML::convert<glm::vec3>::encode(ambient);
         }
 
-        if (reflection != glm::vec3(0.0f)) {
+        if (reflection != glm::vec3(0.0F)) {
             out["reflection"] = YAML::convert<glm::vec3>::encode(reflection);
         }
 
-        if (transmission != glm::vec3(0.0f)) {
+        if (transmission != glm::vec3(0.0F)) {
             out["transmission"] = YAML::convert<glm::vec3>::encode(transmission);
             out["eta"] = YAML::convert<glm::vec3>::encode(eta);
         }

@@ -22,7 +22,7 @@ namespace RtEngine {
     }
 
     void *MetalRoughInstance::getResources(size_t *size, const std::shared_ptr<MaterialTextures<>> &material_textures) {
-        resources->albedo = glm::vec4(albedo, 0.0f);
+        resources->albedo = glm::vec4(albedo, 0.0F);
         resources->properties = glm::vec4(metallic, roughness, ao, eta);
         resources->emission = glm::vec4(emission_color, emission_power);
 
@@ -39,35 +39,41 @@ namespace RtEngine {
         name = yaml_node["name"].as<std::string>();
         if (yaml_node["albedo_tex"]) {
             albedo_tex = tex_repo->addTexture(yaml_node["albedo_tex"].as<std::string>(), PARAMETER);
-            albedo = glm::vec3(0.0f);
+            albedo = glm::vec3(0.0F);
         } else {
             albedo_tex = tex_repo->getDefaultTex(PARAMETER);
-            if (yaml_node["albedo"])
+            if (yaml_node["albedo"]) {
                 albedo = yaml_node["albedo"].as<glm::vec3>();
+}
         }
 
         if (yaml_node["metal_rough_ao_tex"]) {
             metal_rough_ao_tex = tex_repo->addTexture(yaml_node["metal_rough_ao_tex"].as<std::string>(), PARAMETER);
-            metallic = 0.0f;
-            roughness = 0.0f;
-            ao = 0.0f;
+            metallic = 0.0F;
+            roughness = 0.0F;
+            ao = 0.0F;
         } else {
             metal_rough_ao_tex = tex_repo->getDefaultTex(PARAMETER);
-            if (yaml_node["metallic"])
+            if (yaml_node["metallic"]) {
                 metallic = yaml_node["metallic"].as<float>();
-            if (yaml_node["roughness"])
+}
+            if (yaml_node["roughness"]) {
                 roughness = yaml_node["roughness"].as<float>();
-            if (yaml_node["ao"])
+}
+            if (yaml_node["ao"]) {
                 ao = yaml_node["ao"].as<float>();
+}
         }
 
-        if (yaml_node["eta"])
+        if (yaml_node["eta"]) {
             eta = yaml_node["eta"].as<float>();
+}
 
-        if (yaml_node["normal_tex"])
+        if (yaml_node["normal_tex"]) {
             normal_tex = tex_repo->addTexture(yaml_node["normal_tex"].as<std::string>(), NORMAL);
-        else
+        } else {
             normal_tex = tex_repo->getDefaultTex(NORMAL);
+}
 
         if (yaml_node["emission_power"]) {
             emission_color = yaml_node["emission_color"].as<glm::vec3>();
@@ -83,7 +89,7 @@ namespace RtEngine {
         out["name"] = name;
 
         if (albedo_tex->name == default_tex_name) {
-            if (albedo != glm::vec3(0.0f)) {
+            if (albedo != glm::vec3(0.0F)) {
                 out["albedo"] = YAML::convert<glm::vec3>::encode(albedo);
             }
         } else {
@@ -91,7 +97,7 @@ namespace RtEngine {
         }
 
         if (metal_rough_ao_tex->name == default_tex_name) {
-            if (albedo != glm::vec3(0.0f)) {
+            if (albedo != glm::vec3(0.0F)) {
                 out["metallic"] = metallic;
                 out["roughness"] = roughness;
                 out["ao"] = ao;
@@ -106,7 +112,7 @@ namespace RtEngine {
             out["normal_tex"] = normal_tex->path;
         }
 
-        if (emission_power != 0.0f) {
+        if (emission_power != 0.0F) {
             out["emission_color"] = YAML::convert<glm::vec3>::encode(emission_color);
             out["emission_power"] = emission_power;
         }

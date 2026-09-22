@@ -131,7 +131,10 @@ namespace RtEngine {
         CommandLineParser cli_parser = CommandLineParser();
 
         bool help = false;
-        bool reference = false, benchmark = false, realtime = false, compute = false;
+        bool reference = false;
+        bool benchmark = false;
+        bool realtime = false;
+        bool compute = false;
 
         cli_parser.addFlag("--help", &help, "Show this message.");
         cli_parser.addString("--resources", &options->resources_dir,

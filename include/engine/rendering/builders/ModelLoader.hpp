@@ -12,7 +12,7 @@ namespace RtEngine {
 		ModelLoader() = default;
 		virtual ~ModelLoader() = default;
 
-		MeshAsset loadMeshAsset(std::string ressources_path, std::string path);
+		MeshAsset loadMeshAsset(const std::string& ressources_path, const std::string& path);
 
 	protected:
 		virtual void loadData(std::string path, std::vector<Vertex> &vertices, std::vector<uint32_t> &indices) = 0;

@@ -64,7 +64,7 @@ namespace RtEngine {
 
         submitStack(frame_idx);
 
-        const uint32_t present_stage_idx = static_cast<uint32_t>(renderer_stack->getRenderers().size());
+        const auto present_stage_idx = static_cast<uint32_t>(renderer_stack->getRenderers().size());
         const bool swapchain_out_of_date = present_stage->submitAndPresent(
             present_stage_idx, renderer_stack->getPresentConnector(), static_cast<uint32_t>(swapchain_image_idx));
         if (engine_context->rendering_manager->framebufferWasResized() || swapchain_out_of_date) {

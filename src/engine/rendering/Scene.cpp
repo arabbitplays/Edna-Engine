@@ -9,34 +9,34 @@
 
 namespace RtEngine {
 	std::shared_ptr<SceneData> Scene::createSceneData(uint32_t emitting_object_count) {
-		auto sceneData = std::make_shared<SceneData>();
+		auto scene_data = std::make_shared<SceneData>();
 
 		std::shared_ptr<Camera> camera = SceneUtil::collectCameras(getRootNode()).at(0); // TODO remove this by having a own camera uniform buffer
-		sceneData->inverse_view = camera->getInverseView();
-		sceneData->inverse_proj = camera->getInverseProjection();
-		sceneData->view_pos = glm::vec4(camera->getPosition(), 0.0f);
+		scene_data->inverse_view = camera->getInverseView();
+		scene_data->inverse_proj = camera->getInverseProjection();
+		scene_data->view_pos = glm::vec4(camera->getPosition(), 0.0F);
 
 		std::array<glm::vec4, POINT_LIGHT_COUNT> point_light_positions = {};
 		std::array<glm::vec4, POINT_LIGHT_COUNT> point_light_colors = {};
 		for (uint32_t i = 0; i < POINT_LIGHT_COUNT; i++) {
 			point_light_positions[i] = glm::vec4{pointLights[i].position, pointLights[i].intensity};
-			point_light_colors[i] = glm::vec4{pointLights[i].color, 0.0f};
+			point_light_colors[i] = glm::vec4{pointLights[i].color, 0.0F};
 		}
 
-		sceneData->pointLightPositions = point_light_positions;
-		sceneData->pointLightColors = point_light_colors;
-		sceneData->sunlightDirection = glm::vec4(sun.direction, sun.intensity);
-		sceneData->sunlightColor = glm::vec4(sun.color, 0.0f);
-		sceneData->sunlightColor = glm::vec4{1, 0, 0, 1.0f};
+		scene_data->pointLightPositions = point_light_positions;
+		scene_data->pointLightColors = point_light_colors;
+		scene_data->sunlightDirection = glm::vec4(sun.direction, sun.intensity);
+		scene_data->sunlightColor = glm::vec4(sun.color, 0.0F);
+		scene_data->sunlightColor = glm::vec4{1, 0, 0, 1.0F};
 
-		sceneData->ambientColor = glm::vec4(0.05f);
+		scene_data->ambientColor = glm::vec4(0.05F);
 
-		sceneData->emitting_object_count = emitting_object_count;
+		scene_data->emitting_object_count = emitting_object_count;
 
-		return sceneData;
+		return scene_data;
 	}
 
-	void Scene::addNode(std::string name, std::shared_ptr<Node> node) {
+	void Scene::addNode(const std::string& name, std::shared_ptr<Node> node) {
 		assert(!nodes.contains(name));
 		nodes[name] = std::move(node);
 	}
@@ -50,7 +50,7 @@ namespace RtEngine {
 	}
 
 	void Scene::update() {
-		getRootNode()->refreshTransform(glm::mat4(1.0f));
+		getRootNode()->refreshTransform(glm::mat4(1.0F));
 
 		for (auto &node: nodes) {
 			node.second->update();

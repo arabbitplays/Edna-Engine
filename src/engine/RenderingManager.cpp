@@ -1,3 +1,7 @@
+#include <utility>
+
+#include <utility>
+
 #include "../../include/engine/RenderingManager.hpp"
 
 #include "RendererStackFactory.hpp"
@@ -5,7 +9,7 @@
 namespace RtEngine {
     RenderingManager::RenderingManager(const std::shared_ptr<Window> &window, std::string resources_dir, const bool enable_validation_layer, const bool enable_raytracing)
         : window(window), validation_layers_enabled(enable_validation_layer),
-          enable_raytracing(enable_raytracing), resources_dir(resources_dir) {
+          enable_raytracing(enable_raytracing), resources_dir(std::move(std::move(resources_dir))) {
 
         createVulkanContext();
         createRenderer();
@@ -68,7 +72,7 @@ namespace RtEngine {
     }
 
     std::shared_ptr<DescriptorAllocator> RenderingManager::createDescriptorAllocator() const {
-        std::vector<DescriptorAllocator::PoolSizeRatio> poolRatios = {
+        std::vector<DescriptorAllocator::PoolSizeRatio> pool_ratios = {
             {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1},
             {VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1},
             {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1},
@@ -76,10 +80,10 @@ namespace RtEngine {
             {VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR, 1},
     };
 
-        auto descriptorAllocator = std::make_shared<DescriptorAllocator>();
-        descriptorAllocator->init(vulkan_context->device_manager->getDevice(), 8, poolRatios);
+        auto descriptor_allocator = std::make_shared<DescriptorAllocator>();
+        descriptor_allocator->init(vulkan_context->device_manager->getDevice(), 8, pool_ratios);
 
-        return descriptorAllocator;
+        return descriptor_allocator;
     }
 
     void RenderingManager::createRenderer() {
@@ -150,7 +154,7 @@ namespace RtEngine {
         return texture_repository;
     }
 
-    void RenderingManager::addComputeRenderer(std::shared_ptr<ComputeRenderer> renderer,
+    void RenderingManager::addComputeRenderer(const std::shared_ptr<ComputeRenderer>& renderer,
                                               std::shared_ptr<ImageConnector> new_present_connector) {
         assert(renderer != nullptr);
         assert(renderer_stack != nullptr);

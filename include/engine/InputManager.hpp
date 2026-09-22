@@ -14,7 +14,7 @@ namespace RtEngine {
 
     class InputManager {
     public:
-        explicit InputManager(std::shared_ptr<Window> window);
+        explicit InputManager(const std::shared_ptr<Window>& window);
 
         bool getKeyDown(Keycode key) const;
         bool getKeyUp(Keycode key) const;

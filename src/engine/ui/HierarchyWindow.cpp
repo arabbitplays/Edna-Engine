@@ -3,11 +3,12 @@
 namespace RtEngine {
 	HierarchyWindow::HierarchyWindow(const std::shared_ptr<InspectorWindow>& inspector_window,
 									 const std::shared_ptr<SceneManager>& scene_manager) :
-		GuiWindow(), inspector_window(inspector_window), scene_manager(scene_manager) {}
+		 inspector_window(inspector_window), scene_manager(scene_manager) {}
 
 	void HierarchyWindow::createFrame() {
-		if (!scene_manager || !scene_manager->getCurrentScene())
+		if (!scene_manager || !scene_manager->getCurrentScene()) {
 			return;
+}
 
 		std::shared_ptr<Scene> scene = scene_manager->getCurrentScene();
 
@@ -39,18 +40,19 @@ namespace RtEngine {
 		std::shared_ptr<Node> root_node = scene->nodes["root"];
 
 		if (!nodes_to_add.empty() || !nodes_to_remove.empty()) {
-			notifyUpdate(0);
+			notifyUpdate(nullptr);
 		}
 
 		nodes_to_add.clear();
 		nodes_to_remove.clear();
 
-		if (last_clicked_node_key != "")
+		if (!last_clicked_node_key.empty()) {
 			inspector_window->setNode(scene->nodes[last_clicked_node_key]);
+}
 		last_clicked_node_key = "";
 	}
 
-	void HierarchyWindow::displayNode(std::shared_ptr<Node> node, std::shared_ptr<Node> parent, uint32_t depth) {
+	void HierarchyWindow::displayNode(const std::shared_ptr<Node>& node, const std::shared_ptr<Node>& parent, uint32_t depth) {
 		ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
 
 		// Highlight if selected
@@ -76,7 +78,7 @@ namespace RtEngine {
 		if (ImGui::BeginDragDropTarget()) {
 			const ImGuiPayload *drag_payload = ImGui::AcceptDragDropPayload("DRAG_PAYLOAD");
 
-			if (drag_payload) {
+			if (drag_payload != nullptr) {
 				DragPayload dragged_keys = *static_cast<DragPayload *>(drag_payload->Data);
 				std::shared_ptr<Node> dragged_node = scene_manager->getCurrentScene()->nodes[dragged_keys.source_key];
 				nodes_to_add.push_back({node->name, dragged_keys.source_key});

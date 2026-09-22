@@ -50,9 +50,10 @@ namespace RtEngine {
             [this](float v)                        { step_size = v; },
             [this](const glm::vec2& v)             { initial_number = v; },
             [this](const ::color::ColorPalette& p) {
-                if (renderer) renderer->setPalette(p.colors);
+                if (renderer) { renderer->setPalette(p.colors);
+}
             },
-            ::mandelbrot::MandelbrotState{offset, step_size, initial_number, julia_mode},
+            ::mandelbrot::MandelbrotState{.offset=offset, .step_size=step_size, .initial=initial_number, .julia_mode=julia_mode},
             ::color::ColorPalette{colors});
 
         resize_callback_handle = context->swapchain_manager->addRecreateCallback(
@@ -69,8 +70,10 @@ namespace RtEngine {
     }
 
     void Mandelbrot::OnUpdate() {
-        if (!renderer) return;
-        if (!update_gate.tick()) return;
+        if (!renderer) { return;
+}
+        if (!update_gate.tick()) { return;
+}
 
         if (animate && animation_runner) {
             const VkExtent2D extent =
@@ -96,7 +99,7 @@ namespace RtEngine {
     }
 
     void Mandelbrot::initProperties(const std::shared_ptr<IProperties>& config,
-                                     const UpdateFlagsHandle&) {
+                                     const UpdateFlagsHandle& /*update_flags*/) {
         if (config->startChild(COMPONENT_NAME)) {
             config->addVector("origin", &origin, -ORIGIN_BOUND, ORIGIN_BOUND);
             config->addVector("offset", &offset, -OFFSET_BOUND, OFFSET_BOUND);

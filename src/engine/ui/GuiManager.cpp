@@ -1,7 +1,7 @@
 #include "../../../include/engine/ui/GuiManager.hpp"
 
 namespace RtEngine {
-    GuiManager::GuiManager(std::shared_ptr<SceneManager> scene_manager, const std::shared_ptr<GuiRenderer> &gui_renderer) : gui_renderer(gui_renderer) {
+    GuiManager::GuiManager(const std::shared_ptr<SceneManager>& scene_manager, const std::shared_ptr<GuiRenderer> &gui_renderer) : gui_renderer(gui_renderer) {
         options_window = std::make_shared<OptionsWindow>();
         gui_renderer->addWindow(options_window);
 

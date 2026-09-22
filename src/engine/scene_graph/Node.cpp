@@ -6,8 +6,8 @@ namespace RtEngine {
 		components.push_back(transform);
 	}
 
-	void Node::refreshTransform(const glm::mat4 &parentMatrix) {
-		transform->updateTransforms(parentMatrix);
+	void Node::refreshTransform(const glm::mat4 &parent_matrix) {
+		transform->updateTransforms(parent_matrix);
 		for (auto &c: children) {
 			c->refreshTransform(transform->getWorldTransform());
 		}
@@ -26,19 +26,19 @@ namespace RtEngine {
 	void Node::addComponent(const std::shared_ptr<Component> &component) { components.push_back(component); }
 
 	void Node::start() const {
-		for (auto &component: components) {
+		for (const auto &component: components) {
 			component->OnStart();
 		}
 	}
 
 	void Node::update() const {
-		for (auto &component: components) {
+		for (const auto &component: components) {
 			component->OnUpdate();
 		}
 	}
 
 	void Node::destroy() const {
-		for (auto &component: components) {
+		for (const auto &component: components) {
 			component->OnDestroy();
 		}
 	}

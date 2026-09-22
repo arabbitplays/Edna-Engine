@@ -3,12 +3,12 @@
 #include <GLFW/glfw3.h>
 
 namespace RtEngine {
-    InputManager::InputManager(std::shared_ptr<Window> window) : window(window) {
+    InputManager::InputManager(const std::shared_ptr<Window>& window) : window(window) {
         window->addKeyCallback([this](int key, int scancode, int action, int mods) {
                 processGlfwKeyEvent(key, action);
             });
-        window->addMouseCallback([this](double xPos, double yPos) {
-            processGlfwMouseEvent(xPos, yPos);
+        window->addMouseCallback([this](double x_pos, double y_pos) {
+            processGlfwMouseEvent(x_pos, y_pos);
         });
     }
 
@@ -39,9 +39,9 @@ namespace RtEngine {
         }
     }
 
-    void InputManager::processGlfwMouseEvent(double xPos, double yPos) {
-        mouse_pos.x = xPos;
-        mouse_pos.y = yPos;
+    void InputManager::processGlfwMouseEvent(double x_pos, double y_pos) {
+        mouse_pos.x = x_pos;
+        mouse_pos.y = y_pos;
     }
 
     Keycode InputManager::glfwToEngineKeycode(int glfw_key) {

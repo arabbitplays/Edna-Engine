@@ -41,7 +41,7 @@ namespace RtEngine {
         push.initial_y = initial_y;
         push.max_iterations = max_iterations;
         push.color_count = static_cast<uint32_t>(colors.size());
-        push.julia_mode = julia_mode ? 1u : 0u;
+        push.julia_mode = julia_mode ? 1U : 0U;
 
         target_connector = ImageConnectorFactory::createRenderTargetConnector(
             vulkan_context->resource_builder, image_extent, max_frames_in_flight);
@@ -111,7 +111,7 @@ namespace RtEngine {
 
     void MandelbrotRenderer::recordPreDispatch(VkCommandBuffer cmd) {
         const VkDeviceSize histogram_size = sizeof(uint32_t) * HISTOGRAM_BIN_COUNT;
-        vkCmdFillBuffer(cmd, histogram_connector->getBufferAt(0).handle, 0, histogram_size, 0u);
+        vkCmdFillBuffer(cmd, histogram_connector->getBufferAt(0).handle, 0, histogram_size, 0U);
 
         VkBufferMemoryBarrier barrier{};
         barrier.sType               = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
@@ -141,13 +141,16 @@ namespace RtEngine {
         vkUnmapMemory(device, buffer.bufferMemory);
 
         uint64_t total = 0;
-        for (const uint32_t c : bins) total += c;
-        if (total == 0) return 0.0f;
+        for (const uint32_t c : bins) { total += c;
+}
+        if (total == 0) { return 0.0F;
+}
 
         const double inv_total = 1.0 / static_cast<double>(total);
         double entropy = 0.0;
         for (const uint32_t c : bins) {
-            if (c == 0u) continue;
+            if (c == 0U) { continue;
+}
             const double p = static_cast<double>(c) * inv_total;
             entropy -= p * std::log2(p);
         }
@@ -158,8 +161,8 @@ namespace RtEngine {
         const VkExtent2D extent = target_connector->getExtent();
         const double screen_width_c  = push.step_size * static_cast<double>(extent.width);
         const double screen_height_c = push.step_size * static_cast<double>(extent.height);
-        push.origin_x = world_origin_x + screen_offset_x * screen_width_c  - 0.5 * screen_width_c;
-        push.origin_y = world_origin_y + screen_offset_y * screen_height_c - 0.5 * screen_height_c;
+        push.origin_x = world_origin_x + (screen_offset_x * screen_width_c)  - (0.5 * screen_width_c);
+        push.origin_y = world_origin_y + (screen_offset_y * screen_height_c) - (0.5 * screen_height_c);
 
         vkCmdPushConstants(cmd, pipeline->getLayoutHandle(),
                            VK_SHADER_STAGE_COMPUTE_BIT, 0, sizeof(PushConstants), &push);

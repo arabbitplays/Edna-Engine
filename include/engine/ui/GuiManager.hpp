@@ -11,7 +11,7 @@
 namespace RtEngine {
     class GuiManager {
     public:
-        GuiManager(std::shared_ptr<SceneManager> scene_manager, const std::shared_ptr<GuiRenderer> &gui_renderer);
+        GuiManager(const std::shared_ptr<SceneManager>& scene_manager, const std::shared_ptr<GuiRenderer> &gui_renderer);
 
         void addCallbackToAll(const std::function<void(const UpdateFlagsHandle&)>& callback) const;
 

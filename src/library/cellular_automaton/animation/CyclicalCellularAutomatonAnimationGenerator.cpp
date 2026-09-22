@@ -34,7 +34,7 @@ namespace cellular_automaton
         {
             const float t = static_cast<float>(RtEngine::RandomUtil::generateInt()) /
                             static_cast<float>(std::numeric_limits<uint32_t>::max());
-            return min + t * (max - min);
+            return min + (t * (max - min));
         }
 
         int randomStepCount()
@@ -79,10 +79,11 @@ namespace cellular_automaton
             current,
             target,
             randomStepCount(),
-            [set](const float& v) { if (set) set(v); },
+            [set](const float& v) { if (set) { set(v); 
+}},
             randomInOutEasing());
 
-        return {std::move(animation), target};
+        return {.animation=std::move(animation), .target=target};
     }
 
     CyclicalCellularAutomatonAnimationGenerator::PaletteAnimation
@@ -95,18 +96,21 @@ namespace cellular_automaton
             current,
             target,
             randomStepCount(),
-            [set](const ::color::ColorPalette& p) { if (set) set(p); },
+            [set](const ::color::ColorPalette& p) { if (set) { set(p); 
+}},
             randomInOutEasing());
 
-        return {std::move(animation), std::move(target)};
+        return {.animation=std::move(animation), .target=std::move(target)};
     }
 
     void CyclicalCellularAutomatonAnimationGenerator::applyRandomNeighborhood()
     {
         auto pick = pickRandomNeighborhood();
 
-        if (set_neighborhood_) set_neighborhood_(pick.offsets);
-        if (set_threshold_)    set_threshold_(pick.threshold);
+        if (set_neighborhood_) { set_neighborhood_(pick.offsets);
+}
+        if (set_threshold_) {    set_threshold_(pick.threshold);
+}
     }
 
     float CyclicalCellularAutomatonAnimationGenerator::pickRandomMutationChance()
@@ -129,19 +133,19 @@ namespace cellular_automaton
     CyclicalCellularAutomatonAnimationGenerator::NeighborhoodPick
     CyclicalCellularAutomatonAnimationGenerator::pickRandomNeighborhood()
     {
-        constexpr std::array<uint32_t, 3> sizes = {1u, 2u, 3u};
+        constexpr std::array<uint32_t, 3> sizes = {1U, 2U, 3U};
         const uint32_t size = sizes[RtEngine::RandomUtil::generateInt() % sizes.size()];
 
         const auto shape_names = NeighborhoodShape::getAllNames();
         const std::size_t shape_idx = RtEngine::RandomUtil::generateInt() % shape_names.size();
         const auto shape = NeighborhoodShape::fromString(shape_names[shape_idx], NeighborhoodShape::Box);
 
-        uint32_t threshold = 0u;
-        if (size == 1u) {
-            threshold = 1u;
+        uint32_t threshold = 0U;
+        if (size == 1U) {
+            threshold = 1U;
         } else {
             switch (shape) {
-                case NeighborhoodShape::Box:     threshold = size * 2u; break;
+                case NeighborhoodShape::Box:     threshold = size * 2U; break;
                 case NeighborhoodShape::Diamond: threshold = size;      break;
             }
         }
@@ -149,6 +153,6 @@ namespace cellular_automaton
         logger()->info(std::format("rolled neighborhood shape={}, size={}, threshold={}",
                                    shape_names[shape_idx], size, threshold));
 
-        return {NeighborhoodFactory::create(shape, static_cast<int>(size)).offsets, threshold};
+        return {.offsets=NeighborhoodFactory::create(shape, static_cast<int>(size)).offsets, .threshold=threshold};
     }
 }

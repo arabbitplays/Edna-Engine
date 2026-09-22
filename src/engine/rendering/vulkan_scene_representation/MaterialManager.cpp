@@ -1,14 +1,18 @@
 #include "MaterialManager.hpp"
 
+#include <utility>
+
+#include <utility>
+
 #include "Material.hpp"
 
 namespace RtEngine {
     MaterialManager::MaterialManager(std::shared_ptr<ResourceBuilder> resource_builder,
-        std::shared_ptr<TextureRepository> tex_repo) : resource_builder(resource_builder) {
+        const std::shared_ptr<TextureRepository>& tex_repo) : resource_builder(std::move(std::move(resource_builder))) {
         material_textures = std::make_shared<MaterialTextures<>>(tex_repo);
     }
 
-    void MaterialManager::updateMaterialResources(std::shared_ptr<IScene> scene) {
+    void MaterialManager::updateMaterialResources(const std::shared_ptr<IScene>& scene) {
         // clear all resources that have been created earlier
         if (material_buffer.handle != VK_NULL_HANDLE) {
             resource_builder->destroyBuffer(material_buffer);
@@ -34,7 +38,7 @@ namespace RtEngine {
             total_size += sizes[i];
         }
 
-        const auto material_data = static_cast<std::byte*>(std::malloc(total_size));
+        auto *const material_data = static_cast<std::byte*>(std::malloc(total_size));
         std::byte* dst = material_data;
         for (uint32_t i = 0; i < resource_ptrs.size(); i++) {
             std::memcpy(dst, resource_ptrs[i], sizes[i]);

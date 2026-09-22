@@ -10,7 +10,7 @@ namespace RtEngine {
     }
 
     bool Window::is_open() const {
-        return !glfwWindowShouldClose(glfw_handle);
+        return glfwWindowShouldClose(glfw_handle) == 0;
     }
 
     void Window::pollEvents() {
@@ -52,23 +52,23 @@ namespace RtEngine {
     }
 
     void Window::framebufferResizeCallback(GLFWwindow *glfw_window, int width, int height) {
-        auto window = reinterpret_cast<Window *>(glfwGetWindowUserPointer(glfw_window));
+        auto *window = reinterpret_cast<Window *>(glfwGetWindowUserPointer(glfw_window));
         for (const auto& func : window->resize_callbacks) {
             func(width, height);
         }
     }
 
     void Window::keyCallback(GLFWwindow *glfw_window, int key, int scancode, int action, int mods) {
-        auto window = reinterpret_cast<Window *>(glfwGetWindowUserPointer(glfw_window));
+        auto *window = reinterpret_cast<Window *>(glfwGetWindowUserPointer(glfw_window));
         for (const auto& func : window->key_callbacks) {
             func(key, scancode, action, mods);
         }
     }
 
-    void Window::mouseCallback(GLFWwindow *glfw_window, double xPos, double yPos) {
-        auto window = reinterpret_cast<Window *>(glfwGetWindowUserPointer(glfw_window));
+    void Window::mouseCallback(GLFWwindow *glfw_window, double x_pos, double y_pos) {
+        auto *window = reinterpret_cast<Window *>(glfwGetWindowUserPointer(glfw_window));
         for (const auto& func : window->mouse_callbacks) {
-            func(xPos, yPos);
+            func(x_pos, y_pos);
         }
     }
 } // RtEngine

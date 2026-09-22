@@ -23,8 +23,10 @@ namespace RtEngine {
     Glitch::~Glitch() = default;
 
     void Glitch::OnUpdate() {
-        if (!renderer && !tryInitialize()) return;
-        if (!update_gate.tick()) return;
+        if (!renderer && !tryInitialize()) { return;
+}
+        if (!update_gate.tick()) { return;
+}
 
         renderer->setShakePower(shake_power);
         renderer->setShakeRate(shake_rate);
@@ -34,10 +36,12 @@ namespace RtEngine {
     }
 
     bool Glitch::tryInitialize() {
-        if (!context || !context->scene_manager) return false;
+        if (!context || !context->scene_manager) { return false;
+}
 
         const auto scene = context->scene_manager->getCurrentScene();
-        if (!scene) return false;
+        if (!scene) { return false;
+}
 
         const auto it = scene->nodes.find(source_node);
         if (it == scene->nodes.end()) {
@@ -52,7 +56,8 @@ namespace RtEngine {
                 break;
             }
         }
-        if (!input) return false;
+        if (!input) { return false;
+}
 
         const auto rendering_manager = context->rendering_manager;
         const auto vulkan_context    = rendering_manager->getVulkanContext();
@@ -70,14 +75,14 @@ namespace RtEngine {
     }
 
     void Glitch::initProperties(const std::shared_ptr<IProperties>& config,
-                                const UpdateFlagsHandle&) {
+                                const UpdateFlagsHandle& /*update_flags*/) {
         if (config->startChild(COMPONENT_NAME)) {
             config->addString("source_node", &source_node);
-            config->addFloat("shake_power", &shake_power, 0.0f, 1.0f);
-            config->addFloat("shake_rate", &shake_rate, 0.0f, 1.0f);
-            config->addFloat("shake_speed", &shake_speed, 0.0f, 60.0f);
-            config->addFloat("shake_block_size", &shake_block_size, 1.0f, 200.0f);
-            config->addFloat("shake_color_rate", &shake_color_rate, 0.0f, 0.1f);
+            config->addFloat("shake_power", &shake_power, 0.0F, 1.0F);
+            config->addFloat("shake_rate", &shake_rate, 0.0F, 1.0F);
+            config->addFloat("shake_speed", &shake_speed, 0.0F, 60.0F);
+            config->addFloat("shake_block_size", &shake_block_size, 1.0F, 200.0F);
+            config->addFloat("shake_color_rate", &shake_color_rate, 0.0F, 0.1F);
             config->endChild();
         }
     }

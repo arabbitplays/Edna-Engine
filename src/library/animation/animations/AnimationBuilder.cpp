@@ -68,12 +68,13 @@ namespace Animation
     {
         auto easing = easing_override ? easing_override : makeEasingFunction(curve_choice, direction_choice);
 
-        if constexpr (std::is_same_v<T, float>)
+        if constexpr (std::is_same_v<T, float>) {
             return std::make_unique<FloatAnimation>(start_value, target_value, step_count, on_update, std::move(easing));
-        else if constexpr (std::is_same_v<T, int>)
+        } else if constexpr (std::is_same_v<T, int>) {
             return std::make_unique<IntAnimation>(start_value, target_value, step_count, on_update, std::move(easing));
-        else
+        } else {
             return std::make_unique<VectorAnimation<T>>(start_value, target_value, step_count, on_update, std::move(easing));
+}
     }
 
     template class AnimationBuilder<float>;

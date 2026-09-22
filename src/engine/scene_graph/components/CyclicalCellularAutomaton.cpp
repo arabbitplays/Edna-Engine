@@ -48,16 +48,20 @@ namespace RtEngine {
         std::weak_ptr<CyclicalCellularAutomatonRenderer> weak_renderer = renderer;
         CyclicalCellularAutomatonAnimationGenerator generator{
             [weak_renderer](float value) {
-                if (const auto r = weak_renderer.lock()) r->setMutationChance(value);
+                if (const auto r = weak_renderer.lock()) { r->setMutationChance(value);
+}
             },
             [weak_renderer](const ::color::ColorPalette& palette) {
-                if (const auto r = weak_renderer.lock()) r->setPalette(palette.colors);
+                if (const auto r = weak_renderer.lock()) { r->setPalette(palette.colors);
+}
             },
             [weak_renderer](const std::vector<glm::ivec2>& offsets) {
-                if (const auto r = weak_renderer.lock()) r->setNeighborhood(offsets);
+                if (const auto r = weak_renderer.lock()) { r->setNeighborhood(offsets);
+}
             },
             [weak_renderer](uint32_t value) {
-                if (const auto r = weak_renderer.lock()) r->setThreshold(value);
+                if (const auto r = weak_renderer.lock()) { r->setThreshold(value);
+}
             }};
 
         animation_runner = std::make_unique<CyclicalCellularAutomatonAnimationRunner>(
@@ -77,14 +81,16 @@ namespace RtEngine {
     }
 
     void CyclicalCellularAutomaton::OnUpdate() {
-        if (!renderer) return;
+        if (!renderer) { return;
+}
 
         // Push setUpdate every frame so state advances exactly once per gate
         // tick — otherwise the flag latches on and the CA would step every
         // render frame between gate fires.
         const bool advance = update_gate.tick();
         renderer->setUpdate(advance);
-        if (!advance) return;
+        if (!advance) { return;
+}
 
         renderer->setUpdateChance(update_chance);
 
@@ -112,15 +118,15 @@ namespace RtEngine {
     }
 
     void CyclicalCellularAutomaton::initProperties(const std::shared_ptr<IProperties>& config,
-                                                    const UpdateFlagsHandle&) {
+                                                    const UpdateFlagsHandle& /*update_flags*/) {
         if (config->startChild(COMPONENT_NAME)) {
-            config->addUint("threshold", &threshold, 1u, 8u);
-            config->addFloat("update_chance", &update_chance, 0.0f, 1.0f);
-            config->addFloat("mutation_chance", &mutation_chance, 0.0f, 1.0f);
+            config->addUint("threshold", &threshold, 1U, 8U);
+            config->addFloat("update_chance", &update_chance, 0.0F, 1.0F);
+            config->addFloat("mutation_chance", &mutation_chance, 0.0F, 1.0F);
             config->addSelection("palette", &palette_name, ::color::ColorPaletteName::getAllNames());
             config->addSelection("neighborhood_shape", &neighborhood_shape,
                                  cellular_automaton::NeighborhoodShape::getAllNames());
-            config->addUint("neighborhood_size", &neighborhood_size, 1u, MAX_NEIGHBORHOOD_SIZE);
+            config->addUint("neighborhood_size", &neighborhood_size, 1U, MAX_NEIGHBORHOOD_SIZE);
             config->addBool("animate", &animate);
             config->endChild();
         }

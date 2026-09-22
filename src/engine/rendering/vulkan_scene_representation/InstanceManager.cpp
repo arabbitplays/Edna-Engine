@@ -13,8 +13,9 @@ namespace RtEngine {
 		}
 
 		std::vector<InstanceMappingData> instance_datas;
-		for (int i = 0; i < objects.size(); i++) {
-			instance_datas.push_back(objects[i].instance_mapping_data);
+		instance_datas.reserve(objects.size());
+for (auto & object : objects) {
+			instance_datas.push_back(object.instance_mapping_data);
 		}
 
 		instance_mapping_buffer = resource_builder->stageMemoryToNewBuffer(instance_datas.data(),
@@ -36,7 +37,7 @@ namespace RtEngine {
 			instance_data.model_matrix = objects[i].transform;
 			float power = objects[i].emitting_power;
 			instance_data.primitive_count = objects[i].primitive_count;
-			if (power > 0.0f || (i == objects.size() - 1 && emitting_instances.empty())) {
+			if (power > 0.0F || (i == objects.size() - 1 && emitting_instances.empty())) {
 				emitting_instances.push_back(instance_data);
 			}
 		}
@@ -57,10 +58,12 @@ namespace RtEngine {
 	}
 
 	void InstanceManager::destroy() {
-		if (instance_mapping_buffer.handle != VK_NULL_HANDLE)
+		if (instance_mapping_buffer.handle != VK_NULL_HANDLE) {
 			resource_builder->destroyBuffer(instance_mapping_buffer);
-		if (emitting_instances_buffer.handle != VK_NULL_HANDLE)
+}
+		if (emitting_instances_buffer.handle != VK_NULL_HANDLE) {
 			resource_builder->destroyBuffer(emitting_instances_buffer);
+}
 	}
 
 } // namespace RtEngine

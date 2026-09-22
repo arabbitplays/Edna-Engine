@@ -28,8 +28,9 @@ namespace Animation
     std::vector<std::unique_ptr<Animation<T>>> AnimationCurve<T, AnimT>::build() const
     {
         std::vector<std::unique_ptr<Animation<T>>> segments;
-        if (points.size() < 2)
+        if (points.size() < 2) {
             return segments;
+}
 
         segments.reserve(points.size() - 1);
         for (size_t i = 1; i < points.size(); ++i)

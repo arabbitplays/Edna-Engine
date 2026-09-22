@@ -45,15 +45,15 @@ namespace RtEngine {
 							  VkImageLayout initial_layout = VK_IMAGE_LAYOUT_GENERAL,
 							  VkImageLayout final_layout = VK_IMAGE_LAYOUT_GENERAL);
 
-		Texture loadTextureImage(std::string path, TextureType type = PARAMETER);
+		Texture loadTextureImage(const std::string& path, TextureType type = PARAMETER);
 
-		AllocatedImage loadImage(std::string path, VkImageLayout layout);
+		AllocatedImage loadImage(const std::string& path, VkImageLayout layout);
 
 		uint8_t *downloadImage(AllocatedImage image, uint32_t bytes_per_channel = 1);
 
 		VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
 
-		void transitionImageLayout(VkCommandBuffer commandBuffer, VkImage image, VkPipelineStageFlags srcStage,
+		static void transitionImageLayout(VkCommandBuffer commandBuffer, VkImage image, VkPipelineStageFlags srcStage,
 								   VkPipelineStageFlags dstStage, VkAccessFlags srcAccessMask,
 								   VkAccessFlags dstAccessMask, VkImageLayout oldLayout, VkImageLayout newLayout);
 		void transitionImageLayout(VkImage image, VkPipelineStageFlags srcStage, VkPipelineStageFlags dstStage,
@@ -63,7 +63,7 @@ namespace RtEngine {
 		void destroyImage(AllocatedImage image);
 
 	private:
-		uint8_t *loadImageData(std::string path, int *width, int *height, int *channels);
+		static uint8_t *loadImageData(const std::string& path, int *width, int *height, int *channels);
 
 		uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 		std::shared_ptr<DeviceManager> device_manager;

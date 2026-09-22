@@ -48,8 +48,8 @@ namespace RtEngine {
             vkDestroyDescriptorSetLayout(vulkan_context->device_manager->getDevice(), descriptor_layout, nullptr);
         });
 
-        std::vector<VkDescriptorSetLayout> descriptorSetLayouts{descriptor_layout};
-        pipeline->setDescriptorSetLayouts(descriptorSetLayouts);
+        std::vector<VkDescriptorSetLayout> descriptor_set_layouts{descriptor_layout};
+        pipeline->setDescriptorSetLayouts(descriptor_set_layouts);
 
         VkShaderModule compute_shader_module = createShaderModule();
         pipeline->setShaderStage(compute_shader_module);
@@ -74,7 +74,7 @@ namespace RtEngine {
         }
 
         vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline->getHandle());
-        vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline->getLayoutHandle(), 0, 1, &descriptor_set, 0, 0);
+        vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline->getLayoutHandle(), 0, 1, &descriptor_set, 0, nullptr);
 
         recordPushConstants(cmd);
         recordPreDispatch(cmd);

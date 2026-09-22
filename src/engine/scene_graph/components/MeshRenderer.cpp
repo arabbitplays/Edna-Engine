@@ -18,10 +18,10 @@ namespace RtEngine {
 			assert(false);
 		}
 
-		glm::mat4 nodeMatrix = shared_node->transform->getWorldTransform();
+		glm::mat4 node_matrix = shared_node->transform->getWorldTransform();
 
-		ctx.addRenderObject(RenderObject{InstanceMappingData{mesh_asset->geometry_id, mesh_material->getMaterialIndex()},
-										   mesh_asset->accelerationStructure, nodeMatrix, mesh_asset->triangle_count, mesh_material->getEmissionPower()});
+		ctx.addRenderObject(RenderObject{.instance_mapping_data=InstanceMappingData{.geometry_id=mesh_asset->geometry_id, .material_index=mesh_material->getMaterialIndex()},
+										   .acceleration_structure=mesh_asset->accelerationStructure, .transform=node_matrix, .primitive_count=mesh_asset->triangle_count, .emitting_power=mesh_material->getEmissionPower()});
 	}
 
 	void MeshRenderer::initProperties(const std::shared_ptr<IProperties> &config,

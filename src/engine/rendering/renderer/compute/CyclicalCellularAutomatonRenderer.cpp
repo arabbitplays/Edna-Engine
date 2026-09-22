@@ -79,7 +79,8 @@ namespace RtEngine {
 
         std::mt19937 rng(0xC0FFEE);
         std::uniform_int_distribution<uint32_t> dist(0, colors.size() - 1);
-        for (uint32_t& v : noise) v = dist(rng);
+        for (uint32_t& v : noise) { v = dist(rng);
+}
 
         const VkDeviceSize size = pixel_count * sizeof(uint32_t);
         const VkExtent3D extent_3d{image_extent.width, image_extent.height, 1};
@@ -90,7 +91,7 @@ namespace RtEngine {
     VkDeviceSize CyclicalCellularAutomatonRenderer::neighborhoodBufferSize() {
         // Matches std140 layout of the Neighborhood UBO in the shader:
         // ivec4 offsets[MAX_NEIGHBOR_COUNT] followed by a uint count padded to a vec4 slot.
-        return sizeof(glm::ivec4) * MAX_NEIGHBOR_COUNT + sizeof(glm::ivec4);
+        return (sizeof(glm::ivec4) * MAX_NEIGHBOR_COUNT) + sizeof(glm::ivec4);
     }
 
     void CyclicalCellularAutomatonRenderer::setNeighborhood(const std::vector<glm::ivec2>& new_offsets) {
@@ -107,7 +108,7 @@ namespace RtEngine {
         const VkDeviceSize offsets_size = sizeof(glm::ivec4) * padded.size();
         neighborhood_connector->uploadData(0, padded.data(), offsets_size);
 
-        const uint32_t count = static_cast<uint32_t>(new_offsets.size());
+        const auto count = static_cast<uint32_t>(new_offsets.size());
         const VkDeviceSize count_offset = sizeof(glm::ivec4) * MAX_NEIGHBOR_COUNT;
         neighborhood_connector->uploadData(0, &count, sizeof(count), count_offset);
     }

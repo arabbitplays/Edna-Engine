@@ -36,7 +36,7 @@ namespace RtEngine {
 		std::string last_clicked_node_key = "";
 
 	private:
-		void displayNode(std::shared_ptr<Node> node, std::shared_ptr<Node> parent, uint32_t depth);
+		void displayNode(const std::shared_ptr<Node>& node, const std::shared_ptr<Node>& parent, uint32_t depth);
 
 		std::shared_ptr<InspectorWindow> inspector_window;
 		std::shared_ptr<SceneManager> scene_manager;

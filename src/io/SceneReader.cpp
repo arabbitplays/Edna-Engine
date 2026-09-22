@@ -41,8 +41,9 @@ namespace RtEngine {
 			std::shared_ptr<Material> scene_material = nullptr;
 			if (scene_node["material_name"]) {
 				auto material_name = scene_node["material_name"].as<std::string>();
-				if (!materials.contains(material_name))
+				if (!materials.contains(material_name)) {
 					throw std::runtime_error("Material " + material_name + " does not exist");
+}
 				scene_material = materials[material_name];
 			}
 
@@ -60,7 +61,7 @@ namespace RtEngine {
 
 			if (scene_node["meshes"]) {
 				for (const auto &mesh_node: scene_node["meshes"]) {
-					std::string mesh_path = mesh_node["path"].as<std::string>();
+					auto mesh_path = mesh_node["path"].as<std::string>();
 					ctx->mesh_repository->addMesh(mesh_path);
 				}
 			}
@@ -71,7 +72,7 @@ namespace RtEngine {
 
 			std::shared_ptr<Node> scene_graph_node = std::make_shared<Node>();
 			scene_graph_node->name = "root";
-			glm::mat4 identity = glm::mat4(1.0f);
+			auto identity = glm::mat4(1.0F);
 			scene_graph_node->transform->setLocalTransform(identity);
 			scene_graph_node->children = {};
 			for (const auto &yaml_mesh_node: scene_node["nodes"]) {
@@ -94,7 +95,7 @@ namespace RtEngine {
 		}
 
 		uint32_t point_light_index = 0;
-		for (auto &point_light_node: lights_node["point_lights"]) {
+		for (const auto &point_light_node: lights_node["point_lights"]) {
 			scene->pointLights[point_light_index++] =
 					PointLight(point_light_node["position"].as<glm::vec3>(), point_light_node["color"].as<glm::vec3>(),
 							   point_light_node["intensity"].as<float>());
@@ -113,10 +114,10 @@ namespace RtEngine {
 		scene_graph_node->name = yaml_node["name"].as<std::string>();
 		readComponents(yaml_node, scene_graph_node);
 		scene_graph_node->children = {};
-		for (auto &child_node: yaml_node["children"]) {
+		for (const auto &child_node: yaml_node["children"]) {
 			scene_graph_node->children.push_back(processSceneNodesRecursiv(child_node, scene));
 		}
-		scene_graph_node->refreshTransform(glm::mat4(1.0f));
+		scene_graph_node->refreshTransform(glm::mat4(1.0F));
 
 		scene->addNode(scene_graph_node->name, scene_graph_node);
 		return scene_graph_node;
@@ -127,8 +128,8 @@ namespace RtEngine {
 		auto update_flags = std::make_shared<UpdateFlags>();
 		std::shared_ptr<YamlLoadProperties> properties = std::make_shared<YamlLoadProperties>(yaml_node["components"]);
 
-		for (auto &comp_node: yaml_node["components"]) {
-			std::string comp_name = comp_node.first.as<std::string>();
+		for (const auto &comp_node: yaml_node["components"]) {
+			auto comp_name = comp_node.first.as<std::string>();
 			if (comp_name == Transform::COMPONENT_NAME) {
 				scene_node->transform->initProperties(properties, update_flags);
 			} else if (comp_name == MeshRenderer::COMPONENT_NAME) {

@@ -30,7 +30,7 @@ namespace RtEngine {
 
     private:
         VkCommandBuffer beginCommandBuffer();
-        void endCommandBuffer(VkCommandBuffer cmd);
+        static void endCommandBuffer(VkCommandBuffer cmd);
 
         void recordBlit(VkCommandBuffer cmd,
                         AllocatedImage source_image,

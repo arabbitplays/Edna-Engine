@@ -23,51 +23,51 @@ namespace RtEngine {
 		}
 	}
 
-	void PhongMaterial::buildPipelines(VkDescriptorSetLayout sceneLayout) {
-		DescriptorLayoutBuilder layoutBuilder;
+	void PhongMaterial::buildPipelines(VkDescriptorSetLayout scene_layout) {
+		DescriptorLayoutBuilder layout_builder;
 		pipeline = std::make_shared<RaytracingPipeline>(vulkan_context);
 		VkDevice device = vulkan_context->device_manager->getDevice();
 
-		layoutBuilder.addBinding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER);
+		layout_builder.addBinding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER);
 
-		materialLayout = layoutBuilder.build(device, VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR);
+		materialLayout = layout_builder.build(device, VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR);
 		mainDeletionQueue.pushFunction([&]() {
 			vkDestroyDescriptorSetLayout(vulkan_context->device_manager->getDevice(), materialLayout, nullptr);
 		});
 		materialDescriptorSet = descriptorAllocator.allocate(device, materialLayout);
 
-		std::vector<VkDescriptorSetLayout> descriptorSetLayouts{sceneLayout, materialLayout};
-		pipeline->setDescriptorSetLayouts(descriptorSetLayouts);
+		std::vector<VkDescriptorSetLayout> descriptor_set_layouts{scene_layout, materialLayout};
+		pipeline->setDescriptorSetLayouts(descriptor_set_layouts);
 
 		pipeline->addPushConstant( 16 * sizeof(uint32_t),
 								  VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR | VK_SHADER_STAGE_RAYGEN_BIT_KHR | VK_SHADER_STAGE_MISS_BIT_KHR);
 
-		VkShaderModule raygenShaderModule = VulkanUtil::createShaderModule(device, oschd_phong_raygen_rgen_spv_size(),
+		VkShaderModule raygen_shader_module = VulkanUtil::createShaderModule(device, oschd_phong_raygen_rgen_spv_size(),
 																		   oschd_phong_raygen_rgen_spv());
-		VkShaderModule missShaderModule = VulkanUtil::createShaderModule(
+		VkShaderModule miss_shader_module = VulkanUtil::createShaderModule(
 				device, oschd_environment_miss_rmiss_spv_size(), oschd_environment_miss_rmiss_spv());
-		VkShaderModule shadowMissShaderModule = VulkanUtil::createShaderModule(
+		VkShaderModule shadow_miss_shader_module = VulkanUtil::createShaderModule(
 				device, oschd_shadow_miss_rmiss_spv_size(), oschd_shadow_miss_rmiss_spv());
-		VkShaderModule closestHitShaderModule = VulkanUtil::createShaderModule(
+		VkShaderModule closest_hit_shader_module = VulkanUtil::createShaderModule(
 				device, oschd_phong_closesthit_rchit_spv_size(), oschd_phong_closesthit_rchit_spv());
 
-		pipeline->addShaderStage(raygenShaderModule, VK_SHADER_STAGE_RAYGEN_BIT_KHR,
+		pipeline->addShaderStage(raygen_shader_module, VK_SHADER_STAGE_RAYGEN_BIT_KHR,
 								 VK_RAY_TRACING_SHADER_GROUP_TYPE_GENERAL_KHR);
-		pipeline->addShaderStage(missShaderModule, VK_SHADER_STAGE_MISS_BIT_KHR,
+		pipeline->addShaderStage(miss_shader_module, VK_SHADER_STAGE_MISS_BIT_KHR,
 								 VK_RAY_TRACING_SHADER_GROUP_TYPE_GENERAL_KHR);
-		pipeline->addShaderStage(shadowMissShaderModule, VK_SHADER_STAGE_MISS_BIT_KHR,
+		pipeline->addShaderStage(shadow_miss_shader_module, VK_SHADER_STAGE_MISS_BIT_KHR,
 								 VK_RAY_TRACING_SHADER_GROUP_TYPE_GENERAL_KHR);
-		pipeline->addShaderStage(closestHitShaderModule, VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR,
+		pipeline->addShaderStage(closest_hit_shader_module, VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR,
 								 VK_RAY_TRACING_SHADER_GROUP_TYPE_TRIANGLES_HIT_GROUP_KHR);
 
 		pipeline->build();
 
 		mainDeletionQueue.pushFunction([&]() { pipeline->destroy(); });
 
-		vkDestroyShaderModule(device, raygenShaderModule, nullptr);
-		vkDestroyShaderModule(device, missShaderModule, nullptr);
-		vkDestroyShaderModule(device, shadowMissShaderModule, nullptr);
-		vkDestroyShaderModule(device, closestHitShaderModule, nullptr);
+		vkDestroyShaderModule(device, raygen_shader_module, nullptr);
+		vkDestroyShaderModule(device, miss_shader_module, nullptr);
+		vkDestroyShaderModule(device, shadow_miss_shader_module, nullptr);
+		vkDestroyShaderModule(device, closest_hit_shader_module, nullptr);
 	}
 
 	void PhongMaterial::writeMaterial(AllocatedBuffer material_buffer, std::shared_ptr<MaterialTextures<>> material_textures) {

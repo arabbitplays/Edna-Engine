@@ -81,15 +81,15 @@ namespace RtEngine
 
     uint64_t SyncManager::stageWaitValue(uint32_t stage_index) const
     {
-        return frame_counter * stages_per_frame + stage_index;
+        return (frame_counter * stages_per_frame) + stage_index;
     }
 
     uint64_t SyncManager::stageSignalValue(uint32_t stage_index) const
     {
-        return frame_counter * stages_per_frame + stage_index + 1;
+        return (frame_counter * stages_per_frame) + stage_index + 1;
     }
 
-    bool SyncManager::stageHasPredecessor(uint32_t stage_index) const
+    bool SyncManager::stageHasPredecessor(uint32_t stage_index) 
     {
         return stage_index > 0;
     }

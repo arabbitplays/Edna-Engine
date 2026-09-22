@@ -32,7 +32,7 @@ namespace RtEngine {
 		void init() override;
 		void initProperties(const std::shared_ptr<IProperties> &config, const UpdateFlagsHandle &update_flags) override;
 
-		void loadScene(std::shared_ptr<IScene> scene);
+		void loadScene(const std::shared_ptr<IScene>& scene);
 
 		void writeResources(const std::shared_ptr<DrawContext> &draw_context, UpdateFlagsHandle update_flags, uint32_t frame_idx);
 		void writeRenderTarget(const std::shared_ptr<RenderTarget> &target);
@@ -42,7 +42,7 @@ namespace RtEngine {
 
 		void outputRenderingTarget(const std::shared_ptr<RenderTarget> &target, const std::string &output_path);
 		float *downloadRenderTarget(const std::shared_ptr<RenderTarget> &target) const;
-		uint8_t *fixImageFormatForStorage(void *image_data, size_t pixel_count, VkFormat originalFormat);
+		static uint8_t *fixImageFormatForStorage(void *image_data, size_t pixel_count, VkFormat originalFormat);
 
 		std::unordered_map<std::string, std::shared_ptr<Material>> getMaterials() const;
 

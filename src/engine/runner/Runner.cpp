@@ -5,13 +5,13 @@
 #include "UpdateFlagValue.hpp"
 
 namespace RtEngine {
-    Runner::Runner(std::shared_ptr<EngineContext> engine_context, const std::shared_ptr<SceneManager> &scene_manager)
-        : engine_context(engine_context), scene_manager(scene_manager),
-          raytracing_renderer(engine_context->rendering_manager->getRaytracingRenderer()),
+    Runner::Runner(const std::shared_ptr<EngineContext>& engine_context, const std::shared_ptr<SceneManager> &scene_manager)
+        : engine_context(engine_context), raytracing_renderer(engine_context->rendering_manager->getRaytracingRenderer()),
           gui_renderer(engine_context->rendering_manager->getGuiRenderer()),
           renderer_stack(engine_context->rendering_manager->getRendererStack()),
           present_stage(engine_context->rendering_manager->getPresentStage()),
-          sync_manager(engine_context->sync_manager) {
+          sync_manager(engine_context->sync_manager),
+          scene_manager(scene_manager) {
         update_flags = std::make_shared<UpdateFlags>();
     }
 
@@ -36,8 +36,9 @@ namespace RtEngine {
 
         scene_manager->getCurrentScene()->update();
         std::shared_ptr<DrawContext> draw_context = createMainDrawContext();
-        if (draw_context->targets.size() < 1)
+        if (draw_context->targets.empty()) {
             return;
+}
         drawFrame(draw_context);
     }
 
@@ -102,7 +103,7 @@ namespace RtEngine {
                 cmd);
         }
 
-        const uint32_t present_stage_idx = static_cast<uint32_t>(renderers.size());
+        const auto present_stage_idx = static_cast<uint32_t>(renderers.size());
         if (present) {
             const bool swapchain_out_of_date = renderer_stack->getPresentStage()->submitAndPresent(
                 present_stage_idx, renderer_stack->getPresentConnector(), swapchain_image_idx);

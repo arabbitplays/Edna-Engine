@@ -14,7 +14,7 @@ namespace RtEngine {
 		Assimp::Importer importer;
 		const aiScene *scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_CalcTangentSpace);
 
-		if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
+		if ((scene == nullptr) || ((scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE) != 0u) || (scene->mRootNode == nullptr)) {
 			throw std::runtime_error("Assimp Error: " + std::string(importer.GetErrorString()));
 		}
 
@@ -35,7 +35,7 @@ namespace RtEngine {
 
 	void AssimpModelLoader::processMesh(aiMesh *mesh, const aiScene *scene, std::vector<Vertex> &vertices,
 										std::vector<uint32_t> &indices) {
-		if (!mesh->mTangents) {
+		if (mesh->mTangents == nullptr) {
 			logger()->warn("No tangent found for mesh!");
 		}
 
@@ -44,12 +44,12 @@ namespace RtEngine {
 
 			vertex.pos = glm::vec3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
 			vertex.normal = glm::vec3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
-			if (mesh->mTangents) {
+			if (mesh->mTangents != nullptr) {
 				vertex.tangent = glm::vec4(mesh->mTangents[i].x, mesh->mTangents[i].y, mesh->mTangents[i].z, 0);
 			} else {
 				vertex.tangent = glm::vec4(1, 0, 0, 0);
 			}
-			if (mesh->mTextureCoords[0]) {
+			if (mesh->mTextureCoords[0] != nullptr) {
 				vertex.texCoord = glm::vec3(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y, 0);
 			} else {
 				vertex.texCoord = glm::vec3(0);

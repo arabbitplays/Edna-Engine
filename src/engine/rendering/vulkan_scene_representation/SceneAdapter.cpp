@@ -6,6 +6,7 @@
 #include <OptionsWindow.hpp>
 #include <QuickTimer.hpp>
 #include <SceneUtil.hpp>
+#include <utility>
 
 #include "PhongMaterial.hpp"
 #include "UpdateFlagValue.hpp"
@@ -44,20 +45,20 @@ namespace RtEngine {
 	}
 
 	void SceneAdapter::createSceneLayout() {
-		DescriptorLayoutBuilder layoutBuilder;
+		DescriptorLayoutBuilder layout_builder;
 
-		layoutBuilder.addBinding(0, VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR); // TLAS
-		layoutBuilder.addBinding(1, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE); // render image
-		layoutBuilder.addBinding(2, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER); // scene data
-		layoutBuilder.addBinding(3, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER); // vertex buffer
-		layoutBuilder.addBinding(4, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER); // index buffer
-		layoutBuilder.addBinding(5, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER); // geometry buffer
-		layoutBuilder.addBinding(6, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER); // instance buffer
-		layoutBuilder.addBinding(7, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER); // emitting instances buffer
-		layoutBuilder.addBinding(8, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 6); // env map
-		layoutBuilder.addBinding(9, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE); // rng tex
+		layout_builder.addBinding(0, VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR); // TLAS
+		layout_builder.addBinding(1, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE); // render image
+		layout_builder.addBinding(2, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER); // scene data
+		layout_builder.addBinding(3, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER); // vertex buffer
+		layout_builder.addBinding(4, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER); // index buffer
+		layout_builder.addBinding(5, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER); // geometry buffer
+		layout_builder.addBinding(6, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER); // instance buffer
+		layout_builder.addBinding(7, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER); // emitting instances buffer
+		layout_builder.addBinding(8, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 6); // env map
+		layout_builder.addBinding(9, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE); // rng tex
 
-		scene_descriptor_set_layout = layoutBuilder.build(
+		scene_descriptor_set_layout = layout_builder.build(
 				vulkan_context->device_manager->getDevice(),
 				VK_SHADER_STAGE_RAYGEN_BIT_KHR | VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR | VK_SHADER_STAGE_MISS_BIT_KHR);
 		main_deletion_queue.pushFunction([&]() {
@@ -67,7 +68,7 @@ namespace RtEngine {
 	}
 
 	void SceneAdapter::createSceneDescriptorSets(const VkDescriptorSetLayout &layout) {
-		for (int i = 0; i < max_frames_in_flight; i++) {
+		for (int i = 0; std::cmp_less(i , max_frames_in_flight); i++) {
 			scene_descriptor_sets.push_back(vulkan_context->descriptor_allocator->allocate(
 					vulkan_context->device_manager->getDevice(), layout));
 		}
@@ -95,14 +96,15 @@ namespace RtEngine {
 
 	// ----------------------------------------------------------------------------------------------------------------
 
-	void SceneAdapter::updateScene(const std::shared_ptr<DrawContext> &draw_context, uint32_t current_frame, UpdateFlagsHandle update_flags) {
+	void SceneAdapter::updateScene(const std::shared_ptr<DrawContext> &draw_context, uint32_t current_frame, const UpdateFlagsHandle& update_flags) {
 		assert(loaded_scene != nullptr);
 
 		// QuickTimer timer{"Scene Update", true};
 		VkDevice device = vulkan_context->device_manager->getDevice();
 
-		if (update_flags->checkFlag(STATIC_GEOMETRY_UPDATE) || update_flags->checkFlag(MATERIAL_UPDATE))
+		if (update_flags->checkFlag(STATIC_GEOMETRY_UPDATE) || update_flags->checkFlag(MATERIAL_UPDATE)) {
 			vkDeviceWaitIdle(device);
+}
 
 		if (update_flags->checkFlag(MATERIAL_UPDATE)) {
 			// !!!! This clear the descriptor set writes
@@ -115,7 +117,7 @@ namespace RtEngine {
 		updateSceneDescriptorSets();
 	}
 
-	void SceneAdapter::updateRenderTarget(const std::shared_ptr<RenderTarget> target) {
+	void SceneAdapter::updateRenderTarget(const std::shared_ptr<RenderTarget>& target) {
 		vulkan_context->descriptor_allocator->writeImage(1, target->getCurrentTargetImage().imageView, VK_NULL_HANDLE,
 														 VK_IMAGE_LAYOUT_GENERAL, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE);
 
@@ -132,7 +134,7 @@ namespace RtEngine {
 	}
 
 	// TODO split into dynamic and static
-	void SceneAdapter::updateStaticGeometry(std::vector<RenderObject> render_objects, UpdateFlagsHandle update_flags) {
+	void SceneAdapter::updateStaticGeometry(std::vector<RenderObject> render_objects, const UpdateFlagsHandle& update_flags) {
 		if (update_flags->checkFlag(STATIC_GEOMETRY_UPDATE)) {
 			instance_manager->createInstanceMappingBuffer(render_objects);
 			vulkan_context->descriptor_allocator->writeBuffer(6, instance_manager->getInstanceBuffer().handle, 0,
@@ -156,7 +158,7 @@ namespace RtEngine {
 		}*/
 	}
 
-	void SceneAdapter::updateDynamicGeometry(std::vector<RenderObject> render_objects, uint32_t update_flags) {
+	void SceneAdapter::updateDynamicGeometry(const std::vector<RenderObject>& render_objects, uint32_t update_flags) {
 
 	}
 
@@ -192,7 +194,7 @@ namespace RtEngine {
 
 	void SceneAdapter::updateSceneDescriptorSets() {
 		VkDevice device = vulkan_context->device_manager->getDevice();
-		for (int i = 0; i < max_frames_in_flight; i++) { // TODO das is doch schmarn
+		for (int i = 0; std::cmp_less(i , max_frames_in_flight); i++) { // TODO das is doch schmarn
 			vulkan_context->descriptor_allocator->updateSet(device, scene_descriptor_sets[i]);
 		}
 		vulkan_context->descriptor_allocator->clearWrites();
@@ -200,35 +202,35 @@ namespace RtEngine {
 
 	// -----------------------------------------------------------------------------------------------------------------
 
-	void SceneAdapter::initDefaultResources(const VkPhysicalDeviceRayTracingPipelinePropertiesKHR& raytracingProperties) {
+	void SceneAdapter::initDefaultResources(const VkPhysicalDeviceRayTracingPipelinePropertiesKHR& raytracing_properties) {
 		createDefaultSamplers();
-		createDefaultMaterials(raytracingProperties);
+		createDefaultMaterials(raytracing_properties);
 	}
 
 	void SceneAdapter::createDefaultSamplers() {
 		VkDevice device = vulkan_context->device_manager->getDevice();
 
-		VkSamplerCreateInfo samplerInfo = {.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO};
+		VkSamplerCreateInfo sampler_info = {.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO};
 
-		samplerInfo.magFilter = VK_FILTER_NEAREST;
-		samplerInfo.minFilter = VK_FILTER_NEAREST;
-		if (vkCreateSampler(device, &samplerInfo, nullptr, &defaultSamplerNearest) != VK_SUCCESS) {
+		sampler_info.magFilter = VK_FILTER_NEAREST;
+		sampler_info.minFilter = VK_FILTER_NEAREST;
+		if (vkCreateSampler(device, &sampler_info, nullptr, &defaultSamplerNearest) != VK_SUCCESS) {
 			throw std::runtime_error("failed to create texture sampler!");
 		}
 
-		samplerInfo.magFilter = VK_FILTER_LINEAR;
-		samplerInfo.minFilter = VK_FILTER_LINEAR;
-		if (vkCreateSampler(device, &samplerInfo, nullptr, &defaultSamplerLinear) != VK_SUCCESS) {
+		sampler_info.magFilter = VK_FILTER_LINEAR;
+		sampler_info.minFilter = VK_FILTER_LINEAR;
+		if (vkCreateSampler(device, &sampler_info, nullptr, &defaultSamplerLinear) != VK_SUCCESS) {
 			throw std::runtime_error("failed to create texture sampler!");
 		}
 
 		VkPhysicalDeviceProperties properties{};
 		vkGetPhysicalDeviceProperties(vulkan_context->device_manager->getPhysicalDevice(), &properties);
-		samplerInfo.anisotropyEnable = VK_TRUE;
-		samplerInfo.maxAnisotropy = properties.limits.maxSamplerAnisotropy;
-		samplerInfo.magFilter = VK_FILTER_NEAREST;
-		samplerInfo.minFilter = VK_FILTER_NEAREST;
-		if (vkCreateSampler(device, &samplerInfo, nullptr, &defaultSamplerAnisotropic) != VK_SUCCESS) {
+		sampler_info.anisotropyEnable = VK_TRUE;
+		sampler_info.maxAnisotropy = properties.limits.maxSamplerAnisotropy;
+		sampler_info.magFilter = VK_FILTER_NEAREST;
+		sampler_info.minFilter = VK_FILTER_NEAREST;
+		if (vkCreateSampler(device, &sampler_info, nullptr, &defaultSamplerAnisotropic) != VK_SUCCESS) {
 			throw std::runtime_error("failed to create texture sampler!");
 		}
 
@@ -239,17 +241,17 @@ namespace RtEngine {
 		});
 	}
 
-	void SceneAdapter::createDefaultMaterials(const VkPhysicalDeviceRayTracingPipelinePropertiesKHR& raytracingProperties) {
+	void SceneAdapter::createDefaultMaterials(const VkPhysicalDeviceRayTracingPipelinePropertiesKHR& raytracing_properties) {
 		auto phong_material = std::make_shared<PhongMaterial>(vulkan_context, texture_repository);
 		phong_material->buildPipelines(scene_descriptor_set_layout);
-		phong_material->pipeline->createShaderBindingTables(raytracingProperties);
+		phong_material->pipeline->createShaderBindingTables(raytracing_properties);
 		defaultMaterials["phong"] = phong_material;
 		main_deletion_queue.pushFunction([&]() { defaultMaterials["phong"]->clearResources(); });
 
 		auto metal_rough_material =
 				std::make_shared<MetalRoughMaterial>(vulkan_context, texture_repository, defaultSamplerLinear);
 		metal_rough_material->buildPipelines(scene_descriptor_set_layout);
-		metal_rough_material->pipeline->createShaderBindingTables(raytracingProperties);
+		metal_rough_material->pipeline->createShaderBindingTables(raytracing_properties);
 		defaultMaterials["metal_rough"] = metal_rough_material;
 		main_deletion_queue.pushFunction([&]() { defaultMaterials["metal_rough"]->clearResources(); });
 	}

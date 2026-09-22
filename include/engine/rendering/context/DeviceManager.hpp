@@ -44,17 +44,17 @@ namespace RtEngine {
 
 	private:
 		void createInstance(bool enable_validation_layers);
-		bool checkValidationLayerSupport();
-		std::vector<const char *> getRequiredExtensions(bool enable_validation_layers);
+		static bool checkValidationLayerSupport();
+		static std::vector<const char *> getRequiredExtensions(bool enable_validation_layers);
 
 		void setupDebugMessenger();
-		void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT &createInfo);
+		static void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT &createInfo);
 
 		void createSurface(GLFWwindow *window);
 
 		void pickPhysicalDevice();
 		bool isDeviceSuitable(VkPhysicalDevice device);
-		bool checkDeviceExtensionSupport(VkPhysicalDevice device);
+		static bool checkDeviceExtensionSupport(VkPhysicalDevice device);
 
 		void createLogicalDevice(bool enable_validation_layers);
 

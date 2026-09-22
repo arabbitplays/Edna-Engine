@@ -15,8 +15,8 @@ namespace RtEngine {
                                const std::shared_ptr<DeviceManager> &device_manager,
                                std::shared_ptr<SceneReader> scene_reader)
         : resources_dir(resources_dir),
-          scene_reader(std::move(scene_reader)),
-          device_manager(device_manager) {
+          device_manager(device_manager),
+          scene_reader(std::move(scene_reader)) {
         std::string scenes_dir = std::format("{}/scenes", resources_dir);
         try {
             for (const auto &entry: std::filesystem::directory_iterator(scenes_dir)) {

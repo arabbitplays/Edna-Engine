@@ -8,6 +8,7 @@
 #include <RandomUtil.hpp>
 #include <glm/gtc/packing.hpp>
 #include <logging/LogManager.hpp>
+#include <utility>
 
 #include "ImageUtil.hpp"
 #include "QuickTimer.hpp"
@@ -22,16 +23,16 @@ namespace RtEngine {
 	}
 
 
-	void CmdTraceRaysKHR(VkDevice device, VkCommandBuffer commandBuffer,
-						 const VkStridedDeviceAddressRegionKHR *pRaygenShaderBindingTable,
-						 const VkStridedDeviceAddressRegionKHR *pMissShaderBindingTable,
-						 const VkStridedDeviceAddressRegionKHR *pHitShaderBindingTable,
-						 const VkStridedDeviceAddressRegionKHR *pCallableShaderBindingTable, uint32_t width,
+	void cmdTraceRaysKhr(VkDevice device, VkCommandBuffer command_buffer,
+						 const VkStridedDeviceAddressRegionKHR *p_raygen_shader_binding_table,
+						 const VkStridedDeviceAddressRegionKHR *p_miss_shader_binding_table,
+						 const VkStridedDeviceAddressRegionKHR *p_hit_shader_binding_table,
+						 const VkStridedDeviceAddressRegionKHR *p_callable_shader_binding_table, uint32_t width,
 						 uint32_t height, uint32_t depth) {
 		auto func = (PFN_vkCmdTraceRaysKHR) vkGetDeviceProcAddr(device, "vkCmdTraceRaysKHR");
 		if (func != nullptr) {
-			return func(commandBuffer, pRaygenShaderBindingTable, pMissShaderBindingTable, pHitShaderBindingTable,
-						pCallableShaderBindingTable, width, height, depth);
+			func(command_buffer, p_raygen_shader_binding_table, p_miss_shader_binding_table, p_hit_shader_binding_table,
+						p_callable_shader_binding_table, width, height, depth); return;
 		}
 	}
 
@@ -56,12 +57,12 @@ namespace RtEngine {
 		return format == VK_FORMAT_D32_SFLOAT_S8_UINT || format == VK_FORMAT_D24_UNORM_S8_UINT;
 	}
 
-	void RaytracingRenderer::loadScene(std::shared_ptr<IScene> scene) {
+	void RaytracingRenderer::loadScene(const std::shared_ptr<IScene>& scene) {
 		scene_adapter->loadNewScene(scene);
 	}
 
 	void RaytracingRenderer::writeResources(const std::shared_ptr<DrawContext> &draw_context, UpdateFlagsHandle update_flags, uint32_t frame_idx) {
-		scene_adapter->updateScene(draw_context, frame_idx, update_flags);
+		scene_adapter->updateScene(draw_context, frame_idx, std::move(update_flags));
 	}
 
 	void RaytracingRenderer::writeRenderTarget(const std::shared_ptr<RenderTarget> &target) {
@@ -86,49 +87,49 @@ namespace RtEngine {
 		return cmd;
 	}
 
-	void RaytracingRenderer::recordRenderToImage(VkCommandBuffer commandBuffer, uint32_t frame_idx) {
+	void RaytracingRenderer::recordRenderToImage(VkCommandBuffer command_buffer, uint32_t frame_idx) {
 		const std::shared_ptr<RenderTarget> &target = current_target;
 		RaytracingPipeline pipeline = *scene_adapter->getMaterial()->pipeline;
 
-		const uint32_t handleSizeAligned =
+		const uint32_t handle_size_aligned =
 				VulkanUtil::alignedSize(DeviceManager::RAYTRACING_PROPERTIES.shaderGroupHandleSize,
 										DeviceManager::RAYTRACING_PROPERTIES.shaderGroupHandleAlignment);
 
-		VkStridedDeviceAddressRegionKHR raygenShaderSbtEntry{};
-		raygenShaderSbtEntry.deviceAddress = pipeline.raygenShaderBindingTable.deviceAddress;
-		raygenShaderSbtEntry.stride = handleSizeAligned;
-		raygenShaderSbtEntry.size = handleSizeAligned;
+		VkStridedDeviceAddressRegionKHR raygen_shader_sbt_entry{};
+		raygen_shader_sbt_entry.deviceAddress = pipeline.raygenShaderBindingTable.deviceAddress;
+		raygen_shader_sbt_entry.stride = handle_size_aligned;
+		raygen_shader_sbt_entry.size = handle_size_aligned;
 
-		VkStridedDeviceAddressRegionKHR missShaderSbtEntry{};
-		missShaderSbtEntry.deviceAddress = pipeline.missShaderBindingTable.deviceAddress;
-		missShaderSbtEntry.stride = handleSizeAligned;
-		missShaderSbtEntry.size = handleSizeAligned;
+		VkStridedDeviceAddressRegionKHR miss_shader_sbt_entry{};
+		miss_shader_sbt_entry.deviceAddress = pipeline.missShaderBindingTable.deviceAddress;
+		miss_shader_sbt_entry.stride = handle_size_aligned;
+		miss_shader_sbt_entry.size = handle_size_aligned;
 
-		VkStridedDeviceAddressRegionKHR closestHitShaderSbtEntry{};
-		closestHitShaderSbtEntry.deviceAddress = pipeline.hitShaderBindingTable.deviceAddress;
-		closestHitShaderSbtEntry.stride = handleSizeAligned;
-		closestHitShaderSbtEntry.size = handleSizeAligned;
+		VkStridedDeviceAddressRegionKHR closest_hit_shader_sbt_entry{};
+		closest_hit_shader_sbt_entry.deviceAddress = pipeline.hitShaderBindingTable.deviceAddress;
+		closest_hit_shader_sbt_entry.stride = handle_size_aligned;
+		closest_hit_shader_sbt_entry.size = handle_size_aligned;
 
-		VkStridedDeviceAddressRegionKHR callableShaderSbtEntry{};
+		VkStridedDeviceAddressRegionKHR callable_shader_sbt_entry{};
 
 		std::vector<VkDescriptorSet> descriptor_sets{};
 		descriptor_sets.push_back(scene_adapter->getSceneDescriptorSet(frame_idx));
 		descriptor_sets.push_back(scene_adapter->getMaterial()->materialDescriptorSet);
 
-		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_RAY_TRACING_KHR, pipeline.getHandle());
-		vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_RAY_TRACING_KHR, pipeline.getLayoutHandle(), 0,
+		vkCmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_RAY_TRACING_KHR, pipeline.getHandle());
+		vkCmdBindDescriptorSets(command_buffer, VK_PIPELINE_BIND_POINT_RAY_TRACING_KHR, pipeline.getLayoutHandle(), 0,
 								static_cast<uint32_t>(descriptor_sets.size()), descriptor_sets.data(), 0, nullptr);
 
 		uint32_t pc_size;
 		void *pc_data = createPushConstants(&pc_size, target);
-		vkCmdPushConstants(commandBuffer, pipeline.getLayoutHandle(),
+		vkCmdPushConstants(command_buffer, pipeline.getLayoutHandle(),
 						   VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR | VK_SHADER_STAGE_RAYGEN_BIT_KHR |
 								   VK_SHADER_STAGE_MISS_BIT_KHR,
 						   0, pc_size, pc_data);
 
 		const auto [width, height] = target->getExtent();
-		CmdTraceRaysKHR(vulkan_context->device_manager->getDevice(), commandBuffer, &raygenShaderSbtEntry,
-						&missShaderSbtEntry, &closestHitShaderSbtEntry, &callableShaderSbtEntry,
+		cmdTraceRaysKhr(vulkan_context->device_manager->getDevice(), command_buffer, &raygen_shader_sbt_entry,
+						&miss_shader_sbt_entry, &closest_hit_shader_sbt_entry, &callable_shader_sbt_entry,
 						width, height, 1);
 	}
 
@@ -166,34 +167,34 @@ namespace RtEngine {
 	}
 
 	// target format is R8G8B8A8_UNORM
-	uint8_t *RaytracingRenderer::fixImageFormatForStorage(void *data, size_t pixel_count, VkFormat originalFormat) {
+	uint8_t *RaytracingRenderer::fixImageFormatForStorage(void *data, size_t pixel_count, VkFormat original_format) {
 
-		if (originalFormat == VK_FORMAT_R8G8B8A8_UNORM)
+		if (original_format == VK_FORMAT_R8G8B8A8_UNORM) {
 			return static_cast<uint8_t *>(data);
+}
 
-		if (originalFormat == VK_FORMAT_B8G8R8A8_UNORM) {
-			auto image_data = static_cast<uint8_t *>(data);
+		if (original_format == VK_FORMAT_B8G8R8A8_UNORM) {
+			auto *image_data = static_cast<uint8_t *>(data);
 #pragma omp parallel for
 			for (size_t i = 0; i < pixel_count; i++) {
-				std::swap(image_data[i * 4], image_data[i * 4 + 2]); // Swap B (0) and R (2)
+				std::swap(image_data[i * 4], image_data[(i * 4) + 2]); // Swap B (0) and R (2)
 			}
 			return image_data;
 		}
-		if (originalFormat == VK_FORMAT_R32G32B32A32_SFLOAT) {
-			uint8_t *output_image = new uint8_t[pixel_count * 4];
-			auto image_data = static_cast<float *>(data);
+		if (original_format == VK_FORMAT_R32G32B32A32_SFLOAT) {
+			auto *output_image = new uint8_t[pixel_count * 4];
+			auto *image_data = static_cast<float *>(data);
 
 #pragma omp parallel for
 			for (size_t i = 0; i < pixel_count * 4; i++) {
 				// Clamp each channel to the [0, 1] range and then scale to [0, 255]
-				output_image[i] = static_cast<uint8_t>(std::fmin(1.0f, std::fmax(0.0f, image_data[i])) * 255);
+				output_image[i] = static_cast<uint8_t>(std::fmin(1.0F, std::fmax(0.0F, image_data[i])) * 255);
 			}
 			delete[] image_data;
 			return output_image;
-		} else {
-			logger()->error("Image format of the storage image is not supported to be stored correctly!");
+		} 			logger()->error("Image format of the storage image is not supported to be stored correctly!");
 			return nullptr;
-		}
+	
 	}
 
 	void RaytracingRenderer::initProperties(const std::shared_ptr<IProperties> &config,
@@ -205,7 +206,7 @@ namespace RtEngine {
 			config->endChild();
 		}
 
-		for (auto [name, material] : scene_adapter->defaultMaterials) {
+		for (const auto& [name, material] : scene_adapter->defaultMaterials) {
 			material->initProperties(config, update_flags);
 		}
 	}

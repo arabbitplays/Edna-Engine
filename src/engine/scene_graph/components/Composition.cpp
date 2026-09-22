@@ -27,18 +27,23 @@ namespace RtEngine {
     Composition::~Composition() = default;
 
     void Composition::OnUpdate() {
-        if (!composition_renderer && !tryInitialize()) return;
+        if (!composition_renderer && !tryInitialize()) { return;
+}
 
         if (pending_resize_extent) {
             composition_renderer->handleResize(*pending_resize_extent);
-            if (glitch_renderer) glitch_renderer->handleResize(*pending_resize_extent);
+            if (glitch_renderer) { glitch_renderer->handleResize(*pending_resize_extent);
+}
             pending_resize_extent.reset();
         }
 
-        if (!manager) tryBuildManager();
-        if (!manager) return;
+        if (!manager) { tryBuildManager();
+}
+        if (!manager) { return;
+}
 
-        if (!update_gate.tick()) return;
+        if (!update_gate.tick()) { return;
+}
 
         manager->setInversionStaccato(inversion_staccato);
 
@@ -57,7 +62,8 @@ namespace RtEngine {
     }
 
     bool Composition::tryInitialize() {
-        if (!context || !context->scene_manager) return false;
+        if (!context || !context->scene_manager) { return false;
+}
 
         const auto mandelbrot_comp = context->scene_manager->getComponent<Mandelbrot>();
         const auto cca_comp        = context->scene_manager->getComponent<CyclicalCellularAutomaton>();
@@ -68,7 +74,8 @@ namespace RtEngine {
 
         const auto mandelbrot_out = mandelbrot_comp->getOutputConnector();
         const auto cca_out        = cca_comp->getOutputConnector();
-        if (!mandelbrot_out || !cca_out) return false;
+        if (!mandelbrot_out || !cca_out) { return false;
+}
 
         const auto rendering_manager = context->rendering_manager;
         const auto vulkan_context    = rendering_manager->getVulkanContext();
@@ -92,7 +99,8 @@ namespace RtEngine {
         const auto glitch_comp = context->scene_manager->getComponent<Glitch>();
         if (glitch_comp) {
             glitch_renderer = glitch_comp->getRenderer();
-            if (!glitch_renderer) return;
+            if (!glitch_renderer) { return;
+}
         }
         manager = std::make_unique<RaveVisualizer::CompositionManager>(
             composition_renderer, glitch_comp);
@@ -103,7 +111,7 @@ namespace RtEngine {
     }
 
     void Composition::initProperties(const std::shared_ptr<IProperties>& config,
-                                     const UpdateFlagsHandle&) {
+                                     const UpdateFlagsHandle& /*update_flags*/) {
         if (config->startChild(COMPONENT_NAME)) {
             config->addBool("inversion_staccato", &inversion_staccato);
             config->endChild();

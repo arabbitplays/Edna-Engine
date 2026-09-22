@@ -10,11 +10,11 @@ namespace RtEngine {
 			throw std::runtime_error("failed to create pipeline layout!");
 		}
 
-		VkComputePipelineCreateInfo pipelineInfo{};
-		pipelineInfo.sType = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO;
-		pipelineInfo.stage = shader_stage;
-		pipelineInfo.layout = layout;
-		if (vkCreateComputePipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &handle) !=
+		VkComputePipelineCreateInfo pipeline_info{};
+		pipeline_info.sType = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO;
+		pipeline_info.stage = shader_stage;
+		pipeline_info.layout = layout;
+		if (vkCreateComputePipelines(device, VK_NULL_HANDLE, 1, &pipeline_info, nullptr, &handle) !=
 			VK_SUCCESS) {
 			throw std::runtime_error("failed to create compute pipeline!");
 		}
@@ -25,25 +25,25 @@ namespace RtEngine {
 		});
 	}
 
-	void ComputePipeline::setShaderStage(VkShaderModule shaderModule) {
+	void ComputePipeline::setShaderStage(VkShaderModule shader_module) {
 		shader_stage.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 		shader_stage.stage = VK_SHADER_STAGE_COMPUTE_BIT;
-		shader_stage.module = shaderModule;
+		shader_stage.module = shader_module;
 		shader_stage.pName = "main";
 	}
 
-	void ComputePipeline::setDescriptorSetLayouts(std::vector<VkDescriptorSetLayout> &descriptorSetLayouts) {
-		pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(descriptorSetLayouts.size());
-		pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts.data();
+	void ComputePipeline::setDescriptorSetLayouts(std::vector<VkDescriptorSetLayout> &descriptor_set_layouts) {
+		pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(descriptor_set_layouts.size());
+		pipelineLayoutInfo.pSetLayouts = descriptor_set_layouts.data();
 	}
 
-	void ComputePipeline::addPushConstant(uint32_t size, VkShaderStageFlags shaderStage) {
-		VkPushConstantRange pushConstantRange = {};
-		pushConstantRange.stageFlags = shaderStage;
-		pushConstantRange.offset = 0;
-		pushConstantRange.size = size;
+	void ComputePipeline::addPushConstant(uint32_t size, VkShaderStageFlags shader_stage) {
+		VkPushConstantRange push_constant_range = {};
+		push_constant_range.stageFlags = shader_stage;
+		push_constant_range.offset = 0;
+		push_constant_range.size = size;
 
-		pushConstants.push_back(pushConstantRange);
+		pushConstants.push_back(push_constant_range);
 	}
 
 	void ComputePipeline::clear() {

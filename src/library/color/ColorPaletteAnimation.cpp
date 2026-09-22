@@ -14,8 +14,9 @@ namespace color
 
         ColorPalette result;
         result.colors.reserve(n);
-        for (size_t i = 0; i < n; ++i)
+        for (size_t i = 0; i < n; ++i) {
             result.colors.emplace_back(glm::mix(s[i], e[i], t));
+}
 
         return result;
     }

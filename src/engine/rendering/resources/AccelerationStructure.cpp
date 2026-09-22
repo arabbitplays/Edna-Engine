@@ -4,58 +4,56 @@
 #include <stdexcept>
 
 namespace RtEngine {
-	void GetAccelerationStructureBuildSizesKHR(VkDevice device, VkAccelerationStructureBuildTypeKHR buildType,
-											   const VkAccelerationStructureBuildGeometryInfoKHR *pBuildInfo,
-											   const uint32_t *pMaxPrimitiveCounts,
-											   VkAccelerationStructureBuildSizesInfoKHR *pSizeInfo) {
+	void getAccelerationStructureBuildSizesKhr(VkDevice device, VkAccelerationStructureBuildTypeKHR build_type,
+											   const VkAccelerationStructureBuildGeometryInfoKHR *p_build_info,
+											   const uint32_t *p_max_primitive_counts,
+											   VkAccelerationStructureBuildSizesInfoKHR *p_size_info) {
 		auto func = (PFN_vkGetAccelerationStructureBuildSizesKHR) vkGetDeviceProcAddr(
 				device, "vkGetAccelerationStructureBuildSizesKHR");
 		if (func != nullptr) {
-			return func(device, buildType, pBuildInfo, pMaxPrimitiveCounts, pSizeInfo);
+			func(device, build_type, p_build_info, p_max_primitive_counts, p_size_info); return;
 		}
 	}
 
-	VkResult CreateAccelerationStructureKHR(VkDevice device, const VkAccelerationStructureCreateInfoKHR *pCreateInfo,
-											const VkAllocationCallbacks *pAllocator,
-											VkAccelerationStructureKHR *pAccelerationStructure) {
+	VkResult createAccelerationStructureKhr(VkDevice device, const VkAccelerationStructureCreateInfoKHR *p_create_info,
+											const VkAllocationCallbacks *p_allocator,
+											VkAccelerationStructureKHR *p_acceleration_structure) {
 		auto func =
 				(PFN_vkCreateAccelerationStructureKHR) vkGetDeviceProcAddr(device, "vkCreateAccelerationStructureKHR");
 		if (func != nullptr) {
-			return func(device, pCreateInfo, pAllocator, pAccelerationStructure);
-		} else {
-			return VK_ERROR_EXTENSION_NOT_PRESENT;
-		}
+			return func(device, p_create_info, p_allocator, p_acceleration_structure);
+		} 			return VK_ERROR_EXTENSION_NOT_PRESENT;
+	
 	}
 
-	void CmdBuildAccelerationStructuresKHR(VkDevice device, VkCommandBuffer commandBuffer, uint32_t infoCount,
-										   const VkAccelerationStructureBuildGeometryInfoKHR *pInfos,
-										   const VkAccelerationStructureBuildRangeInfoKHR *const *ppBuildRangeInfos) {
+	void cmdBuildAccelerationStructuresKhr(VkDevice device, VkCommandBuffer command_buffer, uint32_t info_count,
+										   const VkAccelerationStructureBuildGeometryInfoKHR *p_infos,
+										   const VkAccelerationStructureBuildRangeInfoKHR *const *pp_build_range_infos) {
 
 		auto func = (PFN_vkCmdBuildAccelerationStructuresKHR) vkGetDeviceProcAddr(
 				device, "vkCmdBuildAccelerationStructuresKHR");
 		if (func != nullptr) {
-			return func(commandBuffer, infoCount, pInfos, ppBuildRangeInfos);
+			func(command_buffer, info_count, p_infos, pp_build_range_infos); return;
 		}
 	}
 
-	void DestroyAccelerationStructureKHR(VkDevice device, VkAccelerationStructureKHR accelerationStructure,
-										 const VkAllocationCallbacks *pAllocator) {
+	void destroyAccelerationStructureKhr(VkDevice device, VkAccelerationStructureKHR acceleration_structure,
+										 const VkAllocationCallbacks *p_allocator) {
 		auto func = (PFN_vkDestroyAccelerationStructureKHR) vkGetDeviceProcAddr(device,
 																				"vkDestroyAccelerationStructureKHR");
 		if (func != nullptr) {
-			return func(device, accelerationStructure, pAllocator);
+			func(device, acceleration_structure, p_allocator); return;
 		}
 	}
 
-	VkDeviceAddress GetAccelerationStructureDeviceAddressKHR(VkDevice device,
-															 const VkAccelerationStructureDeviceAddressInfoKHR *pInfo) {
+	VkDeviceAddress getAccelerationStructureDeviceAddressKhr(VkDevice device,
+															 const VkAccelerationStructureDeviceAddressInfoKHR *p_info) {
 		auto func = (PFN_vkGetAccelerationStructureDeviceAddressKHR) vkGetDeviceProcAddr(
 				device, "vkGetAccelerationStructureDeviceAddressKHR");
 		if (func != nullptr) {
-			return func(device, pInfo);
-		} else {
-			return 0;
-		}
+			return func(device, p_info);
+		} 			return 0;
+	
 	}
 
 	// -----------------------------------------------------------------------------------------------------------------------
@@ -66,23 +64,23 @@ namespace RtEngine {
 													uint32_t vertex_offset, uint32_t index_offset) {
 		assert(type == VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_KHR);
 
-		VkAccelerationStructureGeometryKHR accelerationStructureGeometry{};
-		accelerationStructureGeometry.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_KHR;
-		accelerationStructureGeometry.geometryType = VK_GEOMETRY_TYPE_TRIANGLES_KHR;
-		accelerationStructureGeometry.flags = VK_GEOMETRY_OPAQUE_BIT_KHR;
-		accelerationStructureGeometry.geometry.triangles.sType =
+		VkAccelerationStructureGeometryKHR acceleration_structure_geometry{};
+		acceleration_structure_geometry.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_KHR;
+		acceleration_structure_geometry.geometryType = VK_GEOMETRY_TYPE_TRIANGLES_KHR;
+		acceleration_structure_geometry.flags = VK_GEOMETRY_OPAQUE_BIT_KHR;
+		acceleration_structure_geometry.geometry.triangles.sType =
 				VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_TRIANGLES_DATA_KHR;
-		accelerationStructureGeometry.geometry.triangles.vertexFormat = VK_FORMAT_R32G32B32_SFLOAT;
-		accelerationStructureGeometry.geometry.triangles.vertexData.deviceAddress =
-				vertex_buffer.deviceAddress + vertex_offset * vertex_stride;
-		accelerationStructureGeometry.geometry.triangles.maxVertex = max_vertex;
-		accelerationStructureGeometry.geometry.triangles.vertexStride = vertex_stride;
-		accelerationStructureGeometry.geometry.triangles.indexType = VK_INDEX_TYPE_UINT32;
-		accelerationStructureGeometry.geometry.triangles.indexData.deviceAddress =
-				index_buffer.deviceAddress + index_offset * sizeof(uint32_t);
+		acceleration_structure_geometry.geometry.triangles.vertexFormat = VK_FORMAT_R32G32B32_SFLOAT;
+		acceleration_structure_geometry.geometry.triangles.vertexData.deviceAddress =
+				vertex_buffer.deviceAddress + (vertex_offset * vertex_stride);
+		acceleration_structure_geometry.geometry.triangles.maxVertex = max_vertex;
+		acceleration_structure_geometry.geometry.triangles.vertexStride = vertex_stride;
+		acceleration_structure_geometry.geometry.triangles.indexType = VK_INDEX_TYPE_UINT32;
+		acceleration_structure_geometry.geometry.triangles.indexData.deviceAddress =
+				index_buffer.deviceAddress + (index_offset * sizeof(uint32_t));
 
 		Geometry geometry{};
-		geometry.handle = accelerationStructureGeometry;
+		geometry.handle = acceleration_structure_geometry;
 		geometry.primitiveCount = triangle_count;
 		geometries.push_back(geometry);
 	}
@@ -101,15 +99,15 @@ namespace RtEngine {
 	}
 
 	void AccelerationStructure::addInstance(std::shared_ptr<AccelerationStructure> &instance,
-											glm::mat4 transform_matrix, uint32_t instanceId) {
-		VkAccelerationStructureInstanceKHR accelerationStructureInstance{};
-		accelerationStructureInstance.transform = convertToVkTransform(transform_matrix);
-		accelerationStructureInstance.instanceCustomIndex = instanceId;
-		accelerationStructureInstance.mask = 0xFF;
-		accelerationStructureInstance.instanceShaderBindingTableRecordOffset = 0;
+											glm::mat4 transform_matrix, uint32_t instance_id) {
+		VkAccelerationStructureInstanceKHR acceleration_structure_instance{};
+		acceleration_structure_instance.transform = convertToVkTransform(transform_matrix);
+		acceleration_structure_instance.instanceCustomIndex = instance_id;
+		acceleration_structure_instance.mask = 0xFF;
+		acceleration_structure_instance.instanceShaderBindingTableRecordOffset = 0;
 		// accelerationStructureInstance.flags = VK_GEOMETRY_INSTANCE_TRIANGLE_FACING_CULL_DISABLE_BIT_KHR;
-		accelerationStructureInstance.accelerationStructureReference = instance->getDeviceAddress();
-		instances.push_back(accelerationStructureInstance);
+		acceleration_structure_instance.accelerationStructureReference = instance->getDeviceAddress();
+		instances.push_back(acceleration_structure_instance);
 	}
 
 	void AccelerationStructure::fillInstanceBuffer() {
@@ -129,20 +127,20 @@ namespace RtEngine {
 
 		fillInstanceBuffer();
 
-		VkDeviceOrHostAddressConstKHR instanceDataDeviceAddress{};
-		instanceDataDeviceAddress.deviceAddress = instance_buffer.deviceAddress;
+		VkDeviceOrHostAddressConstKHR instance_data_device_address{};
+		instance_data_device_address.deviceAddress = instance_buffer.deviceAddress;
 
-		VkAccelerationStructureGeometryKHR accelerationStructureGeometry{};
-		accelerationStructureGeometry.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_KHR;
-		accelerationStructureGeometry.geometryType = VK_GEOMETRY_TYPE_INSTANCES_KHR;
-		accelerationStructureGeometry.flags = VK_GEOMETRY_OPAQUE_BIT_KHR;
-		accelerationStructureGeometry.geometry.instances.sType =
+		VkAccelerationStructureGeometryKHR acceleration_structure_geometry{};
+		acceleration_structure_geometry.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_KHR;
+		acceleration_structure_geometry.geometryType = VK_GEOMETRY_TYPE_INSTANCES_KHR;
+		acceleration_structure_geometry.flags = VK_GEOMETRY_OPAQUE_BIT_KHR;
+		acceleration_structure_geometry.geometry.instances.sType =
 				VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_INSTANCES_DATA_KHR;
-		accelerationStructureGeometry.geometry.instances.arrayOfPointers = VK_FALSE;
-		accelerationStructureGeometry.geometry.instances.data = instanceDataDeviceAddress;
+		acceleration_structure_geometry.geometry.instances.arrayOfPointers = VK_FALSE;
+		acceleration_structure_geometry.geometry.instances.data = instance_data_device_address;
 
 		Geometry geometry{};
-		geometry.handle = accelerationStructureGeometry;
+		geometry.handle = acceleration_structure_geometry;
 		geometry.primitiveCount = static_cast<uint32_t>(instances.size());
 		geometries.push_back(geometry);
 
@@ -153,17 +151,17 @@ namespace RtEngine {
 		assert(type == VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR);
 		fillInstanceBuffer();
 
-		VkDeviceOrHostAddressConstKHR instanceDataDeviceAddress{};
-		instanceDataDeviceAddress.deviceAddress = instance_buffer.deviceAddress;
+		VkDeviceOrHostAddressConstKHR instance_data_device_address{};
+		instance_data_device_address.deviceAddress = instance_buffer.deviceAddress;
 
-		VkAccelerationStructureGeometryKHR accelerationStructureGeometry = geometries[index].handle;
-		accelerationStructureGeometry.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_KHR;
-		accelerationStructureGeometry.geometryType = VK_GEOMETRY_TYPE_INSTANCES_KHR;
-		accelerationStructureGeometry.flags = VK_GEOMETRY_OPAQUE_BIT_KHR;
-		accelerationStructureGeometry.geometry.instances.sType =
+		VkAccelerationStructureGeometryKHR acceleration_structure_geometry = geometries[index].handle;
+		acceleration_structure_geometry.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_KHR;
+		acceleration_structure_geometry.geometryType = VK_GEOMETRY_TYPE_INSTANCES_KHR;
+		acceleration_structure_geometry.flags = VK_GEOMETRY_OPAQUE_BIT_KHR;
+		acceleration_structure_geometry.geometry.instances.sType =
 				VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_INSTANCES_DATA_KHR;
-		accelerationStructureGeometry.geometry.instances.arrayOfPointers = VK_FALSE;
-		accelerationStructureGeometry.geometry.instances.data = instanceDataDeviceAddress;
+		acceleration_structure_geometry.geometry.instances.arrayOfPointers = VK_FALSE;
+		acceleration_structure_geometry.geometry.instances.data = instance_data_device_address;
 
 		geometries[index].primitiveCount = static_cast<uint32_t>(instances.size());
 		geometries[index].updated = true;
@@ -185,12 +183,12 @@ namespace RtEngine {
 
 			acceleration_structure_geometries.push_back(geometry.handle);
 
-			VkAccelerationStructureBuildRangeInfoKHR accelerationBuildRangeInfo{};
-			accelerationBuildRangeInfo.primitiveCount = geometry.primitiveCount;
-			accelerationBuildRangeInfo.primitiveOffset = 0;
-			accelerationBuildRangeInfo.firstVertex = 0;
-			accelerationBuildRangeInfo.transformOffset = 0;
-			acceleration_structure_build_range_infos.push_back(accelerationBuildRangeInfo);
+			VkAccelerationStructureBuildRangeInfoKHR acceleration_build_range_info{};
+			acceleration_build_range_info.primitiveCount = geometry.primitiveCount;
+			acceleration_build_range_info.primitiveOffset = 0;
+			acceleration_build_range_info.firstVertex = 0;
+			acceleration_build_range_info.transformOffset = 0;
+			acceleration_structure_build_range_infos.push_back(acceleration_build_range_info);
 
 			primitive_counts.push_back(geometry.primitiveCount);
 			geometry.updated = false;
@@ -210,7 +208,7 @@ namespace RtEngine {
 
 		VkAccelerationStructureBuildSizesInfoKHR build_sizes_info{};
 		build_sizes_info.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_SIZES_INFO_KHR;
-		GetAccelerationStructureBuildSizesKHR(device, VK_ACCELERATION_STRUCTURE_BUILD_TYPE_DEVICE_KHR,
+		getAccelerationStructureBuildSizesKhr(device, VK_ACCELERATION_STRUCTURE_BUILD_TYPE_DEVICE_KHR,
 											  &build_geometry_info, &geometries[0].primitiveCount, &build_sizes_info);
 
 		if (buffer.handle == VK_NULL_HANDLE || buffer.size != build_sizes_info.accelerationStructureSize) {
@@ -219,35 +217,35 @@ namespace RtEngine {
 															VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT,
 													VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
-			VkAccelerationStructureCreateInfoKHR accelerationStructureCreateInfo{};
-			accelerationStructureCreateInfo.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_CREATE_INFO_KHR;
-			accelerationStructureCreateInfo.buffer = buffer.handle;
-			accelerationStructureCreateInfo.size = build_sizes_info.accelerationStructureSize;
-			accelerationStructureCreateInfo.type = type;
-			if (CreateAccelerationStructureKHR(device, &accelerationStructureCreateInfo, nullptr, &handle) !=
+			VkAccelerationStructureCreateInfoKHR acceleration_structure_create_info{};
+			acceleration_structure_create_info.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_CREATE_INFO_KHR;
+			acceleration_structure_create_info.buffer = buffer.handle;
+			acceleration_structure_create_info.size = build_sizes_info.accelerationStructureSize;
+			acceleration_structure_create_info.type = type;
+			if (createAccelerationStructureKhr(device, &acceleration_structure_create_info, nullptr, &handle) !=
 				VK_SUCCESS) {
 				throw std::runtime_error("failed to create bl acceleration structure!");
 			}
 		}
 
-		AllocatedBuffer scratchBuffer =
+		AllocatedBuffer scratch_buffer =
 				ressource_builder.createBuffer(build_sizes_info.buildScratchSize, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT,
 											   VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
 		build_geometry_info.dstAccelerationStructure = handle;
-		build_geometry_info.scratchData.deviceAddress = scratchBuffer.deviceAddress;
+		build_geometry_info.scratchData.deviceAddress = scratch_buffer.deviceAddress;
 
-		VkCommandBuffer cmdBuffer = command_manager.beginSingleTimeCommands();
-		auto as_build_range_infos = &*acceleration_structure_build_range_infos.data();
-		CmdBuildAccelerationStructuresKHR(device, cmdBuffer, 1, &build_geometry_info, &as_build_range_infos);
-		command_manager.endSingleTimeCommand(cmdBuffer);
+		VkCommandBuffer cmd_buffer = command_manager.beginSingleTimeCommands();
+		auto *as_build_range_infos = &*acceleration_structure_build_range_infos.data();
+		cmdBuildAccelerationStructuresKhr(device, cmd_buffer, 1, &build_geometry_info, &as_build_range_infos);
+		command_manager.endSingleTimeCommand(cmd_buffer);
 
-		ressource_builder.destroyBuffer(scratchBuffer);
+		ressource_builder.destroyBuffer(scratch_buffer);
 
-		VkAccelerationStructureDeviceAddressInfoKHR accelerationStructureDeviceAddressInfo{};
-		accelerationStructureDeviceAddressInfo.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_DEVICE_ADDRESS_INFO_KHR;
-		accelerationStructureDeviceAddressInfo.accelerationStructure = handle;
-		device_address = GetAccelerationStructureDeviceAddressKHR(device, &accelerationStructureDeviceAddressInfo);
+		VkAccelerationStructureDeviceAddressInfoKHR acceleration_structure_device_address_info{};
+		acceleration_structure_device_address_info.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_DEVICE_ADDRESS_INFO_KHR;
+		acceleration_structure_device_address_info.accelerationStructure = handle;
+		device_address = getAccelerationStructureDeviceAddressKhr(device, &acceleration_structure_device_address_info);
 	}
 
 	void AccelerationStructure::destroy() {
@@ -260,7 +258,7 @@ namespace RtEngine {
 		}
 
 		if (handle != VK_NULL_HANDLE) {
-			DestroyAccelerationStructureKHR(device, handle, nullptr);
+			destroyAccelerationStructureKhr(device, handle, nullptr);
 		}
 	}
 

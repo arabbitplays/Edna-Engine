@@ -16,7 +16,7 @@ namespace cellular_automaton
             const float t = static_cast<float>(RtEngine::RandomUtil::generateInt()) /
                             static_cast<float>(std::numeric_limits<uint32_t>::max());
             return Runner::COOLDOWN_MIN_SECONDS +
-                   t * (Runner::COOLDOWN_MAX_SECONDS - Runner::COOLDOWN_MIN_SECONDS);
+                   (t * (Runner::COOLDOWN_MAX_SECONDS - Runner::COOLDOWN_MIN_SECONDS));
         }
     }
 
@@ -45,7 +45,7 @@ namespace cellular_automaton
         tick(palette_track_,  dt, &CyclicalCellularAutomatonAnimationRunner::startPalette);
 
         neighborhood_cooldown_seconds_ -= dt;
-        if (neighborhood_cooldown_seconds_ <= 0.0f) {
+        if (neighborhood_cooldown_seconds_ <= 0.0F) {
             generator_.applyRandomNeighborhood();
             neighborhood_cooldown_seconds_ = randomCooldown();
         }
@@ -64,8 +64,8 @@ namespace cellular_automaton
         }
 
         track.cooldown_seconds -= dt;
-        if (track.cooldown_seconds <= 0.0f) {
-            track.cooldown_seconds = 0.0f;
+        if (track.cooldown_seconds <= 0.0F) {
+            track.cooldown_seconds = 0.0F;
             (this->*start)();
         }
     }

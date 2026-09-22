@@ -14,9 +14,9 @@ namespace RtEngine {
 	class GuiRenderer {
 	public:
 		GuiRenderer() = default;
-		GuiRenderer(std::shared_ptr<VulkanContext> context);
+		GuiRenderer(const std::shared_ptr<VulkanContext>& context);
 
-		void addWindow(std::shared_ptr<GuiWindow> window);
+		void addWindow(const std::shared_ptr<GuiWindow>& window);
 		void recreateFramebuffer();
 		void recordGuiCommands(VkCommandBuffer commandBuffer, uint32_t imageIndex);
 		void cleanup();
@@ -26,11 +26,11 @@ namespace RtEngine {
 
 	private:
 		void createRenderPass(VkDevice device, VkFormat image_format);
-		void createFrameBuffers(VkDevice device, std::shared_ptr<Swapchain> swapchain);
+		void createFrameBuffers(VkDevice device, const std::shared_ptr<Swapchain>& swapchain);
 		void createDescriptorPool(VkDevice device);
-		void initImGui(std::shared_ptr<DeviceManager> device_manager, GLFWwindow *window,
-					   std::shared_ptr<Swapchain> swapchain);
-		void shutdownImGui();
+		void initImGui(const std::shared_ptr<DeviceManager>& device_manager, GLFWwindow *window,
+					   const std::shared_ptr<Swapchain>& swapchain);
+		static void shutdownImGui();
 
 		std::shared_ptr<VulkanContext> context;
 

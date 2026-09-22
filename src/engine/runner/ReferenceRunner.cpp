@@ -1,5 +1,6 @@
 #include "ReferenceRunner.hpp"
 
+#include <cmath>
 #include <filesystem>
 
 #include <logging/LogManager.hpp>
@@ -7,6 +8,7 @@
 #include "ImageUtil.hpp"
 #include "PathUtil.hpp"
 #include <format>
+#include <utility>
 
 namespace RtEngine {
 	namespace {
@@ -16,7 +18,7 @@ namespace RtEngine {
 		}
 	}
 
-	constexpr std::string SAMPLE_COUNT_OPTION_NAME = "Sample_Count";
+	constexpr std::string sample_count_option_name = "Sample_Count";
 
 	ReferenceRunner::ReferenceRunner(const std::shared_ptr<EngineContext> &engine_context, const std::shared_ptr<SceneManager> &scene_manager)
 			: Runner(engine_context, scene_manager) {
@@ -45,7 +47,7 @@ namespace RtEngine {
 		}
 		std::shared_ptr<RenderTarget> target = draw_context->targets[0];
 
-		if (samples_per_image == static_cast<int32_t>(target->getTotalSampleCount())) {
+		if (std::cmp_equal(samples_per_image ,target->getTotalSampleCount())) {
 			waitForIdle();
 
 			float *data = raytracing_renderer->downloadRenderTarget(target);
@@ -95,14 +97,14 @@ namespace RtEngine {
 		if (curr_sample_count % (1 << 10) == 0) {
 			double elapsed_time = std::chrono::duration<double>(
 				std::chrono::steady_clock::now() - stopwatch_start).count();
-			uint32_t collected_sample_count = done_images.size() * samples_per_image + curr_sample_count;
+			uint32_t collected_sample_count = (done_images.size() * samples_per_image) + curr_sample_count;
 
 			uint32_t samples_left = final_sample_count - collected_sample_count;
 			double time_left = elapsed_time / collected_sample_count * samples_left;
 			int hours = static_cast<int>(time_left) / 3600;
 			int minutes = (static_cast<int>(time_left) % 3600) / 60;
 			int sec = static_cast<int>(time_left) % 60;
-			uint32_t progress = round(static_cast<float>(collected_sample_count) / static_cast<float>(final_sample_count) * 100.0f);
+			uint32_t progress = std::round(static_cast<float>(collected_sample_count) / static_cast<float>(final_sample_count) * 100.0F);
 			logger()->info(std::format(
 				"Collected sample count: {}, progress: {}%, estimated time remaining: {}h {}m {}s",
 				collected_sample_count, progress, hours, minutes, sec));
@@ -144,13 +146,13 @@ namespace RtEngine {
 		return std::format("{}/{}_{}.png", OUT_FOLDER, samples, scene_name);
 	}
 
-	float* ReferenceRunner::calculateMean(float* imgA, float* imgB, uint32_t size) {
-		for (int i = 0; i < size; ++i) {
-			imgA[i] = (imgA[i] + imgB[i]) / 2.0f;
+	float* ReferenceRunner::calculateMean(float* img_a, const float* img_b, uint32_t size) {
+		for (int i = 0; std::cmp_less(i , size); ++i) {
+			img_a[i] = (img_a[i] + img_b[i]) / 2.0F;
 		}
 
-		delete[] imgB;
-		return imgA;
+		delete[] img_b;
+		return img_a;
 	}
 
 

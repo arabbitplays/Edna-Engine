@@ -4,6 +4,7 @@
 #include <omp.h>
 
 #include <logging/LogManager.hpp>
+#include <utility>
 
 #include "ImageUtil.hpp"
 #include "PathUtil.hpp"
@@ -18,8 +19,10 @@ namespace RtEngine {
 		}
 	}
 
-	constexpr std::string SAMPLE_COUNT_OPTION_NAME = "Sample_Count";
-	constexpr std::string REFERENCE_IMAGE_PATH_OPTION_NAME = "Reference_Image";
+	namespace fs = std::filesystem;
+
+	constexpr std::string sample_count_option_name = "Sample_Count";
+	constexpr std::string reference_image_path_option_name = "Reference_Image";
 
 	BenchmarkRunner::BenchmarkRunner(const std::shared_ptr<EngineContext> &engine_context, const std::shared_ptr<SceneManager> &scene_manager)
 			: Runner(engine_context, scene_manager) {
@@ -51,7 +54,7 @@ namespace RtEngine {
 		std::shared_ptr<RenderTarget> target = draw_context->targets[0];
 
 		// render one image and then output it if output path is defined
-		if (error_calculation_sample_count == static_cast<int32_t>(target->getTotalSampleCount())) {
+		if (std::cmp_equal(error_calculation_sample_count ,target->getTotalSampleCount())) {
 			waitForIdle();
 			raytracing_renderer->outputRenderingTarget(target, getTmpImagePath(error_calculation_sample_count));
 
@@ -118,19 +121,22 @@ namespace RtEngine {
 	void BenchmarkRunner::outputBenchmarkDataToCsv() {
 		std::string ref_path = getRefFilePath();
 
-		int ref_width, ref_height;
+		int ref_width;
+		int ref_height;
 		uint8_t* ref_data = ImageUtil::loadPNG(ref_path, &ref_width, &ref_height);
 
 		assert(ref_data != nullptr);
 
 		std::string output_path = getOutputFilePath();
 		std::ofstream out(output_path);
-		if (!out)
+		if (!out) {
 			throw std::runtime_error("Failed to open CSV file");
+}
 		out << "samples,mse\n";
 
 		for (uint32_t i = 1; i <= final_sample_count; i *= 2) {
-			int width, height;
+			int width;
+			int height;
 			uint8_t* data = ImageUtil::loadPNG(getTmpImagePath(i), &width, &height);
 
 			assert(ref_width == width && ref_height == height);
@@ -148,11 +154,12 @@ namespace RtEngine {
 	}
 
 	void BenchmarkRunner::clearTmpfolder() {
-		namespace fs = std::filesystem;
+		namespace Fs = std::filesystem;
 		QuickTimer timer("MSE Calculation");
 
-		if (!fs::exists(TMP_FOLDER) || !fs::is_directory(TMP_FOLDER))
+		if (!fs::exists(TMP_FOLDER) || !fs::is_directory(TMP_FOLDER)) {
 			return;
+}
 
 		for (const fs::directory_entry& entry : fs::directory_iterator(TMP_FOLDER)) {
 			if (entry.is_regular_file()) {
@@ -161,7 +168,7 @@ namespace RtEngine {
 		}
 	}
 
-	float BenchmarkRunner::calculateMSE(uint8_t* ref_data, uint8_t* data, uint32_t size) {
+	float BenchmarkRunner::calculateMSE(const uint8_t* ref_data, const uint8_t* data, uint32_t size) {
 		float result = 0;
 #pragma omp parallel for reduction(+:result)
 		for (uint32_t i = 0; i < size; i++) {

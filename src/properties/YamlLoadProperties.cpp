@@ -11,11 +11,11 @@ namespace RtEngine {
         }
     }
 
-    YamlLoadProperties::YamlLoadProperties(std::string config_path) {
+    YamlLoadProperties::YamlLoadProperties(const std::string& config_path) {
         nodes.push_back(YAML::LoadFile(config_path));
     }
 
-    YamlLoadProperties::YamlLoadProperties(YAML::Node config_node) {
+    YamlLoadProperties::YamlLoadProperties(const YAML::Node& config_node) {
         nodes.push_back(config_node);
     }
 
@@ -70,7 +70,8 @@ namespace RtEngine {
     }
 
     bool YamlLoadProperties::addVector(const std::string &name, glm::vec2 *var, float min, float max, uint32_t flags) {
-        if (!getConfigValue<glm::vec2>(name, var)) return false;
+        if (!getConfigValue<glm::vec2>(name, var)) { return false;
+}
         var->x = std::clamp(var->x, min, max);
         var->y = std::clamp(var->y, min, max);
         return true;

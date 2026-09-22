@@ -6,7 +6,9 @@
 
 #include <PathUtil.hpp>
 
-#define SAMPLES_PER_PIXEL 100
+enum {
+SAMPLES_PER_PIXEL = 100
+};
 
 namespace RtEngine {
 	/*void RealtimeRunner::mainLoop() {

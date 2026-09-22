@@ -4,65 +4,65 @@
 namespace RtEngine {
 	CommandManager::CommandManager() = default;
 
-	CommandManager::CommandManager(const std::shared_ptr<DeviceManager> &deviceManager) : deviceManager(deviceManager) {
+	CommandManager::CommandManager(const std::shared_ptr<DeviceManager> &device_manager) : deviceManager(device_manager) {
 		createCommandPool();
 	}
 
 	void CommandManager::createCommandPool() {
-		VkCommandPoolCreateInfo poolInfo{};
-		poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-		poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
-		poolInfo.queueFamilyIndex = deviceManager->getQueueIndices().graphicsAndComputeFamily.value();
+		VkCommandPoolCreateInfo pool_info{};
+		pool_info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+		pool_info.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+		pool_info.queueFamilyIndex = deviceManager->getQueueIndices().graphicsAndComputeFamily.value();
 
-		if (vkCreateCommandPool(deviceManager->getDevice(), &poolInfo, nullptr, &commandPool) != VK_SUCCESS) {
+		if (vkCreateCommandPool(deviceManager->getDevice(), &pool_info, nullptr, &commandPool) != VK_SUCCESS) {
 			throw std::runtime_error("failed to create command pool!");
 		}
 	}
 
 	VkCommandBuffer CommandManager::beginSingleTimeCommands() const {
-		VkCommandBufferAllocateInfo allocInfo{};
-		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-		allocInfo.commandPool = commandPool;
-		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-		allocInfo.commandBufferCount = 1;
+		VkCommandBufferAllocateInfo alloc_info{};
+		alloc_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+		alloc_info.commandPool = commandPool;
+		alloc_info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+		alloc_info.commandBufferCount = 1;
 
-		VkCommandBuffer commandBuffer;
-		vkAllocateCommandBuffers(deviceManager->getDevice(), &allocInfo, &commandBuffer);
+		VkCommandBuffer command_buffer;
+		vkAllocateCommandBuffers(deviceManager->getDevice(), &alloc_info, &command_buffer);
 
-		VkCommandBufferBeginInfo beginInfo{};
-		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-		beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+		VkCommandBufferBeginInfo begin_info{};
+		begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+		begin_info.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 
-		vkBeginCommandBuffer(commandBuffer, &beginInfo);
+		vkBeginCommandBuffer(command_buffer, &begin_info);
 
-		return commandBuffer;
+		return command_buffer;
 	}
 
-	void CommandManager::endSingleTimeCommand(const VkCommandBuffer commandBuffer) const {
-		vkEndCommandBuffer(commandBuffer);
+	void CommandManager::endSingleTimeCommand(const VkCommandBuffer command_buffer) const {
+		vkEndCommandBuffer(command_buffer);
 
-		VkSubmitInfo submitInfo{};
-		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-		submitInfo.commandBufferCount = 1;
-		submitInfo.pCommandBuffers = &commandBuffer;
+		VkSubmitInfo submit_info{};
+		submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+		submit_info.commandBufferCount = 1;
+		submit_info.pCommandBuffers = &command_buffer;
 
 		VkQueue graphics_queue = deviceManager->getQueue(GRAPHICS);
-		vkQueueSubmit(graphics_queue, 1, &submitInfo, VK_NULL_HANDLE);
+		vkQueueSubmit(graphics_queue, 1, &submit_info, VK_NULL_HANDLE);
 		vkQueueWaitIdle(graphics_queue);
 
-		vkFreeCommandBuffers(deviceManager->getDevice(), commandPool, 1, &commandBuffer);
+		vkFreeCommandBuffers(deviceManager->getDevice(), commandPool, 1, &command_buffer);
 	}
 
 	std::vector<VkCommandBuffer> CommandManager::allocatePrimaryCommandBuffers(uint32_t count) const {
 		std::vector<VkCommandBuffer> buffers(count);
 
-		VkCommandBufferAllocateInfo allocInfo{};
-		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-		allocInfo.commandPool = commandPool;
-		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-		allocInfo.commandBufferCount = count;
+		VkCommandBufferAllocateInfo alloc_info{};
+		alloc_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+		alloc_info.commandPool = commandPool;
+		alloc_info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+		alloc_info.commandBufferCount = count;
 
-		if (vkAllocateCommandBuffers(deviceManager->getDevice(), &allocInfo, buffers.data()) != VK_SUCCESS) {
+		if (vkAllocateCommandBuffers(deviceManager->getDevice(), &alloc_info, buffers.data()) != VK_SUCCESS) {
 			throw std::runtime_error("failed to allocate command buffers!");
 		}
 		return buffers;

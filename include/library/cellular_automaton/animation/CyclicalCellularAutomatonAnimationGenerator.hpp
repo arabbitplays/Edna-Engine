@@ -53,9 +53,9 @@ namespace cellular_automaton
             uint32_t threshold;
         };
 
-        float                  pickRandomMutationChance();
-        ::color::ColorPalette  pickRandomPalette();
-        NeighborhoodPick       pickRandomNeighborhood();
+        static float                  pickRandomMutationChance();
+        static ::color::ColorPalette  pickRandomPalette();
+        static NeighborhoodPick       pickRandomNeighborhood();
 
         std::function<void(float)> set_mutation_chance_;
         std::function<void(const ::color::ColorPalette&)> set_palette_;

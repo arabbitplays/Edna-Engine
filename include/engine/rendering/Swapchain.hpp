@@ -32,9 +32,9 @@ namespace RtEngine {
 
 	private:
 		void createSwapchain();
-		VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR> &availableFormats);
-		VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR> &availablePresentModes);
-		VkExtent2D chooseSwapExtend(const VkSurfaceCapabilitiesKHR &capabilities);
+		static VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR> &availableFormats);
+		static VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR> &availablePresentModes);
+		VkExtent2D chooseSwapExtend(const VkSurfaceCapabilitiesKHR &capabilities) const;
 		void createImageViews();
 	};
 

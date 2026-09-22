@@ -22,7 +22,7 @@ namespace RtEngine {
 		std::string getTmpImagePath(uint32_t image_idx, uint32_t samples);
 		std::string getOutputImagePath(uint32_t samples);
 
-		float *calculateMean(float *imgA, float *imgB, uint32_t size);
+		static float *calculateMean(float *imgA, const float *imgB, uint32_t size);
 
 		const std::string TMP_FOLDER = "./tmp";
 		const std::string OUT_FOLDER = "../resources/references";

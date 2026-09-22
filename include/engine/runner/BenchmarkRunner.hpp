@@ -24,7 +24,7 @@ namespace RtEngine {
 
 		void outputBenchmarkDataToCsv();
 
-		float calculateMSE(uint8_t *ref_data, uint8_t *data, uint32_t size);
+		static float calculateMSE(const uint8_t *ref_data, const uint8_t *data, uint32_t size);
 
 		std::string TMP_FOLDER = "./tmp";
 		std::string OUT_FOLDER = "../resources/benchmarks";

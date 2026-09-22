@@ -36,17 +36,17 @@ namespace RtEngine
         return cmd;
     }
 
-    void Renderer::recordBeginCommandBuffer(VkCommandBuffer& commandBuffer) {
-        VkCommandBufferBeginInfo beginInfo{};
-        beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    void Renderer::recordBeginCommandBuffer(VkCommandBuffer& command_buffer) {
+        VkCommandBufferBeginInfo begin_info{};
+        begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
-        if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS) {
+        if (vkBeginCommandBuffer(command_buffer, &begin_info) != VK_SUCCESS) {
             throw std::runtime_error("failed to begin record command buffer!");
         }
     }
 
-    void Renderer::recordEndCommandBuffer(VkCommandBuffer& commandBuffer) {
-        if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) {
+    void Renderer::recordEndCommandBuffer(VkCommandBuffer& command_buffer) {
+        if (vkEndCommandBuffer(command_buffer) != VK_SUCCESS) {
             throw std::runtime_error("failed to record command buffer!");
         }
     }

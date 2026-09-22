@@ -5,20 +5,20 @@
 #include <stdexcept>
 
 namespace RtEngine {
-	MeshAsset ModelLoader::loadMeshAsset(std::string resources_path, std::string path) {
-		MeshBuffers meshBuffers{};
+	MeshAsset ModelLoader::loadMeshAsset(const std::string& resources_path, const std::string& path) {
+		MeshBuffers mesh_buffers{};
 
 		std::string full_path = resources_path + "/" + path;
-		loadData(full_path, meshBuffers.vertices, meshBuffers.indices);
+		loadData(full_path, mesh_buffers.vertices, mesh_buffers.indices);
 
-		MeshAsset meshAsset{};
-		meshAsset.name = PathUtil::getFileName(path);
-		meshAsset.path = path;
-		meshAsset.meshBuffers = meshBuffers;
-		meshAsset.vertex_count = meshBuffers.indices.size();
-		meshAsset.triangle_count = meshBuffers.indices.size() / 3;
+		MeshAsset mesh_asset{};
+		mesh_asset.name = PathUtil::getFileName(path);
+		mesh_asset.path = path;
+		mesh_asset.meshBuffers = mesh_buffers;
+		mesh_asset.vertex_count = mesh_buffers.indices.size();
+		mesh_asset.triangle_count = mesh_buffers.indices.size() / 3;
 
-		meshAsset.instance_data = {};
-		return meshAsset;
+		mesh_asset.instance_data = {};
+		return mesh_asset;
 	}
 } // namespace RtEngine

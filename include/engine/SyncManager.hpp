@@ -50,7 +50,7 @@ namespace RtEngine
         VkSemaphore timeline() const;
         uint64_t stageWaitValue(uint32_t stage_index) const;
         uint64_t stageSignalValue(uint32_t stage_index) const;
-        bool stageHasPredecessor(uint32_t stage_index) const;
+        static bool stageHasPredecessor(uint32_t stage_index) ;
 
         void recreateSwapchainSemaphores();
 

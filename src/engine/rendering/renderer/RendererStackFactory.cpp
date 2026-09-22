@@ -25,7 +25,7 @@ namespace RtEngine {
     }
 
     RendererStackFactory::Result RendererStackFactory::createEmptyStack() {
-        return {makeStack(), /*raytracing_renderer*/ nullptr, /*raytracing_target_connector*/ nullptr};
+        return {.stack=makeStack(), /*raytracing_renderer*/ .raytracing_renderer=nullptr, /*raytracing_target_connector*/ .raytracing_target_connector=nullptr};
     }
 
     RendererStackFactory::Result RendererStackFactory::createRaytracingStack() {
@@ -47,6 +47,6 @@ namespace RtEngine {
         stack->addRenderer(glitch_renderer);
         stack->setPresentConnector(glitch_renderer->getOutputConnector());
 
-        return {stack, raytracing_renderer, rt_target_connector};
+        return {.stack=stack, .raytracing_renderer=raytracing_renderer, .raytracing_target_connector=rt_target_connector};
     }
 } // RtEngine

@@ -100,12 +100,12 @@ namespace RtEngine {
         const int32_t target_height = source_extent.height;
 
         VkImageBlit blit_region{};
-        blit_region.srcSubresource = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1};
-        blit_region.srcOffsets[0] = {0, 0, 0};
-        blit_region.srcOffsets[1] = {target_width, target_height, 1};
-        blit_region.dstSubresource = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1};
-        blit_region.dstOffsets[0] = {0, 0, 0};
-        blit_region.dstOffsets[1] = {swapchain_width, swapchain_height, 1};
+        blit_region.srcSubresource = {.aspectMask=VK_IMAGE_ASPECT_COLOR_BIT, .mipLevel=0, .baseArrayLayer=0, .layerCount=1};
+        blit_region.srcOffsets[0] = {.x=0, .y=0, .z=0};
+        blit_region.srcOffsets[1] = {.x=target_width, .y=target_height, .z=1};
+        blit_region.dstSubresource = {.aspectMask=VK_IMAGE_ASPECT_COLOR_BIT, .mipLevel=0, .baseArrayLayer=0, .layerCount=1};
+        blit_region.dstOffsets[0] = {.x=0, .y=0, .z=0};
+        blit_region.dstOffsets[1] = {.x=swapchain_width, .y=swapchain_height, .z=1};
 
         vkCmdBlitImage(cmd,
                        source_image.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,

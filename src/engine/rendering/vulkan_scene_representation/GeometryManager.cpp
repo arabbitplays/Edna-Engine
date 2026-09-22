@@ -108,30 +108,33 @@ namespace RtEngine {
 		VkDevice device = vulkan_context->device_manager->getDevice();
 
 		uint32_t object_id = 0;
-		for (auto &meshAsset: meshes) {
-			meshAsset->accelerationStructure = std::make_shared<AccelerationStructure>(
+		for (auto &mesh_asset: meshes) {
+			mesh_asset->accelerationStructure = std::make_shared<AccelerationStructure>(
 					device, *vulkan_context->resource_builder, *vulkan_context->command_manager,
 					VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_KHR);
 
-			meshAsset->accelerationStructure->addTriangleGeometry(
+			mesh_asset->accelerationStructure->addTriangleGeometry(
 					vertex_buffer, index_buffer,
-					meshAsset->vertex_count - 1, meshAsset->triangle_count, sizeof(Vertex),
-					meshAsset->instance_data.vertex_offset, meshAsset->instance_data.triangle_offset);
-			meshAsset->accelerationStructure->build();
-			meshAsset->geometry_id = object_id++;
+					mesh_asset->vertex_count - 1, mesh_asset->triangle_count, sizeof(Vertex),
+					mesh_asset->instance_data.vertex_offset, mesh_asset->instance_data.triangle_offset);
+			mesh_asset->accelerationStructure->build();
+			mesh_asset->geometry_id = object_id++;
 
-			blas.push_back(meshAsset->accelerationStructure);
+			blas.push_back(mesh_asset->accelerationStructure);
 		}
 	}
 
 
 	void GeometryManager::destroy() {
-		if (vertex_buffer.handle != VK_NULL_HANDLE)
+		if (vertex_buffer.handle != VK_NULL_HANDLE) {
 			vulkan_context->resource_builder->destroyBuffer(vertex_buffer);
-		if (index_buffer.handle != VK_NULL_HANDLE)
+}
+		if (index_buffer.handle != VK_NULL_HANDLE) {
 			vulkan_context->resource_builder->destroyBuffer(index_buffer);
-		if (geometry_mapping_buffer.handle != VK_NULL_HANDLE)
+}
+		if (geometry_mapping_buffer.handle != VK_NULL_HANDLE) {
 			vulkan_context->resource_builder->destroyBuffer(geometry_mapping_buffer);
+}
 
 		for (auto& structure : blas) {
 			structure->destroy();

@@ -20,7 +20,7 @@ namespace RtEngine {
 		}
 	}
 
-	void SceneWriter::writeScene(const std::string &filename, std::shared_ptr<Scene> scene) {
+	void SceneWriter::writeScene(const std::string &filename, const std::shared_ptr<Scene>& scene) {
 		QuickTimer quick_timer("Writing scene to file");
 
 		YAML::Emitter out;
@@ -94,16 +94,16 @@ namespace RtEngine {
 		out << YAML::EndMap;
 	}
 
-	float roundToDecimal(float value, int decimalPlaces) {
-		float multiplier = std::pow(10.0f, decimalPlaces);
+	float roundToDecimal(float value, int decimal_places) {
+		float multiplier = std::pow(10.0F, decimal_places);
 		return std::round(value * multiplier) / multiplier;
 	}
 
 	// Round each component of the glm::vec3
-	glm::vec3 roundVec3(glm::vec3 v, int decimalPlaces) {
-		v.x = roundToDecimal(v.x, decimalPlaces);
-		v.y = roundToDecimal(v.y, decimalPlaces);
-		v.z = roundToDecimal(v.z, decimalPlaces);
+	glm::vec3 roundVec3(glm::vec3 v, int decimal_places) {
+		v.x = roundToDecimal(v.x, decimal_places);
+		v.y = roundToDecimal(v.y, decimal_places);
+		v.z = roundToDecimal(v.z, decimal_places);
 		return v;
 	}
 

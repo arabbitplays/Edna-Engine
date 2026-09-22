@@ -58,7 +58,7 @@ namespace mandelbrot
             float step_accumulator = 0.0f;
         };
 
-        float computeSpeed(float edge_score) const;
+        static float computeSpeed(float edge_score) ;
         void tick(Track& track, float dt, float speed,
                   void (MandelbrotAnimationRunner::*start)());
 

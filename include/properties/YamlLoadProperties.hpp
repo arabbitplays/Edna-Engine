@@ -13,8 +13,8 @@
 namespace RtEngine {
     class YamlLoadProperties final : public IProperties {
     public:
-        explicit YamlLoadProperties(std::string config_path);
-        explicit YamlLoadProperties(YAML::Node config_node);
+        explicit YamlLoadProperties(const std::string& config_path);
+        explicit YamlLoadProperties(const YAML::Node& config_node);
 
         bool startChild(const std::string &name) override;
 

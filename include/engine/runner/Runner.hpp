@@ -10,7 +10,7 @@
 namespace RtEngine {
     class Runner : public IRunner {
     public:
-        Runner(std::shared_ptr<EngineContext> engine_context, const std::shared_ptr<SceneManager> &scene_manager);
+        Runner(const std::shared_ptr<EngineContext>& engine_context, const std::shared_ptr<SceneManager> &scene_manager);
 
         std::string getScenePath() const;
         virtual void loadScene(const std::string &scene_path);

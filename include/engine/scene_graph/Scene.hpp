@@ -58,7 +58,7 @@ namespace RtEngine {
 
 		virtual ~Scene() = default;
 
-		void addNode(std::string name, std::shared_ptr<Node> node);
+		void addNode(const std::string& name, std::shared_ptr<Node> node);
 		std::shared_ptr<Node> getRootNode();
 
 		void start();

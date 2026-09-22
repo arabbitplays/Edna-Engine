@@ -7,60 +7,60 @@ namespace RtEngine {
 	void RasterizerPipelineBuilder::buildPipeline(const VkDevice &device, const VkRenderPass &render_pass, VkPipeline *pipeline,
 												  const VkPipelineLayout &pipeline_layout) {
 
-		std::vector<VkDynamicState> dynamicStates = {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR};
+		std::vector<VkDynamicState> dynamic_states = {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR};
 
-		VkPipelineDynamicStateCreateInfo dynamicState{};
-		dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
-		dynamicState.dynamicStateCount = static_cast<uint32_t>(dynamicStates.size());
-		dynamicState.pDynamicStates = dynamicStates.data();
+		VkPipelineDynamicStateCreateInfo dynamic_state{};
+		dynamic_state.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
+		dynamic_state.dynamicStateCount = static_cast<uint32_t>(dynamic_states.size());
+		dynamic_state.pDynamicStates = dynamic_states.data();
 
-		auto bindingDescription = Vertex::getBindingDescription();
-		auto attributeDescriptions = Vertex::getAttributeDescriptions();
+		auto binding_description = Vertex::getBindingDescription();
+		auto attribute_descriptions = Vertex::getAttributeDescriptions();
 
-		VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
-		vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-		vertexInputInfo.vertexBindingDescriptionCount = 1;
-		vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
-		vertexInputInfo.vertexAttributeDescriptionCount = static_cast<int32_t>(attributeDescriptions.size());
-		vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
+		VkPipelineVertexInputStateCreateInfo vertex_input_info{};
+		vertex_input_info.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+		vertex_input_info.vertexBindingDescriptionCount = 1;
+		vertex_input_info.pVertexBindingDescriptions = &binding_description;
+		vertex_input_info.vertexAttributeDescriptionCount = static_cast<int32_t>(attribute_descriptions.size());
+		vertex_input_info.pVertexAttributeDescriptions = attribute_descriptions.data();
 
 		inputAssemblyInfo.primitiveRestartEnable = VK_FALSE;
 
-		VkPipelineViewportStateCreateInfo viewportState{};
-		viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
-		viewportState.viewportCount = 1;
-		viewportState.scissorCount = 1;
+		VkPipelineViewportStateCreateInfo viewport_state{};
+		viewport_state.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+		viewport_state.viewportCount = 1;
+		viewport_state.scissorCount = 1;
 		// viewport and scissor is dynamic state and thus set later
 
 		rasterizerInfo.depthClampEnable = VK_FALSE;
 		rasterizerInfo.rasterizerDiscardEnable = VK_FALSE;
 		rasterizerInfo.depthBiasEnable = VK_FALSE;
 
-		VkPipelineColorBlendStateCreateInfo colorBlending{};
-		colorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
-		colorBlending.logicOpEnable = VK_FALSE;
-		colorBlending.attachmentCount = 1;
-		colorBlending.pAttachments = &colorBlendAttachment;
+		VkPipelineColorBlendStateCreateInfo color_blending{};
+		color_blending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+		color_blending.logicOpEnable = VK_FALSE;
+		color_blending.attachmentCount = 1;
+		color_blending.pAttachments = &colorBlendAttachment;
 
-		VkGraphicsPipelineCreateInfo pipelineInfo{};
-		pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-		pipelineInfo.stageCount = static_cast<uint32_t>(shaderStages.size());
-		pipelineInfo.pStages = shaderStages.data();
-		pipelineInfo.pVertexInputState = &vertexInputInfo;
-		pipelineInfo.pInputAssemblyState = &inputAssemblyInfo;
-		pipelineInfo.pViewportState = &viewportState;
-		pipelineInfo.pRasterizationState = &rasterizerInfo;
-		pipelineInfo.pMultisampleState = &multisamplingInfo;
-		pipelineInfo.pDepthStencilState = &depthStencilInfo;
-		pipelineInfo.pColorBlendState = &colorBlending;
-		pipelineInfo.pDynamicState = &dynamicState;
-		pipelineInfo.layout = pipeline_layout;
-		pipelineInfo.renderPass = render_pass;
-		pipelineInfo.subpass = 0;
-		pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
-		pipelineInfo.basePipelineIndex = -1;
+		VkGraphicsPipelineCreateInfo pipeline_info{};
+		pipeline_info.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+		pipeline_info.stageCount = static_cast<uint32_t>(shaderStages.size());
+		pipeline_info.pStages = shaderStages.data();
+		pipeline_info.pVertexInputState = &vertex_input_info;
+		pipeline_info.pInputAssemblyState = &inputAssemblyInfo;
+		pipeline_info.pViewportState = &viewport_state;
+		pipeline_info.pRasterizationState = &rasterizerInfo;
+		pipeline_info.pMultisampleState = &multisamplingInfo;
+		pipeline_info.pDepthStencilState = &depthStencilInfo;
+		pipeline_info.pColorBlendState = &color_blending;
+		pipeline_info.pDynamicState = &dynamic_state;
+		pipeline_info.layout = pipeline_layout;
+		pipeline_info.renderPass = render_pass;
+		pipeline_info.subpass = 0;
+		pipeline_info.basePipelineHandle = VK_NULL_HANDLE;
+		pipeline_info.basePipelineIndex = -1;
 
-		if (vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, pipeline) != VK_SUCCESS) {
+		if (vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipeline_info, nullptr, pipeline) != VK_SUCCESS) {
 			throw std::runtime_error("failed to create graphics pipeline!");
 		}
 	}
@@ -72,35 +72,35 @@ namespace RtEngine {
 		}
 	}
 
-	void RasterizerPipelineBuilder::setShaders(VkShaderModule vertShaderModule, VkShaderModule fragShaderModule) {
-		VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
-		vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-		vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
-		vertShaderStageInfo.module = vertShaderModule;
-		vertShaderStageInfo.pName = "main";
+	void RasterizerPipelineBuilder::setShaders(VkShaderModule vert_shader_module, VkShaderModule frag_shader_module) {
+		VkPipelineShaderStageCreateInfo vert_shader_stage_info{};
+		vert_shader_stage_info.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+		vert_shader_stage_info.stage = VK_SHADER_STAGE_VERTEX_BIT;
+		vert_shader_stage_info.module = vert_shader_module;
+		vert_shader_stage_info.pName = "main";
 
-		VkPipelineShaderStageCreateInfo fragShaderStageInfo{};
-		fragShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-		fragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-		fragShaderStageInfo.module = fragShaderModule;
-		fragShaderStageInfo.pName = "main";
+		VkPipelineShaderStageCreateInfo frag_shader_stage_info{};
+		frag_shader_stage_info.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+		frag_shader_stage_info.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+		frag_shader_stage_info.module = frag_shader_module;
+		frag_shader_stage_info.pName = "main";
 
-		shaderStages.push_back(vertShaderStageInfo);
-		shaderStages.push_back(fragShaderStageInfo);
+		shaderStages.push_back(vert_shader_stage_info);
+		shaderStages.push_back(frag_shader_stage_info);
 	}
 
 	void RasterizerPipelineBuilder::setInputTopology(const VkPrimitiveTopology topology) {
 		inputAssemblyInfo.topology = topology;
 	}
 
-	void RasterizerPipelineBuilder::setPolygonMode(VkPolygonMode polygonMode) {
-		rasterizerInfo.polygonMode = polygonMode;
-		rasterizerInfo.lineWidth = 1.0f;
+	void RasterizerPipelineBuilder::setPolygonMode(VkPolygonMode polygon_mode) {
+		rasterizerInfo.polygonMode = polygon_mode;
+		rasterizerInfo.lineWidth = 1.0F;
 	}
 
-	void RasterizerPipelineBuilder::setCullMode(const VkCullModeFlags cullMode, const VkFrontFace frontFace) {
-		rasterizerInfo.cullMode = cullMode;
-		rasterizerInfo.frontFace = frontFace;
+	void RasterizerPipelineBuilder::setCullMode(const VkCullModeFlags cull_mode, const VkFrontFace front_face) {
+		rasterizerInfo.cullMode = cull_mode;
+		rasterizerInfo.frontFace = front_face;
 	}
 
 	void RasterizerPipelineBuilder::setMultisamplingNone() {
@@ -108,10 +108,10 @@ namespace RtEngine {
 		multisamplingInfo.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
 	}
 
-	void RasterizerPipelineBuilder::enableDepthTest(const VkBool32 enabled, const VkCompareOp compareOp) {
+	void RasterizerPipelineBuilder::enableDepthTest(const VkBool32 enabled, const VkCompareOp compare_op) {
 		depthStencilInfo.depthTestEnable = enabled;
 		depthStencilInfo.depthWriteEnable = enabled;
-		depthStencilInfo.depthCompareOp = compareOp;
+		depthStencilInfo.depthCompareOp = compare_op;
 		depthStencilInfo.depthBoundsTestEnable = VK_FALSE;
 	}
 

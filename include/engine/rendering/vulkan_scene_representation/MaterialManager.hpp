@@ -8,9 +8,9 @@
 namespace RtEngine {
     class MaterialManager {
     public:
-        MaterialManager(std::shared_ptr<ResourceBuilder> resource_builder, std::shared_ptr<TextureRepository> tex_repo);
+        MaterialManager(std::shared_ptr<ResourceBuilder> resource_builder, const std::shared_ptr<TextureRepository>& tex_repo);
 
-        void updateMaterialResources(std::shared_ptr<IScene> scene);
+        void updateMaterialResources(const std::shared_ptr<IScene>& scene);
 
         AllocatedBuffer createMaterialBuffer(const std::vector<std::shared_ptr<MaterialInstance>> &instances) const;
 
