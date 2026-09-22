@@ -38,8 +38,7 @@ namespace mandelbulb
         startPower();
         startThetaOffset();
         startStepRotationAngle();
-        generator_.applyRandomStepRotationAxis();
-        axis_cooldown_seconds_ = randomAxisCooldown();
+        startStepRotationAxis();
     }
 
     void MandelbulbAnimationRunner::update()
@@ -51,13 +50,7 @@ namespace mandelbulb
         tick(power_track_, dt, &MandelbulbAnimationRunner::startPower);
         tick(theta_offset_track_, dt, &MandelbulbAnimationRunner::startThetaOffset);
         tick(step_rotation_angle_track_, dt, &MandelbulbAnimationRunner::startStepRotationAngle);
-
-        axis_cooldown_seconds_ -= dt;
-        if (axis_cooldown_seconds_ <= 0.0F)
-        {
-            generator_.applyRandomStepRotationAxis();
-            axis_cooldown_seconds_ = randomAxisCooldown();
-        }
+        tick(step_rotation_axis_track_, dt, &MandelbulbAnimationRunner::startStepRotationAxis);
     }
 
     void MandelbulbAnimationRunner::tick(
@@ -101,5 +94,12 @@ namespace mandelbulb
         auto result = generator_.generateStepRotationAngleAnimation(step_rotation_angle_current_);
         step_rotation_angle_current_ = result.target;
         step_rotation_angle_track_.animation = std::move(result.animation);
+    }
+
+    void MandelbulbAnimationRunner::startStepRotationAxis()
+    {
+        auto result = generator_.generateStepRotationAxisAnimation(step_rotation_axis_current_);
+        step_rotation_axis_current_ = result.target;
+        step_rotation_axis_track_.animation = std::move(result.animation);
     }
 } // namespace mandelbulb

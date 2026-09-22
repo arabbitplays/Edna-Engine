@@ -36,6 +36,7 @@ namespace mandelbulb
         void startPower();
         void startThetaOffset();
         void startStepRotationAngle();
+        void startStepRotationAxis();
 
         MandelbulbAnimationGenerator generator_;
 
@@ -48,7 +49,8 @@ namespace mandelbulb
         Track step_rotation_angle_track_;
         float step_rotation_angle_current_;
 
-        float axis_cooldown_seconds_ = 0.0f;
+        Track step_rotation_axis_track_;
+        glm::vec3 step_rotation_axis_current_;
 
         std::chrono::steady_clock::time_point last_tick_;
     };

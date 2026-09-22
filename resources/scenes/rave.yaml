@@ -38,7 +38,7 @@ scene:
           animate: true
           rotation_speed: 0.14
           rim_weight: 0.6
-          diffuse_weight: 2.0
+          diffuse_weight: 1.2
           coloring: "Radius"
       children:
         []

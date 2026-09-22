@@ -45,7 +45,6 @@ namespace color
                 ::Animation::EasingCurve::Linear,
                 ::Animation::EasingCurve::Cubic,
                 ::Animation::EasingCurve::Elastic,
-                ::Animation::EasingCurve::Bounce,
             };
             const std::size_t idx = RtEngine::RandomUtil::generateInt() % curves.size();
             return ::Animation::makeEasingFunction(curves[idx], ::Animation::EasingDirection::InOut);

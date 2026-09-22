@@ -50,7 +50,7 @@ namespace RtEngine
         static constexpr float INITIAL_BOUND = 2.0f;
         static inline const std::string DEFAULT_PALETTE_NAME = "Sunburn";
 
-        glm::vec2 origin = glm::vec2(-1.0, .0f);
+        glm::vec2 origin = glm::vec2(.0f, .0f);
         glm::vec2 offset = glm::vec2(0.0f);
         float step_size = DEFAULT_STEP_SIZE;
         uint32_t max_iterations = DEFAULT_MAX_ITERATIONS;
