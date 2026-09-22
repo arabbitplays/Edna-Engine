@@ -78,6 +78,46 @@ namespace mandelbrot
             return p.edge_score;
         }
 
+        // Probe a wide search area at fine resolution, return the cell centre
+        // with the highest local boundary density (in offset units, in
+        // [-OFFSET_MAX, OFFSET_MAX]). Beats dart-throwing because it examines
+        // every cell instead of hoping N random rolls hit one.
+        glm::vec2 pickDirectedOffset(const glm::vec2& initial, bool julia_mode)
+        {
+            using Gen = MandelbrotAnimationGenerator;
+            const double span = static_cast<double>(Gen::DIRECTED_SEARCH_SPAN);
+            const ProbeResult probe = probeInterest(
+                0.0, 0.0, span,
+                static_cast<double>(initial.x),
+                static_cast<double>(initial.y),
+                julia_mode,
+                Gen::PROBE_MAX_ITER,
+                Gen::DIRECTED_GRID_SIZE);
+
+            const std::uint32_t g = probe.grid_size;
+            if (g == 0u) return randomVec2(Gen::OFFSET_MIN, Gen::OFFSET_MAX);
+
+            std::uint32_t best_x = 0u, best_y = 0u;
+            float best_score = -1.0f;
+            for (std::uint32_t y = 0; y < g; ++y) {
+                for (std::uint32_t x = 0; x < g; ++x) {
+                    const float s = cellInterest(probe, x, y);
+                    if (s > best_score) { best_score = s; best_x = x; best_y = y; }
+                }
+            }
+
+            const double step        = span / static_cast<double>(g);
+            const double half_span   = 0.5 * span;
+            const double centre_re   = -half_span + (static_cast<double>(best_x) + 0.5) * step;
+            const double centre_im   = -half_span + (static_cast<double>(best_y) + 0.5) * step;
+            const float  reference   = Gen::PROBE_REFERENCE_SPAN;
+            spdlog::info("Mandelbrot anim: directed offset cell=({},{}) score={:.3f}",
+                         best_x, best_y, best_score);
+            return glm::vec2(
+                std::clamp(static_cast<float>(centre_re) / reference, Gen::OFFSET_MIN, Gen::OFFSET_MAX),
+                std::clamp(static_cast<float>(centre_im) / reference, Gen::OFFSET_MIN, Gen::OFFSET_MAX));
+        }
+
         // Roll up to PROBE_MAX_ATTEMPTS candidates. Return the first one
         // whose probe clears the gate; otherwise the highest-scoring one
         // seen. Never blocks.
@@ -124,11 +164,7 @@ namespace mandelbrot
     MandelbrotAnimationGenerator::Vec2AnimationResult
     MandelbrotAnimationGenerator::generateOffsetAnimation(const MandelbrotState& current)
     {
-        const glm::vec2 target = rejectionSample<glm::vec2>(
-            []() { return randomVec2(OFFSET_MIN, OFFSET_MAX); },
-            [&](const glm::vec2& candidate) {
-                return probeCandidate(candidate, current.initial, current.julia_mode);
-            });
+        const glm::vec2 target = pickDirectedOffset(current.initial, current.julia_mode);
 
         const glm::vec2 c1 = randomVec2(OFFSET_MIN, OFFSET_MAX);
         const glm::vec2 c2 = randomVec2(OFFSET_MIN, OFFSET_MAX);

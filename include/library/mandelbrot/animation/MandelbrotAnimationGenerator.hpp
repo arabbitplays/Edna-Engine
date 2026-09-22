@@ -47,6 +47,12 @@ namespace mandelbrot
         // "structurally interesting" ones.
         static constexpr float         PROBE_REFERENCE_SPAN     = 3.0f;
 
+        // Directed offset selection scans a probe grid covering the full
+        // offset range and picks the highest-interest cell as the target.
+        // Wider span + finer grid than a per-candidate probe.
+        static constexpr float         DIRECTED_SEARCH_SPAN     = 6.0f;   // 2 * REFERENCE_SPAN
+        static constexpr std::uint32_t DIRECTED_GRID_SIZE       = 32u;
+
         MandelbrotAnimationGenerator(
             std::function<void(const glm::vec2&)>             set_offset,
             std::function<void(float)>                        set_step_size,

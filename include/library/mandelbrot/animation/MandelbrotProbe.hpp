@@ -38,6 +38,11 @@ namespace mandelbrot
                               bool julia_mode,
                               std::uint32_t max_iter,
                               std::uint32_t grid_size = 16u);
+
+    // Fraction of the cell's up-to-4 neighbours that cross a boundary. Used
+    // to rank cells in a directed-search probe. Returns 0 for out-of-range
+    // coordinates or empty probes.
+    float cellInterest(const ProbeResult& probe, std::uint32_t x, std::uint32_t y);
 }
 
 #endif //EDNA_ENGINE_MANDELBROT_PROBE_HPP

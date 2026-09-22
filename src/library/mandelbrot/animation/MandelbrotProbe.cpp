@@ -107,4 +107,28 @@ namespace mandelbrot
 
         return {edge_score, inside_fraction, std::move(mu_norm), grid_size};
     }
+
+    float cellInterest(const ProbeResult& probe, const std::uint32_t x, const std::uint32_t y)
+    {
+        const std::uint32_t g = probe.grid_size;
+        if (g == 0u || x >= g || y >= g) return 0.0f;
+
+        auto is_boundary = [&](std::uint32_t a_idx, std::uint32_t b_idx) -> bool {
+            const float a = probe.mu_norm[a_idx];
+            const float b = probe.mu_norm[b_idx];
+            const bool a_in = (a == PROBE_IN_SET);
+            const bool b_in = (b == PROBE_IN_SET);
+            if (a_in && b_in) return false;
+            if (a_in != b_in) return true;
+            return std::fabs(a - b) > BOUNDARY_DELTA_THRESHOLD;
+        };
+
+        const std::uint32_t idx = y * g + x;
+        std::uint32_t boundary = 0u, total = 0u;
+        if (x + 1u < g) { if (is_boundary(idx, idx + 1u))     ++boundary; ++total; }
+        if (x >= 1u)    { if (is_boundary(idx, idx - 1u))     ++boundary; ++total; }
+        if (y + 1u < g) { if (is_boundary(idx, idx + g))      ++boundary; ++total; }
+        if (y >= 1u)    { if (is_boundary(idx, idx - g))      ++boundary; ++total; }
+        return total == 0u ? 0.0f : static_cast<float>(boundary) / static_cast<float>(total);
+    }
 }
