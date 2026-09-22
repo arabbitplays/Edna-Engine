@@ -11,6 +11,7 @@
 #include <Glitch.hpp>
 #include <glm/gtx/quaternion.hpp>
 #include <Mandelbrot.hpp>
+#include <Mandelbulb.hpp>
 #include <MeshRenderer.hpp>
 #include <Node.hpp>
 #include <QuickTimer.hpp>
@@ -184,6 +185,12 @@ namespace RtEngine
                 auto mb = std::make_shared<Mandelbrot>(ctx, scene_node);
                 mb->initProperties(properties, update_flags);
                 scene_node->addComponent(mb);
+            }
+            else if (comp_name == Mandelbulb::COMPONENT_NAME)
+            {
+                auto mb3 = std::make_shared<Mandelbulb>(ctx, scene_node);
+                mb3->initProperties(properties, update_flags);
+                scene_node->addComponent(mb3);
             }
             else if (comp_name == Glitch::COMPONENT_NAME)
             {

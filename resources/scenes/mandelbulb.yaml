@@ -1,0 +1,28 @@
+scene:
+  nodes:
+    - name: Camera
+      components:
+        Transform:
+          position:
+            - 0
+            - 0
+            - 3
+          rotation:
+            - 0
+            - 0
+            - 0
+          scale:
+            - 1
+            - 1
+            - 1
+        Camera:
+          fov: 45
+          interactive: false
+      children:
+        []
+    - name: Mandelbulb
+      components:
+        Mandelbulb:
+          {}
+      children:
+        []
