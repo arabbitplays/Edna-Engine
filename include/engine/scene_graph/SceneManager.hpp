@@ -21,7 +21,7 @@ namespace RtEngine {
                      const std::shared_ptr<DeviceManager> &device_manager,
                      std::shared_ptr<SceneReader> scene_reader);
 
-        std::shared_ptr<Scene> getCurrentScene();
+        std::shared_ptr<Scene> getCurrentScene() override;
         void setScene(const std::shared_ptr<Scene> &new_scene);
         std::shared_ptr<Material> getCurrentMaterial() override;
 

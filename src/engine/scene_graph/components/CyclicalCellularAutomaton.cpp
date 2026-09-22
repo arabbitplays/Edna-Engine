@@ -67,8 +67,6 @@ namespace RtEngine {
             [this](uint32_t width, uint32_t height) {
                 renderer->handleResize(VkExtent2D{width, height});
             });
-
-        last_update = std::chrono::steady_clock::now();
     }
 
     void CyclicalCellularAutomaton::OnDestroy() {
@@ -80,6 +78,13 @@ namespace RtEngine {
 
     void CyclicalCellularAutomaton::OnUpdate() {
         if (!renderer) return;
+
+        // Push setUpdate every frame so state advances exactly once per gate
+        // tick — otherwise the flag latches on and the CA would step every
+        // render frame between gate fires.
+        const bool advance = update_gate.tick();
+        renderer->setUpdate(advance);
+        if (!advance) return;
 
         renderer->setUpdateChance(update_chance);
 
@@ -100,15 +105,10 @@ namespace RtEngine {
                 applied_neighborhood_size = neighborhood_size;
             }
         }
+    }
 
-        const auto now = std::chrono::steady_clock::now();
-        const double elapsed = std::chrono::duration<double>(now - last_update).count();
-        const bool should_update = elapsed >= UPDATE_INTERVAL_SECONDS;
-
-        renderer->setUpdate(should_update);
-        if (should_update) {
-            last_update = now;
-        }
+    std::shared_ptr<ImageConnector> CyclicalCellularAutomaton::getOutputConnector() const {
+        return renderer ? renderer->getOutputConnector() : nullptr;
     }
 
     void CyclicalCellularAutomaton::initProperties(const std::shared_ptr<IProperties>& config,

@@ -70,6 +70,7 @@ namespace RtEngine {
 
     void Mandelbrot::OnUpdate() {
         if (!renderer) return;
+        if (!update_gate.tick()) return;
 
         if (animate && animation_runner) {
             const VkExtent2D extent =
@@ -88,6 +89,10 @@ namespace RtEngine {
         renderer->setMaxIterations(max_iterations);
         renderer->setInitial(static_cast<double>(initial_number.x), static_cast<double>(initial_number.y));
         renderer->setJuliaMode(julia_mode);
+    }
+
+    std::shared_ptr<ImageConnector> Mandelbrot::getOutputConnector() const {
+        return renderer ? renderer->getOutputConnector() : nullptr;
     }
 
     void Mandelbrot::initProperties(const std::shared_ptr<IProperties>& config,

@@ -3,6 +3,7 @@
 #include <glitch.comp.spv.h>
 
 #include "ImageConnectorFactory.hpp"
+#include "VulkanUtil.hpp"
 
 namespace RtEngine {
     GlitchRenderer::GlitchRenderer(const std::shared_ptr<VulkanContext> &vulkan_context,
@@ -18,8 +19,10 @@ namespace RtEngine {
 
         setDispatchSize([this]() {
             VkExtent2D extent = output_connector->getExtent();
-            return VkExtent3D{1, (extent.height + 255) / 256, 1};
+            return VkExtent3D{(extent.width + 15) / 16, (extent.height + 15) / 16, 1};
         });
+
+        start_time = std::chrono::steady_clock::now();
 
         deletion_queue.pushFunction([this]() { output_connector->destroy(); });
     }
@@ -28,9 +31,26 @@ namespace RtEngine {
         return output_connector;
     }
 
+    void GlitchRenderer::handleResize(VkExtent2D new_extent) {
+        output_connector->recreate(new_extent);
+        invalidateDescriptors();
+    }
+
     VkShaderModule GlitchRenderer::createShaderModule() {
         return VulkanUtil::createShaderModule(
             vulkan_context->device_manager->getDevice(), oschd_glitch_comp_spv_size(), oschd_glitch_comp_spv());
+    }
+
+    void GlitchRenderer::configurePushConstants(ComputePipeline& pipeline) {
+        pipeline.addPushConstant(sizeof(PushConstants), VK_SHADER_STAGE_COMPUTE_BIT);
+    }
+
+    void GlitchRenderer::recordPushConstants(VkCommandBuffer cmd) {
+        const auto now = std::chrono::steady_clock::now();
+        push.time = std::chrono::duration<float>(now - start_time).count();
+
+        vkCmdPushConstants(cmd, pipeline->getLayoutHandle(),
+                           VK_SHADER_STAGE_COMPUTE_BIT, 0, sizeof(PushConstants), &push);
     }
 
 }

@@ -1,9 +1,9 @@
 #ifndef EDNA_ENGINE_CYCLICALCELLULARAUTOMATON_HPP
 #define EDNA_ENGINE_CYCLICALCELLULARAUTOMATON_HPP
-#include <chrono>
 #include <memory>
 #include <string>
 
+#include <FrameGate.hpp>
 #include <library/cellular_automaton/animation/CyclicalCellularAutomatonAnimationRunner.hpp>
 
 #include "Component.hpp"
@@ -29,11 +29,12 @@ namespace RtEngine {
         void initProperties(const std::shared_ptr<IProperties>& config,
                             const UpdateFlagsHandle& update_flags) override;
 
+        std::shared_ptr<ImageConnector> getOutputConnector() const override;
+
     private:
         static constexpr uint32_t DEFAULT_THRESHOLD = 1;
         static constexpr float DEFAULT_UPDATE_CHANCE = 1;
         static constexpr float DEFAULT_MUTATION_CHANCE = 0.01f;
-        static constexpr double UPDATE_INTERVAL_SECONDS = 1.0 / 30.0;
         static constexpr uint32_t DEFAULT_NEIGHBORHOOD_SIZE = 1;
         static constexpr uint32_t MAX_NEIGHBORHOOD_SIZE = 6;
         static inline const std::string DEFAULT_PALETTE_NAME = "Sunburn";
@@ -52,8 +53,8 @@ namespace RtEngine {
 
         std::shared_ptr<CyclicalCellularAutomatonRenderer> renderer;
         std::unique_ptr<cellular_automaton::CyclicalCellularAutomatonAnimationRunner> animation_runner;
-        std::chrono::steady_clock::time_point last_update;
 
+        FrameGate update_gate{30.0f};
         SwapchainManager::RecreateCallbackHandle resize_callback_handle = 0;
     };
 } // RtEngine

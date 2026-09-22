@@ -5,6 +5,7 @@
 
 #include <glm/glm.hpp>
 
+#include <FrameGate.hpp>
 #include <library/mandelbrot/animation/MandelbrotAnimationRunner.hpp>
 
 #include "Component.hpp"
@@ -30,6 +31,8 @@ namespace RtEngine {
         void initProperties(const std::shared_ptr<IProperties>& config,
                             const UpdateFlagsHandle& update_flags) override;
 
+        std::shared_ptr<ImageConnector> getOutputConnector() const override;
+
     private:
         static constexpr float    DEFAULT_STEP_SIZE = 0.0001f;
         static constexpr uint32_t DEFAULT_MAX_ITERATIONS = 128u;
@@ -53,6 +56,7 @@ namespace RtEngine {
         std::shared_ptr<MandelbrotRenderer> renderer;
         std::unique_ptr<::mandelbrot::MandelbrotAnimationRunner> animation_runner;
 
+        FrameGate update_gate{30.0f};
         SwapchainManager::RecreateCallbackHandle resize_callback_handle = 0;
     };
 } // RtEngine

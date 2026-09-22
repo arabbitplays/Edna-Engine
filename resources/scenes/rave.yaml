@@ -1,0 +1,31 @@
+scene:
+  nodes:
+    - name: Mandelbrot
+      components:
+        Mandelbrot:
+          animate: true
+      children:
+        []
+    - name: CyclicalCA
+      components:
+        CyclicalCellularAutomaton:
+          animate: true
+      children:
+        []
+    - name: Composition
+      components:
+        Composition:
+          inversion_staccato: false
+      children:
+        []
+    - name: Glitch
+      components:
+        Glitch:
+          source_node: Composition
+          shake_power: 0.03
+          shake_rate: 0.001
+          shake_speed: 5.0
+          shake_block_size: 100
+          shake_color_rate: 0.01
+      children:
+        []

@@ -2,7 +2,9 @@
 
 
 src += files(
+  'Composition.cpp',
   'Rigidbody.cpp',
+  'Glitch.cpp',
   'Mandelbrot.cpp',
   'CyclicalCellularAutomaton.cpp',
   'Transform.cpp',

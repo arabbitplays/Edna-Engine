@@ -1,6 +1,8 @@
 #include "SceneReader.hpp"
 
+#include <Composition.hpp>
 #include <CyclicalCellularAutomaton.hpp>
+#include <Glitch.hpp>
 #include <Mandelbrot.hpp>
 #include <MeshRenderer.hpp>
 #include <Node.hpp>
@@ -151,6 +153,14 @@ namespace RtEngine {
 				auto mb = std::make_shared<Mandelbrot>(ctx, scene_node);
 				mb->initProperties(properties, update_flags);
 				scene_node->addComponent(mb);
+			} else if (comp_name == Glitch::COMPONENT_NAME) {
+				auto gl = std::make_shared<Glitch>(ctx, scene_node);
+				gl->initProperties(properties, update_flags);
+				scene_node->addComponent(gl);
+			} else if (comp_name == Composition::COMPONENT_NAME) {
+				auto cp = std::make_shared<Composition>(ctx, scene_node);
+				cp->initProperties(properties, update_flags);
+				scene_node->addComponent(cp);
 			}
 		}
 	}

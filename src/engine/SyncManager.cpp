@@ -199,6 +199,11 @@ namespace RtEngine
             resize_callback_handle = 0;
         }
         deletion_queue.flush();
+        if (timeline_semaphore != VK_NULL_HANDLE)
+        {
+            vkDestroySemaphore(device_manager->getDevice(), timeline_semaphore, nullptr);
+            timeline_semaphore = VK_NULL_HANDLE;
+        }
         destroySwapchainSemaphores();
     }
 
@@ -217,11 +222,6 @@ namespace RtEngine
         {
             throw std::runtime_error("SyncManager: failed to create timeline semaphore");
         }
-
-        deletion_queue.pushFunction([this]()
-        {
-            vkDestroySemaphore(device_manager->getDevice(), timeline_semaphore, nullptr);
-        });
     }
 
     void SyncManager::createFrameSemaphores()
