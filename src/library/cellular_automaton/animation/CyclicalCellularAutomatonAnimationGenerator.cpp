@@ -8,8 +8,6 @@
 #include <library/cellular_automaton/animation/CyclicalCellularAutomatonAnimationGenerator.hpp>
 #include <library/cellular_automaton/neighborhoods/NeighborhoodFactory.hpp>
 #include <library/cellular_automaton/neighborhoods/NeighborhoodShape.hpp>
-#include <library/color/ColorPaletteFactory.hpp>
-#include <library/color/ColorPaletteName.hpp>
 #include <limits>
 #include <logging/LogManager.hpp>
 #include <memory>
@@ -55,11 +53,11 @@ namespace cellular_automaton
     } // namespace
 
     CyclicalCellularAutomatonAnimationGenerator::CyclicalCellularAutomatonAnimationGenerator(
-        std::function<void(float)> set_mutation_chance, std::function<void(const ::color::ColorPalette&)> set_palette,
+        std::function<void(float)> set_mutation_chance,
         std::function<void(const std::vector<glm::ivec2>&)> set_neighborhood,
         std::function<void(uint32_t)> set_threshold)
-        : set_mutation_chance_(std::move(set_mutation_chance)), set_palette_(std::move(set_palette)),
-          set_neighborhood_(std::move(set_neighborhood)), set_threshold_(std::move(set_threshold))
+        : set_mutation_chance_(std::move(set_mutation_chance)), set_neighborhood_(std::move(set_neighborhood)),
+          set_threshold_(std::move(set_threshold))
     {
     }
 
@@ -83,26 +81,6 @@ namespace cellular_automaton
         return {.animation = std::move(animation), .target = target};
     }
 
-    CyclicalCellularAutomatonAnimationGenerator::PaletteAnimation
-    CyclicalCellularAutomatonAnimationGenerator::generatePaletteAnimation(const ::color::ColorPalette& current)
-    {
-        ::color::ColorPalette target = pickRandomPalette();
-
-        auto set = set_palette_;
-        auto animation = std::make_unique<::color::ColorPaletteAnimation>(
-            current, target, randomStepCount(),
-            [set](const ::color::ColorPalette& p)
-            {
-                if (set)
-                {
-                    set(p);
-                }
-            },
-            randomInOutEasing());
-
-        return {.animation = std::move(animation), .target = std::move(target)};
-    }
-
     void CyclicalCellularAutomatonAnimationGenerator::applyRandomNeighborhood()
     {
         auto pick = pickRandomNeighborhood();
@@ -122,16 +100,6 @@ namespace cellular_automaton
         const float target = randomFloat(MUTATION_CHANCE_MIN, MUTATION_CHANCE_MAX);
         logger()->info(std::format("rolled mutation_chance target = {:.4f}", target));
         return target;
-    }
-
-    ::color::ColorPalette CyclicalCellularAutomatonAnimationGenerator::pickRandomPalette()
-    {
-        const auto all_names = ::color::ColorPaletteName::getAllNames();
-        const std::size_t idx = RtEngine::RandomUtil::generateInt() % all_names.size();
-        const auto& picked_name = all_names[idx];
-        logger()->info(std::format("rolled palette target = {}", picked_name));
-        return ::color::ColorPaletteFactory::create(
-            ::color::ColorPaletteName::fromString(picked_name, ::color::ColorPaletteName::Fire));
     }
 
     CyclicalCellularAutomatonAnimationGenerator::NeighborhoodPick

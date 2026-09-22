@@ -18,13 +18,11 @@ namespace cellular_automaton
     } // namespace
 
     CyclicalCellularAutomatonAnimationRunner::CyclicalCellularAutomatonAnimationRunner(
-        CyclicalCellularAutomatonAnimationGenerator generator, float initial_mutation_chance,
-        ::color::ColorPalette initial_palette)
+        CyclicalCellularAutomatonAnimationGenerator generator, float initial_mutation_chance)
         : generator_(std::move(generator)), mutation_current_(initial_mutation_chance),
-          palette_current_(std::move(initial_palette)), last_tick_(std::chrono::steady_clock::now())
+          last_tick_(std::chrono::steady_clock::now())
     {
         startMutation();
-        startPalette();
         generator_.applyRandomNeighborhood();
         neighborhood_cooldown_seconds_ = randomCooldown();
     }
@@ -36,7 +34,6 @@ namespace cellular_automaton
         last_tick_ = now;
 
         tick(mutation_track_, dt, &CyclicalCellularAutomatonAnimationRunner::startMutation);
-        tick(palette_track_, dt, &CyclicalCellularAutomatonAnimationRunner::startPalette);
 
         neighborhood_cooldown_seconds_ -= dt;
         if (neighborhood_cooldown_seconds_ <= 0.0F)
@@ -73,12 +70,5 @@ namespace cellular_automaton
         auto mutation = generator_.generateMutationChanceAnimation(mutation_current_);
         mutation_current_ = mutation.target;
         mutation_track_.animation = std::move(mutation.animation);
-    }
-
-    void CyclicalCellularAutomatonAnimationRunner::startPalette()
-    {
-        auto palette = generator_.generatePaletteAnimation(palette_current_);
-        palette_current_ = std::move(palette.target);
-        palette_track_.animation = std::move(palette.animation);
     }
 } // namespace cellular_automaton

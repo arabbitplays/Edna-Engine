@@ -1,7 +1,10 @@
 #include "Composition.hpp"
 
 #include "compute/CompositionRenderer.hpp"
+#include "compute/CyclicalCellularAutomatonRenderer.hpp"
 #include "compute/GlitchRenderer.hpp"
+#include "compute/MandelbrotRenderer.hpp"
+#include "compute/MandelbulbRenderer.hpp"
 #include "CyclicalCellularAutomaton.hpp"
 #include "EngineContext.hpp"
 #include "Glitch.hpp"
@@ -9,6 +12,8 @@
 #include "Mandelbulb.hpp"
 #include "Scene.hpp"
 
+#include <library/color/ColorPaletteFactory.hpp>
+#include <library/color/ColorPaletteName.hpp>
 #include <library/rave_visualizer/CompositionManager.hpp>
 #include <logging/LogManager.hpp>
 
@@ -131,7 +136,47 @@ namespace RtEngine
                 return;
             }
         }
-        manager = std::make_unique<RaveVisualizer::CompositionManager>(composition_renderer, glitch_comp);
+
+        const auto initial_palette = ::color::ColorPaletteFactory::create(::color::ColorPaletteName::Sunburn);
+        manager = std::make_unique<RaveVisualizer::CompositionManager>(composition_renderer, glitch_comp,
+            ::color::ColorPalette{initial_palette});
+
+        const auto cca_comp = context->scene_manager->getComponent<CyclicalCellularAutomaton>();
+        const auto mandelbrot_comp = context->scene_manager->getComponent<Mandelbrot>();
+        const auto mandelbulb_comp = context->scene_manager->getComponent<Mandelbulb>();
+        if (const auto r = cca_comp ? cca_comp->getRenderer() : nullptr)
+        {
+            std::weak_ptr<CyclicalCellularAutomatonRenderer> weak = r;
+            manager->addPaletteListener([weak](const ::color::ColorPalette& palette)
+                {
+                    if (const auto locked = weak.lock())
+                    {
+                        locked->setPalette(palette.colors);
+                    }
+                });
+        }
+        if (const auto r = mandelbrot_comp ? mandelbrot_comp->getRenderer() : nullptr)
+        {
+            std::weak_ptr<MandelbrotRenderer> weak = r;
+            manager->addPaletteListener([weak](const ::color::ColorPalette& palette)
+                {
+                    if (const auto locked = weak.lock())
+                    {
+                        locked->setPalette(palette.colors);
+                    }
+                });
+        }
+        if (const auto r = mandelbulb_comp ? mandelbulb_comp->getRenderer() : nullptr)
+        {
+            std::weak_ptr<MandelbulbRenderer> weak = r;
+            manager->addPaletteListener([weak](const ::color::ColorPalette& palette)
+                {
+                    if (const auto locked = weak.lock())
+                    {
+                        locked->setPalette(palette.colors);
+                    }
+                });
+        }
     }
 
     std::shared_ptr<ImageConnector> Composition::getOutputConnector() const

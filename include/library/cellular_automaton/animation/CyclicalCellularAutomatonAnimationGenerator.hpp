@@ -5,8 +5,6 @@
 #include <functional>
 #include <glm/vec2.hpp>
 #include <library/animation/animations/FloatAnimation.hpp>
-#include <library/color/ColorPalette.hpp>
-#include <library/color/ColorPaletteAnimation.hpp>
 #include <memory>
 #include <vector>
 
@@ -21,7 +19,6 @@ namespace cellular_automaton
         static constexpr float MUTATION_CHANCE_MAX = 0.1f;
 
         CyclicalCellularAutomatonAnimationGenerator(std::function<void(float)> set_mutation_chance,
-            std::function<void(const ::color::ColorPalette&)> set_palette,
             std::function<void(const std::vector<glm::ivec2>&)> set_neighborhood,
             std::function<void(uint32_t)> set_threshold);
 
@@ -31,14 +28,7 @@ namespace cellular_automaton
             float target;
         };
 
-        struct PaletteAnimation
-        {
-            std::unique_ptr<::color::ColorPaletteAnimation> animation;
-            ::color::ColorPalette target;
-        };
-
         MutationChanceAnimation generateMutationChanceAnimation(float current);
-        PaletteAnimation generatePaletteAnimation(const ::color::ColorPalette& current);
 
         // Neighborhood + threshold are re-rolled together, not interpolated.
         void applyRandomNeighborhood();
@@ -51,11 +41,9 @@ namespace cellular_automaton
         };
 
         static float pickRandomMutationChance();
-        static ::color::ColorPalette pickRandomPalette();
         static NeighborhoodPick pickRandomNeighborhood();
 
         std::function<void(float)> set_mutation_chance_;
-        std::function<void(const ::color::ColorPalette&)> set_palette_;
         std::function<void(const std::vector<glm::ivec2>&)> set_neighborhood_;
         std::function<void(uint32_t)> set_threshold_;
     };

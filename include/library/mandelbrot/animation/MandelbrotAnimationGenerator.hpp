@@ -6,8 +6,6 @@
 #include <glm/vec2.hpp>
 #include <library/animation/animations/FloatAnimation.hpp>
 #include <library/animation/animations/VectorAnimation.hpp>
-#include <library/color/ColorPalette.hpp>
-#include <library/color/ColorPaletteAnimation.hpp>
 #include <library/mandelbrot/MandelbrotState.hpp>
 #include <memory>
 
@@ -64,8 +62,7 @@ namespace mandelbrot
         static constexpr float ZOOM_EDGE_SATURATION = 0.15f;
 
         MandelbrotAnimationGenerator(std::function<void(const glm::vec2&)> set_offset,
-            std::function<void(float)> set_step_size, std::function<void(const glm::vec2&)> set_initial,
-            std::function<void(const ::color::ColorPalette&)> set_palette);
+            std::function<void(float)> set_step_size, std::function<void(const glm::vec2&)> set_initial);
 
         struct Vec2AnimationResult
         {
@@ -79,25 +76,17 @@ namespace mandelbrot
             float target;
         };
 
-        struct PaletteAnimationResult
-        {
-            std::unique_ptr<::color::ColorPaletteAnimation> animation;
-            ::color::ColorPalette target;
-        };
-
         // Candidates are scored against `current` for the fields the method
         // does not roll, so target selection sees the actual fractal being
         // rendered (in particular the current initial/c and julia_mode).
         Vec2AnimationResult generateOffsetAnimation(const MandelbrotState& current);
         FloatAnimationResult generateStepSizeAnimation(const MandelbrotState& current, float current_view_edge_score);
         Vec2AnimationResult generateInitialAnimation(const MandelbrotState& current);
-        PaletteAnimationResult generatePaletteAnimation(const ::color::ColorPalette& current);
 
     private:
         std::function<void(const glm::vec2&)> set_offset_;
         std::function<void(float)> set_step_size_;
         std::function<void(const glm::vec2&)> set_initial_;
-        std::function<void(const ::color::ColorPalette&)> set_palette_;
     };
 } // namespace mandelbrot
 

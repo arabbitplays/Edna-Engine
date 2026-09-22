@@ -8,11 +8,17 @@
 
 namespace RaveVisualizer
 {
-    CompositionManager::CompositionManager(
-        std::shared_ptr<RtEngine::CompositionRenderer> composition, std::shared_ptr<RtEngine::Glitch> glitch)
-        : composition(std::move(composition)), glitch(std::move(glitch))
+    CompositionManager::CompositionManager(std::shared_ptr<RtEngine::CompositionRenderer> composition,
+        std::shared_ptr<RtEngine::Glitch> glitch, ::color::ColorPalette initial_palette)
+        : composition(std::move(composition)), glitch(std::move(glitch)),
+          palette_runner(std::move(initial_palette))
     {
         pushToComposition();
+    }
+
+    void CompositionManager::addPaletteListener(PaletteListener listener)
+    {
+        palette_runner.addListener(std::move(listener));
     }
 
     void CompositionManager::tick(const float dt)
@@ -51,6 +57,8 @@ namespace RaveVisualizer
                 rave_state.invert_color = !rave_state.invert_color;
             }
         }
+
+        palette_runner.update();
 
         pushToComposition();
     }

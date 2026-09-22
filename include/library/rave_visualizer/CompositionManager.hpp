@@ -5,6 +5,9 @@
 #include "VisualizationType.hpp"
 
 #include <array>
+#include <functional>
+#include <library/color/ColorPalette.hpp>
+#include <library/color/PaletteAnimationRunner.hpp>
 #include <memory>
 
 namespace RtEngine
@@ -22,8 +25,14 @@ namespace RaveVisualizer
         static constexpr float FADE_DURATION_S = 2.0f;
         static constexpr float INVERSION_STACCATO_HZ = 10.0f;
 
-        CompositionManager(
-            std::shared_ptr<RtEngine::CompositionRenderer> composition, std::shared_ptr<RtEngine::Glitch> glitch);
+        using PaletteListener = std::function<void(const ::color::ColorPalette&)>;
+
+        CompositionManager(std::shared_ptr<RtEngine::CompositionRenderer> composition,
+            std::shared_ptr<RtEngine::Glitch> glitch, ::color::ColorPalette initial_palette);
+
+        // Listeners are invoked immediately with the current palette on
+        // registration, and afterwards on every palette animation step.
+        void addPaletteListener(PaletteListener listener);
 
         void tick(float dt);
 
@@ -54,6 +63,7 @@ namespace RaveVisualizer
 
         std::shared_ptr<RtEngine::CompositionRenderer> composition;
         std::shared_ptr<RtEngine::Glitch> glitch;
+        ::color::PaletteAnimationRunner palette_runner;
         RaveState rave_state;
 
         float rotation_elapsed_s = 0.0f;

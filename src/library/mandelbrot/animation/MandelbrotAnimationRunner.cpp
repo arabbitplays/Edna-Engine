@@ -22,9 +22,8 @@ namespace mandelbrot
 
     MandelbrotAnimationRunner::MandelbrotAnimationRunner(std::function<void(const glm::vec2&)> set_offset,
         std::function<void(float)> set_step_size, std::function<void(const glm::vec2&)> set_initial,
-        std::function<void(const ::color::ColorPalette&)> set_palette, MandelbrotState initial_state,
-        ::color::ColorPalette initial_palette)
-        : current_state_(initial_state), palette_current_(std::move(initial_palette)),
+        MandelbrotState initial_state)
+        : current_state_(initial_state),
           // Tee each setter through a wrapper that also updates current_state_
           // so a mid-animation restart chains from the on-screen value rather
           // than the previous animation's unreached target.
@@ -52,21 +51,12 @@ namespace mandelbrot
                   {
                       s(v);
                   }
-              },
-              [this, s = std::move(set_palette)](const ::color::ColorPalette& p)
-              {
-                  palette_current_ = p;
-                  if (s)
-                  {
-                      s(p);
-                  }
               }),
           last_tick_(std::chrono::steady_clock::now())
     {
         startOffset();
         startStepSize();
         startInitial();
-        startPalette();
     }
 
     void MandelbrotAnimationRunner::update(const glm::vec2& view_center, float view_span, bool julia_mode)
@@ -101,7 +91,6 @@ namespace mandelbrot
         tick(offset_track_, dt, smoothed_speed_, &MandelbrotAnimationRunner::startOffset);
         tick(step_track_, dt, smoothed_speed_, &MandelbrotAnimationRunner::startStepSize);
         tick(initial_track_, dt, smoothed_speed_, &MandelbrotAnimationRunner::startInitial);
-        tick(palette_track_, dt, smoothed_speed_, &MandelbrotAnimationRunner::startPalette);
     }
 
     float MandelbrotAnimationRunner::computeSpeed(float edge_score)
@@ -159,11 +148,5 @@ namespace mandelbrot
     {
         auto result = generator_.generateInitialAnimation(current_state_);
         initial_track_.animation = std::move(result.animation);
-    }
-
-    void MandelbrotAnimationRunner::startPalette()
-    {
-        auto result = generator_.generatePaletteAnimation(palette_current_);
-        palette_track_.animation = std::move(result.animation);
     }
 } // namespace mandelbrot

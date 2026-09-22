@@ -57,13 +57,6 @@ namespace RtEngine
                     r->setMutationChance(value);
                 }
             },
-            [weak_renderer](const ::color::ColorPalette& palette)
-            {
-                if (const auto r = weak_renderer.lock())
-                {
-                    r->setPalette(palette.colors);
-                }
-            },
             [weak_renderer](const std::vector<glm::ivec2>& offsets)
             {
                 if (const auto r = weak_renderer.lock())
@@ -79,8 +72,8 @@ namespace RtEngine
                 }
             }};
 
-        animation_runner = std::make_unique<CyclicalCellularAutomatonAnimationRunner>(
-            std::move(generator), mutation_chance, ::color::ColorPalette{colors});
+        animation_runner =
+            std::make_unique<CyclicalCellularAutomatonAnimationRunner>(std::move(generator), mutation_chance);
 
         resize_callback_handle = context->swapchain_manager->addRecreateCallback(
             [this](uint32_t width, uint32_t height) { renderer->handleResize(VkExtent2D{width, height}); });

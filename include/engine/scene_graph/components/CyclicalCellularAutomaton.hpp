@@ -34,6 +34,11 @@ namespace RtEngine
 
         std::shared_ptr<ImageConnector> getOutputConnector() const override;
 
+        std::shared_ptr<CyclicalCellularAutomatonRenderer> getRenderer() const
+        {
+            return renderer;
+        }
+
     private:
         static constexpr uint32_t DEFAULT_THRESHOLD = 1;
         static constexpr float DEFAULT_UPDATE_CHANCE = 1;

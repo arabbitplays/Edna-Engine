@@ -35,6 +35,11 @@ namespace RtEngine
 
         std::shared_ptr<ImageConnector> getOutputConnector() const override;
 
+        std::shared_ptr<MandelbrotRenderer> getRenderer() const
+        {
+            return renderer;
+        }
+
     private:
         static constexpr float DEFAULT_STEP_SIZE = 0.0001f;
         static constexpr uint32_t DEFAULT_MAX_ITERATIONS = 128u;

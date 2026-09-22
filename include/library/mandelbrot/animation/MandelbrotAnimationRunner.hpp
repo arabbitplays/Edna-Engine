@@ -4,7 +4,6 @@
 #include <chrono>
 #include <glm/vec2.hpp>
 #include <library/animation/animations/IAnimation.hpp>
-#include <library/color/ColorPalette.hpp>
 #include <library/mandelbrot/animation/MandelbrotAnimationGenerator.hpp>
 #include <library/mandelbrot/MandelbrotState.hpp>
 
@@ -39,8 +38,7 @@ namespace mandelbrot
 
         MandelbrotAnimationRunner(std::function<void(const glm::vec2&)> set_offset,
             std::function<void(float)> set_step_size, std::function<void(const glm::vec2&)> set_initial,
-            std::function<void(const ::color::ColorPalette&)> set_palette, MandelbrotState initial_state,
-            ::color::ColorPalette initial_palette);
+            MandelbrotState initial_state);
 
         // view_span <= 0 disables speed modulation.
         void update(const glm::vec2& view_center, float view_span, bool julia_mode);
@@ -59,19 +57,16 @@ namespace mandelbrot
         void startOffset();
         void startStepSize();
         void startInitial();
-        void startPalette();
 
         // Declared before generator_ so the setter wrappers below see a
         // fully-initialised target (init order = declaration order).
         MandelbrotState current_state_{};
-        ::color::ColorPalette palette_current_;
 
         MandelbrotAnimationGenerator generator_;
 
         Track offset_track_;
         Track step_track_;
         Track initial_track_;
-        Track palette_track_;
 
         float last_view_edge_score_ = 0.0f;
         float smoothed_speed_ = 1.0f;

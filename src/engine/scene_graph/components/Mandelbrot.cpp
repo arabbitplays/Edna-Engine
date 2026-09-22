@@ -43,16 +43,8 @@ namespace RtEngine
         // switching animate/manual just picks who owns the values.
         animation_runner = std::make_unique<::mandelbrot::MandelbrotAnimationRunner>([this](const glm::vec2& v)
             { offset = v; }, [this](float v) { step_size = v; }, [this](const glm::vec2& v) { initial_number = v; },
-            [this](const ::color::ColorPalette& p)
-            {
-                if (renderer)
-                {
-                    renderer->setPalette(p.colors);
-                }
-            },
             ::mandelbrot::MandelbrotState{
-                .offset = offset, .step_size = step_size, .initial = initial_number, .julia_mode = julia_mode},
-            ::color::ColorPalette{colors});
+                .offset = offset, .step_size = step_size, .initial = initial_number, .julia_mode = julia_mode});
 
         resize_callback_handle = context->swapchain_manager->addRecreateCallback(
             [this](uint32_t width, uint32_t height) { renderer->handleResize(VkExtent2D{width, height}); });

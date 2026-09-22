@@ -8,8 +8,6 @@
 #include <library/animation/easing_functions/EasingDirection.hpp>
 #include <library/animation/easing_functions/EasingFunction.hpp>
 #include <library/animation/easing_functions/EasingFunctionFactory.hpp>
-#include <library/color/ColorPaletteFactory.hpp>
-#include <library/color/ColorPaletteName.hpp>
 #include <library/mandelbrot/animation/MandelbrotAnimationGenerator.hpp>
 #include <library/mandelbrot/animation/MandelbrotProbe.hpp>
 #include <limits>
@@ -179,10 +177,9 @@ namespace mandelbrot
     } // namespace
 
     MandelbrotAnimationGenerator::MandelbrotAnimationGenerator(std::function<void(const glm::vec2&)> set_offset,
-        std::function<void(float)> set_step_size, std::function<void(const glm::vec2&)> set_initial,
-        std::function<void(const ::color::ColorPalette&)> set_palette)
+        std::function<void(float)> set_step_size, std::function<void(const glm::vec2&)> set_initial)
         : set_offset_(std::move(set_offset)), set_step_size_(std::move(set_step_size)),
-          set_initial_(std::move(set_initial)), set_palette_(std::move(set_palette))
+          set_initial_(std::move(set_initial))
     {
     }
 
@@ -278,29 +275,4 @@ namespace mandelbrot
         return {.animation = std::move(animation), .target = target};
     }
 
-    MandelbrotAnimationGenerator::PaletteAnimationResult MandelbrotAnimationGenerator::generatePaletteAnimation(
-        const ::color::ColorPalette& current)
-    {
-        const auto all_names = ::color::ColorPaletteName::getAllNames();
-        const std::size_t idx = RtEngine::RandomUtil::generateInt() % all_names.size();
-        const auto& picked_name = all_names[idx];
-        logger()->info(std::format("palette target={}", picked_name));
-
-        ::color::ColorPalette target = ::color::ColorPaletteFactory::create(
-            ::color::ColorPaletteName::fromString(picked_name, ::color::ColorPaletteName::Fire));
-
-        auto set = set_palette_;
-        auto animation = std::make_unique<::color::ColorPaletteAnimation>(
-            current, target, randomStepCount(),
-            [set](const ::color::ColorPalette& p)
-            {
-                if (set)
-                {
-                    set(p);
-                }
-            },
-            randomInOutEasing());
-
-        return {.animation = std::move(animation), .target = std::move(target)};
-    }
 } // namespace mandelbrot
