@@ -55,6 +55,8 @@ namespace RtEngine
         float step_rotation_angle = 0.0f;
         uint32_t max_iterations = DEFAULT_MAX_ITERATIONS;
         float rotation_speed = 0.5f;
+        float diffuse_weight = 0.85f;
+        float rim_weight = 0.18f;
         bool animate = false;
         std::string palette_name = DEFAULT_PALETTE_NAME;
         std::string applied_palette_name;

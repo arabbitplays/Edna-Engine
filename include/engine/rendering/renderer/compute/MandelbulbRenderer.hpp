@@ -52,6 +52,14 @@ namespace RtEngine
         {
             push.theta_offset = theta_offset;
         }
+        void setDiffuseWeight(float diffuse_weight)
+        {
+            push.diffuse_weight = diffuse_weight;
+        }
+        void setRimWeight(float rim_weight)
+        {
+            push.rim_weight = rim_weight;
+        }
         void setMaxIterations(uint32_t iterations)
         {
             push.max_iterations = iterations;
@@ -78,12 +86,12 @@ namespace RtEngine
             glm::vec4 initial;
             float power;
             float theta_offset;
+            float diffuse_weight;
+            float rim_weight;
             uint32_t max_iterations;
             uint32_t color_count;
             uint32_t coloring_mode;
             uint32_t _pad_0;
-            uint32_t _pad_1;
-            uint32_t _pad_2;
         };
 
         struct CameraData
@@ -101,10 +109,12 @@ namespace RtEngine
             /*initial*/ glm::vec4(0.0f),
             /*power*/ 8.0f,
             /*theta_offset*/ 0.0f,
+            /*diffuse_weight*/ 0.85f,
+            /*rim_weight*/ 0.18f,
             /*max_iterations*/ 8u,
             /*color_count*/ 0u,
             /*coloring_mode*/ static_cast<uint32_t>(ColoringMode::OrbitTrap),
-            /*_pad*/ 0u, 0u, 0u,
+            /*_pad*/ 0u,
         };
         CameraData camera_data{glm::mat4(1.0f), glm::mat4(1.0f), glm::mat4(1.0f), glm::mat4(1.0f)};
 

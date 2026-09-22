@@ -120,6 +120,8 @@ namespace RtEngine
         renderer->setInitial(initial);
         renderer->setPower(power);
         renderer->setThetaOffset(theta_offset);
+        renderer->setDiffuseWeight(diffuse_weight);
+        renderer->setRimWeight(rim_weight);
         renderer->setMaxIterations(max_iterations);
         renderer->setColoringMode(parseColoringMode(coloring_mode));
     }
@@ -142,6 +144,8 @@ namespace RtEngine
                 STEP_ROTATION_ANGLE_BOUND);
             config->addUint("max_iterations", &max_iterations, MIN_MAX_ITERATIONS, MAX_MAX_ITERATIONS);
             config->addFloat("rotation_speed", &rotation_speed, -ROTATION_SPEED_BOUND, ROTATION_SPEED_BOUND);
+            config->addFloat("diffuse_weight", &diffuse_weight, 0.0f, 2.0f);
+            config->addFloat("rim_weight", &rim_weight, 0.0f, 1.0f);
             config->addBool("animate", &animate);
             config->addSelection("palette", &palette_name, ::color::ColorPaletteName::getAllNames());
             config->addSelection("coloring", &coloring_mode, coloringModeNames());

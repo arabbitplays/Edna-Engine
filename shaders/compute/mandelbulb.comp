@@ -21,12 +21,12 @@ layout (push_constant) uniform PushConstants {
     vec4  initial;
     float power;
     float theta_offset;
+    float diffuse_weight;
+    float rim_weight;
     uint  max_iterations;
     uint  color_count;
     uint  coloring_mode;
     uint  _pad_0;
-    uint  _pad_1;
-    uint  _pad_2;
 } push;
 
 layout (local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
@@ -175,8 +175,8 @@ void main()
         }
         color = samplePalette(palette_t);
 
-        float shade = (ambient + 0.85 * diffuse) * ao;
-        color.rgb   = color.rgb * shade + rim * 0.18;
+        float shade = (ambient + push.diffuse_weight * diffuse) * ao;
+        color.rgb   = color.rgb * shade + rim * push.rim_weight;
         color.a     = 1.0;
     } else {
         color = palette.colors[0];
