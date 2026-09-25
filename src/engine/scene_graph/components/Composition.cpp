@@ -223,12 +223,22 @@ namespace RtEngine
         if (const auto r = mandelbrot_comp ? mandelbrot_comp->getRenderer() : nullptr)
         {
             mandelbrot_renderer = r;
-            std::weak_ptr<MandelbrotRenderer> weak = r;
-            manager->addPaletteListener([weak](const ::color::ColorPalette& palette)
+            std::weak_ptr<MandelbrotRenderer> weak_renderer = r;
+            manager->addPaletteListener([weak_renderer](const ::color::ColorPalette& palette)
                 {
-                    if (const auto locked = weak.lock())
+                    if (const auto locked = weak_renderer.lock())
                     {
                         locked->setPalette(palette.colors);
+                    }
+                });
+
+            std::weak_ptr<Mandelbrot> weak_comp = mandelbrot_comp;
+            manager->setMandelbrotActivationSetter([weak_comp](bool julia_mode, const glm::vec2& origin)
+                {
+                    if (const auto locked = weak_comp.lock())
+                    {
+                        locked->setJuliaMode(julia_mode);
+                        locked->setOrigin(origin);
                     }
                 });
         }

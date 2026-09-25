@@ -14,8 +14,8 @@ namespace mandelbrot
     class MandelbrotAnimationGenerator
     {
     public:
-        static constexpr int STEP_COUNT_MIN = 800;
-        static constexpr int STEP_COUNT_MAX = 4000;
+        static constexpr int STEP_COUNT_MIN = 500;
+        static constexpr int STEP_COUNT_MAX = 2500;
 
         static constexpr float OFFSET_MIN = -1.0f;
         static constexpr float OFFSET_MAX = 1.0f;
@@ -55,9 +55,12 @@ namespace mandelbrot
         static constexpr std::uint32_t PATH_WAYPOINT_COUNT = 5u;
 
         // Zoom coupling: step_size targets are biased in log space by the
-        // current view's edge score. Dense view -> zoom in; flat -> zoom out.
+        // current view's edge score. Dense view -> zoom in aggressively;
+        // flat -> zoom back out at a gentler pace so we spend more time
+        // exploring interesting regions than fleeing dead ones.
         // ZOOM_EDGE_SATURATION mirrors the runner's speed cap threshold.
-        static constexpr float ZOOM_BIAS_LOG = 0.8f;
+        static constexpr float ZOOM_IN_BIAS_LOG = 1.4f;
+        static constexpr float ZOOM_OUT_BIAS_LOG = 0.6f;
         static constexpr float ZOOM_NOISE_LOG = 0.4f;
         static constexpr float ZOOM_EDGE_SATURATION = 0.15f;
 

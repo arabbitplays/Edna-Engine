@@ -55,8 +55,8 @@ scene:
       components:
         Glitch:
           source_node: Composition
-          shake_power: 0.03
-          shake_rate: 0.001
+          shake_power: 0.05
+          shake_rate: 0.005
           shake_speed: 5.0
           shake_block_size: 100
           shake_color_rate: 0.01

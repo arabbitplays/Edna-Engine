@@ -5,6 +5,7 @@
 
 #include <algorithm>
 #include <library/rave_visualizer/CompositionManager.hpp>
+#include <util/RandomUtil.hpp>
 #include <utility>
 
 namespace RaveVisualizer
@@ -21,6 +22,11 @@ namespace RaveVisualizer
     void CompositionManager::addPaletteListener(PaletteListener listener)
     {
         palette_runner.addListener(std::move(listener));
+    }
+
+    void CompositionManager::setMandelbrotActivationSetter(MandelbrotActivationSetter setter)
+    {
+        mandelbrot_activation_setter = std::move(setter);
     }
 
     void CompositionManager::tick(const float dt)
@@ -109,6 +115,13 @@ namespace RaveVisualizer
         rave_state.fade_progress = 0.0F;
         fade_elapsed_s = 0.0F;
         rave_state.phase = VisualizationPhase::FADE;
+
+        if (new_type == VisualizationType::MANDELBROT && mandelbrot_activation_setter)
+        {
+            const bool julia_mode = (RtEngine::RandomUtil::generateInt() & 1U) != 0U;
+            const glm::vec2 origin = julia_mode ? glm::vec2{0.0F, 0.0F} : glm::vec2{-0.5F, 0.0F};
+            mandelbrot_activation_setter(julia_mode, origin);
+        }
     }
 
     void CompositionManager::triggerInversionStaccato()

@@ -40,6 +40,15 @@ namespace RtEngine
             return renderer;
         }
 
+        void setJuliaMode(bool value)
+        {
+            julia_mode = value;
+        }
+        void setOrigin(const glm::vec2& value)
+        {
+            origin = value;
+        }
+
     private:
         static constexpr float DEFAULT_STEP_SIZE = 0.0001f;
         static constexpr uint32_t DEFAULT_MAX_ITERATIONS = 128u;

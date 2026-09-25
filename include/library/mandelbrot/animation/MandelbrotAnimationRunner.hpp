@@ -20,12 +20,12 @@ namespace mandelbrot
     public:
         // Cooldown ticks in virtual seconds; real wall time is longer when
         // speed_multiplier < 1.
-        static constexpr float COOLDOWN_MIN_SECONDS = 2.0f;
-        static constexpr float COOLDOWN_MAX_SECONDS = 6.0f;
+        static constexpr float COOLDOWN_MIN_SECONDS = 1.0f;
+        static constexpr float COOLDOWN_MAX_SECONDS = 3.5f;
 
         // 1.0 = one animation step per rendered frame.
-        static constexpr float MIN_SPEED = 0.2f; // at high edge score
-        static constexpr float MAX_SPEED = 4.0f; // at zero edge score
+        static constexpr float MIN_SPEED = 0.3f; // at high edge score
+        static constexpr float MAX_SPEED = 5.0f; // at zero edge score
 
         // Edge score at/above which speed saturates to MIN_SPEED. Chosen
         // above the generator's PROBE_ACCEPT_EDGE=0.05 so a barely-interesting

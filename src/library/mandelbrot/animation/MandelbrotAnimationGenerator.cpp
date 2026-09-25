@@ -223,9 +223,11 @@ namespace mandelbrot
     {
         // Bias log-delta by current view density: high edge score pushes the
         // target downward (zoom in on detail), low pushes upward (zoom out to
-        // find something). Saturation matches the runner's speed threshold.
+        // find something). Inward bias is larger than outward so an
+        // interesting frame gets dived into faster than a flat one gets fled.
+        // Saturation matches the runner's speed threshold.
         const float density = std::clamp(current_view_edge_score / ZOOM_EDGE_SATURATION, 0.0F, 1.0F);
-        const float bias = ZOOM_BIAS_LOG * (1.0F - 2.0F * density);
+        const float bias = glm::mix(ZOOM_OUT_BIAS_LOG, -ZOOM_IN_BIAS_LOG, density);
         const float log_delta = bias + randomFloat(-ZOOM_NOISE_LOG, ZOOM_NOISE_LOG);
         const float log_current = std::log10(std::max(current.step_size, 1e-9F));
         const float log_target = std::clamp(log_current + log_delta, LOG_STEP_SIZE_MIN, LOG_STEP_SIZE_MAX);

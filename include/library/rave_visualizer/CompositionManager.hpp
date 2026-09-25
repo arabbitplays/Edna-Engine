@@ -6,6 +6,7 @@
 
 #include <array>
 #include <functional>
+#include <glm/vec2.hpp>
 #include <library/color/ColorPalette.hpp>
 #include <library/rave_visualizer/PaletteAnimationRunner.hpp>
 #include <memory>
@@ -23,7 +24,7 @@ namespace RaveVisualizer
     class CompositionManager
     {
     public:
-        static constexpr float DEFAULT_ROTATION_INTERVAL_S = 60.0f;
+        static constexpr float DEFAULT_ROTATION_INTERVAL_S = 300.0f;
         static constexpr float FADE_DURATION_S = 2.0f;
         static constexpr float INVERSION_STACCATO_HZ = 10.0f;
 
@@ -42,31 +43,23 @@ namespace RaveVisualizer
             std::shared_ptr<RtEngine::Glitch> glitch, ::color::ColorPalette initial_palette,
             std::shared_ptr<RtEngine::InputManager> input_manager = nullptr);
 
-        // Registration is delegated to the palette runner; listeners fire
-        // immediately with the current palette and then on every step.
         void addPaletteListener(PaletteListener listener);
 
-        // Poll the input manager and latch any pending key events into the
-        // manager's own buffer. Call every render frame so events aren't
-        // dropped when tick() runs on a slower frame gate.
+        // Invoked whenever the manager begins a transition to the Mandelbrot visualization
+        using MandelbrotActivationSetter = std::function<void(bool julia_mode, const glm::vec2& origin)>;
+        void setMandelbrotActivationSetter(MandelbrotActivationSetter setter);
+
         void pollInput();
 
         void tick(float dt);
 
-        // Triggers a timed staccato burst (INVERSION_STACCATO_DURATION_S).
         void triggerInversionStaccato();
 
-        // Starts a monotonically-growing intensification of the glitch shake
-        // power and rate. Idempotent: pressing repeatedly keeps the ramp
-        // running from wherever it currently is.
         void startGlitchRamp();
-        // Restores the glitch to its baseline configured values.
         void resetGlitchRamp();
 
         void TryChangeType(VisualizationType new_type);
 
-        // When true, the manager cycles visualizations on its own timer; when
-        // false, the type only changes on TryChangeType calls.
         void setAnimate(bool value)
         {
             animate = value;
@@ -115,6 +108,7 @@ namespace RaveVisualizer
         std::shared_ptr<RtEngine::InputManager> input_manager;
         PaletteAnimationRunner palette_runner;
         RaveState rave_state;
+        MandelbrotActivationSetter mandelbrot_activation_setter;
 
         bool animate = true;
         float rotation_interval_s = DEFAULT_ROTATION_INTERVAL_S;
