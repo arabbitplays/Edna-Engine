@@ -17,8 +17,12 @@ namespace Animation
             std::shared_ptr<EasingFunction> easing = std::make_shared<Linear>());
 
         void step() override;
-        void reset() override;
         bool finished() const override;
+
+        const T& current() const
+        {
+            return current_value;
+        }
 
     protected:
         virtual T interpolate(float t) const = 0;
@@ -29,6 +33,7 @@ namespace Animation
     private:
         int step_count;
         int current_step;
+        T current_value;
         std::function<void(const T&)> on_update;
         std::shared_ptr<EasingFunction> easing_function;
     };
@@ -37,7 +42,8 @@ namespace Animation
     Animation<T>::Animation(T start, T target, int step_count, std::function<void(const T&)> on_update,
         std::shared_ptr<EasingFunction> easing)
         : start(std::move(start)), target(std::move(target)), step_count(step_count > 0 ? step_count : 1),
-          current_step(0), on_update(std::move(on_update)), easing_function(std::move(easing))
+          current_step(0), current_value(this->start), on_update(std::move(on_update)),
+          easing_function(std::move(easing))
     {
     }
 
@@ -51,13 +57,9 @@ namespace Animation
         const float raw = static_cast<float>(current_step) / static_cast<float>(step_count);
         const float t = easing_function->apply(std::clamp(raw, 0.0f, 1.0f));
 
+        current_value = interpolate(t);
         if (on_update)
-            on_update(interpolate(t));
-    }
-
-    template <typename T> void Animation<T>::reset()
-    {
-        current_step = 0;
+            on_update(current_value);
     }
 
     template <typename T> bool Animation<T>::finished() const
