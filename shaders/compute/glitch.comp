@@ -23,13 +23,17 @@ layout (push_constant) uniform PushConstants {
 
 layout (local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
 
+uint hashUint(uint x) {
+    x += (x << 10u);
+    x ^= (x >>  6u);
+    x += (x <<  3u);
+    x ^= (x >> 11u);
+    x += (x << 15u);
+    return x;
+}
+
 float random(float seed) {
-    // fp32 sin() loses precision once its argument grows past ~2^24, and the
-    // fract() output biases toward small values — the glitch would fire more
-    // and more often the longer the app has been running. Wrap the seed into
-    // a safe range first.
-    seed = mod(seed, 4096.0);
-    return fract(543.2543 * sin(dot(vec2(seed, seed), vec2(3525.46, -54.3415))));
+    return float(hashUint(floatBitsToUint(seed)) & 0x00FFFFFFu) / float(0x01000000u);
 }
 
 vec3 sampleSrc(vec2 uv, ivec2 size) {

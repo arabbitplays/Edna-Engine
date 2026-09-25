@@ -3,6 +3,7 @@
 #include "ImageConnectorFactory.hpp"
 #include "VulkanUtil.hpp"
 
+#include <cmath>
 #include <glitch.comp.spv.h>
 
 namespace RtEngine
@@ -54,7 +55,9 @@ namespace RtEngine
     void GlitchRenderer::recordPushConstants(VkCommandBuffer cmd)
     {
         const auto now = std::chrono::steady_clock::now();
-        push.time = std::chrono::duration<float>(now - start_time).count();
+
+        constexpr float TIME_WRAP_S = 4096.0f;
+        push.time = std::fmod(std::chrono::duration<float>(now - start_time).count(), TIME_WRAP_S);
 
         vkCmdPushConstants(
             cmd, pipeline->getLayoutHandle(), VK_SHADER_STAGE_COMPUTE_BIT, 0, sizeof(PushConstants), &push);
