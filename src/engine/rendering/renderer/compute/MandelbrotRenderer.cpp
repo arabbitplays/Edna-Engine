@@ -11,9 +11,9 @@
 namespace RtEngine
 {
     MandelbrotRenderer::MandelbrotRenderer(const std::shared_ptr<VulkanContext>& vulkan_context,
-        VkExtent2D image_extent, const std::vector<glm::vec4>& colors, const double origin_x, const double origin_y,
-        const double offset_x, const double offset_y, const double step_size, const uint32_t max_iterations,
-        const double initial_x, const double initial_y, const bool julia_mode, const uint32_t max_frames_in_flight)
+        VkExtent2D image_extent, const std::vector<glm::vec4>& colors, const float origin_x, const float origin_y,
+        const float offset_x, const float offset_y, const float step_size, const uint32_t max_iterations,
+        const float initial_x, const float initial_y, const bool julia_mode, const uint32_t max_frames_in_flight)
         : ComputeRenderer(vulkan_context, max_frames_in_flight), image_extent(image_extent), colors(colors)
     {
         assert(!colors.empty() && "MandelbrotRenderer: colors must not be empty");
@@ -97,10 +97,10 @@ namespace RtEngine
     void MandelbrotRenderer::recordPushConstants(VkCommandBuffer cmd)
     {
         const VkExtent2D extent = target_connector->getExtent();
-        const double screen_width_c = push.step_size * static_cast<double>(extent.width);
-        const double screen_height_c = push.step_size * static_cast<double>(extent.height);
-        push.origin_x = world_origin_x + (screen_offset_x * screen_width_c) - (0.5 * screen_width_c);
-        push.origin_y = world_origin_y + (screen_offset_y * screen_height_c) - (0.5 * screen_height_c);
+        const float screen_width_c = push.step_size * static_cast<float>(extent.width);
+        const float screen_height_c = push.step_size * static_cast<float>(extent.height);
+        push.origin_x = world_origin_x + (screen_offset_x * screen_width_c) - (0.5f * screen_width_c);
+        push.origin_y = world_origin_y + (screen_offset_y * screen_height_c) - (0.5f * screen_height_c);
 
         vkCmdPushConstants(
             cmd, pipeline->getLayoutHandle(), VK_SHADER_STAGE_COMPUTE_BIT, 0, sizeof(PushConstants), &push);

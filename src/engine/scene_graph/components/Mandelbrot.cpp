@@ -31,10 +31,8 @@ namespace RtEngine
         const std::vector<glm::vec4> colors = loadPaletteColors(palette_name);
         applied_palette_name = palette_name;
 
-        renderer = std::make_shared<MandelbrotRenderer>(vulkan_context, extent, colors, static_cast<double>(origin.x),
-            static_cast<double>(origin.y), static_cast<double>(offset.x), static_cast<double>(offset.y),
-            static_cast<double>(step_size), max_iterations, static_cast<double>(initial_number.x),
-            static_cast<double>(initial_number.y), julia_mode);
+        renderer = std::make_shared<MandelbrotRenderer>(vulkan_context, extent, colors, origin.x, origin.y, offset.x,
+            offset.y, step_size, max_iterations, initial_number.x, initial_number.y, julia_mode);
         renderer->init();
 
         rendering_manager->addComputeRenderer(renderer, renderer->getOutputConnector());
@@ -83,11 +81,11 @@ namespace RtEngine
             applied_palette_name = palette_name;
         }
 
-        renderer->setOrigin(static_cast<double>(origin.x), static_cast<double>(origin.y));
-        renderer->setOffset(static_cast<double>(offset.x), static_cast<double>(offset.y));
-        renderer->setStepSize(static_cast<double>(step_size));
+        renderer->setOrigin(origin.x, origin.y);
+        renderer->setOffset(offset.x, offset.y);
+        renderer->setStepSize(step_size);
         renderer->setMaxIterations(max_iterations);
-        renderer->setInitial(static_cast<double>(initial_number.x), static_cast<double>(initial_number.y));
+        renderer->setInitial(initial_number.x, initial_number.y);
         renderer->setJuliaMode(julia_mode);
     }
 

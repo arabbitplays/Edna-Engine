@@ -1,5 +1,4 @@
 #version 450
-#extension GL_ARB_gpu_shader_fp64 : enable
 
 const uint MAX_COLOR_COUNT      = 256;
 
@@ -9,15 +8,14 @@ layout (binding = 1)          uniform ColorPalette {
 } palette;
 
 layout (push_constant) uniform PushConstants {
-    double origin_x;
-    double origin_y;
-    double step_size;
-    double initial_x;
-    double initial_y;
-    uint   max_iterations;
-    uint   color_count;
-    uint   julia_mode;
-    uint   _padding;
+    float origin_x;
+    float origin_y;
+    float step_size;
+    float initial_x;
+    float initial_y;
+    uint  max_iterations;
+    uint  color_count;
+    uint  julia_mode;
 } push;
 
 layout (local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
@@ -40,10 +38,10 @@ void main()
     ivec2 size  = imageSize(targetImage);
     if (pixel.x >= size.x || pixel.y >= size.y) return;
 
-    double px = push.origin_x + double(pixel.x) * push.step_size;
-    double py = push.origin_y + double(pixel.y) * push.step_size;
+    float px = push.origin_x + float(pixel.x) * push.step_size;
+    float py = push.origin_y + float(pixel.y) * push.step_size;
 
-    double cx, cy, zx, zy;
+    float cx, cy, zx, zy;
     if (push.julia_mode != 0u) {
         cx = push.initial_x;
         cy = push.initial_y;
@@ -55,18 +53,18 @@ void main()
         zx = push.initial_x;
         zy = push.initial_y;
     }
-    uint   iter = 0u;
+    uint  iter = 0u;
     // Large bailout keeps the log-log smoothing formula well-conditioned.
-    const double escape_sq = 65536.0lf;
-    double zx2 = 0.0lf;
-    double zy2 = 0.0lf;
+    const float escape_sq = 65536.0;
+    float zx2 = 0.0;
+    float zy2 = 0.0;
 
     while (iter < push.max_iterations) {
         zx2 = zx * zx;
         zy2 = zy * zy;
         if (zx2 + zy2 > escape_sq) break;
-        double new_zx = zx2 - zy2 + cx;
-        zy = 2.0lf * zx * zy + cy;
+        float new_zx = zx2 - zy2 + cx;
+        zy = 2.0 * zx * zy + cy;
         zx = new_zx;
         iter++;
     }
@@ -76,7 +74,7 @@ void main()
         color = palette.colors[push.color_count - 1u];
     } else {
         // Continuous escape time mu = n + 1 - log2(log2(|z|)) removes banding.
-        float log_mod_sq = log(float(zx2 + zy2));
+        float log_mod_sq = log(zx2 + zy2);
         float nu         = log(0.5 * log_mod_sq / log(2.0)) / log(2.0);
         float mu         = float(iter) + 1.0 - nu;
 
