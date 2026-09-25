@@ -3,4 +3,5 @@
 
 src += files(
   'CompositionManager.cpp',
+  'PaletteAnimationRunner.cpp',
 )

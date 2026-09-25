@@ -50,7 +50,8 @@ namespace RtEngine
         rendering_manager->addComputeRenderer(renderer, renderer->getOutputConnector());
 
         std::weak_ptr<CyclicalCellularAutomatonRenderer> weak_renderer = renderer;
-        CyclicalCellularAutomatonAnimationGenerator generator{[weak_renderer](float value)
+        animation_runner = std::make_unique<CyclicalCellularAutomatonAnimationRunner>(
+            [weak_renderer](float value)
             {
                 if (const auto r = weak_renderer.lock())
                 {
@@ -70,10 +71,8 @@ namespace RtEngine
                 {
                     r->setThreshold(value);
                 }
-            }};
-
-        animation_runner =
-            std::make_unique<CyclicalCellularAutomatonAnimationRunner>(std::move(generator), mutation_chance);
+            },
+            mutation_chance);
 
         resize_callback_handle = context->swapchain_manager->addRecreateCallback(
             [this](uint32_t width, uint32_t height) { renderer->handleResize(VkExtent2D{width, height}); });

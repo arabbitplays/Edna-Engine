@@ -7,8 +7,9 @@
 #include <array>
 #include <functional>
 #include <library/color/ColorPalette.hpp>
-#include <library/color/PaletteAnimationRunner.hpp>
+#include <library/rave_visualizer/PaletteAnimationRunner.hpp>
 #include <memory>
+#include <vector>
 
 namespace RtEngine
 {
@@ -35,14 +36,14 @@ namespace RaveVisualizer
         static constexpr float GLITCH_RAMP_POWER_PER_S = 0.05f;
         static constexpr float GLITCH_RAMP_RATE_PER_S = 0.2f;
 
-        using PaletteListener = std::function<void(const ::color::ColorPalette&)>;
+        using PaletteListener = PaletteAnimationRunner::Listener;
 
         CompositionManager(std::shared_ptr<RtEngine::CompositionRenderer> composition,
             std::shared_ptr<RtEngine::Glitch> glitch, ::color::ColorPalette initial_palette,
             std::shared_ptr<RtEngine::InputManager> input_manager = nullptr);
 
-        // Listeners are invoked immediately with the current palette on
-        // registration, and afterwards on every palette animation step.
+        // Registration is delegated to the palette runner; listeners fire
+        // immediately with the current palette and then on every step.
         void addPaletteListener(PaletteListener listener);
 
         // Poll the input manager and latch any pending key events into the
@@ -112,7 +113,7 @@ namespace RaveVisualizer
         std::shared_ptr<RtEngine::CompositionRenderer> composition;
         std::shared_ptr<RtEngine::Glitch> glitch;
         std::shared_ptr<RtEngine::InputManager> input_manager;
-        ::color::PaletteAnimationRunner palette_runner;
+        PaletteAnimationRunner palette_runner;
         RaveState rave_state;
 
         bool animate = true;

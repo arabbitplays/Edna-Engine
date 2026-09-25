@@ -1,25 +1,12 @@
 #include <algorithm>
 #include <cmath>
-#include <cstdint>
 #include <library/mandelbrot/animation/MandelbrotAnimationRunner.hpp>
 #include <library/mandelbrot/animation/MandelbrotProbe.hpp>
-#include <limits>
 #include <util/RandomUtil.hpp>
 #include <utility>
 
 namespace mandelbrot
 {
-    namespace
-    {
-        float randomCooldown()
-        {
-            using Runner = MandelbrotAnimationRunner;
-            const float t = static_cast<float>(RtEngine::RandomUtil::generateInt()) /
-                            static_cast<float>(std::numeric_limits<uint32_t>::max());
-            return Runner::COOLDOWN_MIN_SECONDS + (t * (Runner::COOLDOWN_MAX_SECONDS - Runner::COOLDOWN_MIN_SECONDS));
-        }
-    } // namespace
-
     MandelbrotAnimationRunner::MandelbrotAnimationRunner(std::function<void(const glm::vec2&)> set_offset,
         std::function<void(float)> set_step_size, std::function<void(const glm::vec2&)> set_initial,
         MandelbrotState initial_state)
@@ -119,7 +106,8 @@ namespace mandelbrot
             {
                 track.animation.reset();
                 track.step_accumulator = 0.0F;
-                track.cooldown_seconds = randomCooldown();
+                track.cooldown_seconds =
+                    RtEngine::RandomUtil::randomInRange(COOLDOWN_MIN_SECONDS, COOLDOWN_MAX_SECONDS);
             }
             return;
         }

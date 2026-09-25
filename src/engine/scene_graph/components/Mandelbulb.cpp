@@ -60,14 +60,12 @@ namespace RtEngine
 
         // Runner writes to the same fields the manual controls set, so
         // toggling `animate` just decides who owns the values.
-        ::mandelbulb::MandelbulbAnimationGenerator generator{
+        animation_runner = std::make_unique<::mandelbulb::MandelbulbAnimationRunner>(
             [this](float v) { power = v; },
             [this](float v) { theta_offset = v; },
             [this](float v) { step_rotation_angle = v; },
             [this](const glm::vec3& v) { step_rotation_axis = v; },
-        };
-        animation_runner = std::make_unique<::mandelbulb::MandelbulbAnimationRunner>(
-            std::move(generator), power, theta_offset, step_rotation_angle);
+            power, theta_offset, step_rotation_angle, step_rotation_axis);
 
         resize_callback_handle = context->swapchain_manager->addRecreateCallback(
             [this](uint32_t width, uint32_t height) { renderer->handleResize(VkExtent2D{width, height}); });
