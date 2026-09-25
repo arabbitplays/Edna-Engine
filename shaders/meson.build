@@ -8,6 +8,7 @@ shaders = [
     'phong/phong_raygen.rgen',
     'metalRough/metal_rough_raygen.rgen',
     'compute/glitch.comp',
+    'compute/gaussian_blur.comp',
     'compute/cyclical_cellular_automaton.comp',
     'compute/mandelbrot.comp',
     'compute/mandelbulb.comp',

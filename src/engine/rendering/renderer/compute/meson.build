@@ -2,6 +2,7 @@
 
 
 src += files(
+  'GaussianBlurRenderer.cpp',
   'ComputeRenderer.cpp',
   'GlitchRenderer.cpp',
   'CyclicalCellularAutomatonRenderer.cpp',

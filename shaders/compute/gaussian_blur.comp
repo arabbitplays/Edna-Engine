@@ -1,0 +1,43 @@
+#version 450
+
+// Single-axis pass of a separable Gaussian blur. Chain two dispatches with
+// direction = (1,0) then (0,1) to get a full 2D blur. sigma is expected to
+// be scaled to the kernel radius so the kernel is never truncated in a
+// visually noticeable way (see the CPU-side rescaling).
+
+layout (binding = 0, rgba32f) uniform writeonly image2D target;
+layout (binding = 1, rgba32f) uniform readonly  image2D src;
+
+layout (push_constant) uniform PushConstants {
+    ivec2 direction;
+    uint  radius;
+    float sigma;
+} push;
+
+layout (local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
+
+void main() {
+    ivec2 pixel = ivec2(gl_GlobalInvocationID.xy);
+    ivec2 size  = imageSize(target);
+    if (pixel.x >= size.x || pixel.y >= size.y) return;
+
+    if (push.radius == 0u) {
+        imageStore(target, pixel, imageLoad(src, pixel));
+        return;
+    }
+
+    const int   r                = int(push.radius);
+    const float inv_two_sigma_sq = 1.0 / (2.0 * push.sigma * push.sigma);
+
+    vec4  accum      = vec4(0.0);
+    float weight_sum = 0.0;
+
+    for (int i = -r; i <= r; ++i) {
+        ivec2 sample_pos = clamp(pixel + push.direction * i, ivec2(0), size - ivec2(1));
+        float weight     = exp(-float(i * i) * inv_two_sigma_sq);
+        accum      += imageLoad(src, sample_pos) * weight;
+        weight_sum += weight;
+    }
+
+    imageStore(target, pixel, accum / weight_sum);
+}
