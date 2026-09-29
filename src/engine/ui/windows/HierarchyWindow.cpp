@@ -1,5 +1,7 @@
 #include <engine/ui/windows/HierarchyWindow.hpp>
 
+#include <engine/ui/core/ImGuiIdProvider.hpp>
+
 namespace RtEngine
 {
     HierarchyWindow::HierarchyWindow(
@@ -21,7 +23,7 @@ namespace RtEngine
 
         if (show_window)
         {
-            ImGui::Begin("Hierarchy", &show_window);
+            ImGui::Begin(ImGuiIdProvider::getName(UiElement::Hierarchy), &show_window);
             displayNode(scene->nodes["root"], nullptr, 0);
             ImGui::End();
         }

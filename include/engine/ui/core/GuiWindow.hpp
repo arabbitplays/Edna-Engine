@@ -32,6 +32,7 @@ namespace RtEngine
         }
 
         bool show_window = true;
+        bool initialized = false;
 
         std::deque<std::function<void(const UpdateFlagsHandle&)>> update_callbacks;
     };

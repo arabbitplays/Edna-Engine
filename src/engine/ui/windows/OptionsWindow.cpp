@@ -1,5 +1,6 @@
 #include <engine/ui/windows/OptionsWindow.hpp>
 
+#include <engine/ui/core/ImGuiIdProvider.hpp>
 #include <properties/ImGuiProperties.hpp>
 #include <engine/UpdateFlagValue.hpp>
 
@@ -14,7 +15,7 @@ namespace RtEngine
         auto update_flags = std::make_shared<UpdateFlags>();
         if (show_window)
         {
-            ImGui::Begin("Main Window", &show_window);
+            ImGui::Begin(ImGuiIdProvider::getName(UiElement::Options), &show_window);
             std::shared_ptr<ImGuiProperties> props = std::make_shared<ImGuiProperties>();
             for (const auto& serialize_handle : serializables)
             {

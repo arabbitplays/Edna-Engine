@@ -131,8 +131,6 @@ namespace RtEngine
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport(), ImGuiDockNodeFlags_PassthruCentralNode);
-
         for (auto& window : gui_windows)
         {
             window->createFrame();

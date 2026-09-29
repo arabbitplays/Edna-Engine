@@ -1,5 +1,6 @@
 #include <engine/ui/windows/InspectorWindow.hpp>
 
+#include <engine/ui/core/ImGuiIdProvider.hpp>
 #include <properties/ImGuiProperties.hpp>
 #include <engine/rendering/vulkan_scene_representation/SceneAdapter.hpp>
 #include <engine/UpdateFlagValue.hpp>
@@ -28,7 +29,7 @@ namespace RtEngine
         {
             std::shared_ptr<ImGuiProperties> props = std::make_shared<ImGuiProperties>();
 
-            ImGui::Begin("Inspector", &show_window);
+            ImGui::Begin(ImGuiIdProvider::getName(UiElement::Inspector), &show_window);
             ImGui::Text("%s", node->name.c_str());
             ImGui::Separator();
 
