@@ -2,6 +2,7 @@
 
 
 src += files(
+  'ColorPaletteAnimationGenerator.cpp',
   'ColorPaletteFactory.cpp',
   'ColorPaletteAnimation.cpp',
 )

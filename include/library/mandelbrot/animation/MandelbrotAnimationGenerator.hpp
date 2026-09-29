@@ -6,8 +6,6 @@
 #include <glm/vec2.hpp>
 #include <library/animation/animations/FloatAnimation.hpp>
 #include <library/animation/animations/VectorAnimation.hpp>
-#include <library/color/ColorPalette.hpp>
-#include <library/color/ColorPaletteAnimation.hpp>
 #include <library/mandelbrot/MandelbrotState.hpp>
 #include <memory>
 
@@ -16,8 +14,8 @@ namespace mandelbrot
     class MandelbrotAnimationGenerator
     {
     public:
-        static constexpr int STEP_COUNT_MIN = 800;
-        static constexpr int STEP_COUNT_MAX = 4000;
+        static constexpr int STEP_COUNT_MIN = 500;
+        static constexpr int STEP_COUNT_MAX = 2500;
 
         static constexpr float OFFSET_MIN = -1.0f;
         static constexpr float OFFSET_MAX = 1.0f;
@@ -57,15 +55,17 @@ namespace mandelbrot
         static constexpr std::uint32_t PATH_WAYPOINT_COUNT = 5u;
 
         // Zoom coupling: step_size targets are biased in log space by the
-        // current view's edge score. Dense view -> zoom in; flat -> zoom out.
+        // current view's edge score. Dense view -> zoom in aggressively;
+        // flat -> zoom back out at a gentler pace so we spend more time
+        // exploring interesting regions than fleeing dead ones.
         // ZOOM_EDGE_SATURATION mirrors the runner's speed cap threshold.
-        static constexpr float ZOOM_BIAS_LOG = 0.8f;
+        static constexpr float ZOOM_IN_BIAS_LOG = 1.4f;
+        static constexpr float ZOOM_OUT_BIAS_LOG = 0.6f;
         static constexpr float ZOOM_NOISE_LOG = 0.4f;
         static constexpr float ZOOM_EDGE_SATURATION = 0.15f;
 
         MandelbrotAnimationGenerator(std::function<void(const glm::vec2&)> set_offset,
-            std::function<void(float)> set_step_size, std::function<void(const glm::vec2&)> set_initial,
-            std::function<void(const ::color::ColorPalette&)> set_palette);
+            std::function<void(float)> set_step_size, std::function<void(const glm::vec2&)> set_initial);
 
         struct Vec2AnimationResult
         {
@@ -79,25 +79,17 @@ namespace mandelbrot
             float target;
         };
 
-        struct PaletteAnimationResult
-        {
-            std::unique_ptr<::color::ColorPaletteAnimation> animation;
-            ::color::ColorPalette target;
-        };
-
         // Candidates are scored against `current` for the fields the method
         // does not roll, so target selection sees the actual fractal being
         // rendered (in particular the current initial/c and julia_mode).
         Vec2AnimationResult generateOffsetAnimation(const MandelbrotState& current);
         FloatAnimationResult generateStepSizeAnimation(const MandelbrotState& current, float current_view_edge_score);
         Vec2AnimationResult generateInitialAnimation(const MandelbrotState& current);
-        PaletteAnimationResult generatePaletteAnimation(const ::color::ColorPalette& current);
 
     private:
         std::function<void(const glm::vec2&)> set_offset_;
         std::function<void(float)> set_step_size_;
         std::function<void(const glm::vec2&)> set_initial_;
-        std::function<void(const ::color::ColorPalette&)> set_palette_;
     };
 } // namespace mandelbrot
 

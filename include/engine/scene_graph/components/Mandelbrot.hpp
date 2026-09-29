@@ -35,6 +35,20 @@ namespace RtEngine
 
         std::shared_ptr<ImageConnector> getOutputConnector() const override;
 
+        std::shared_ptr<MandelbrotRenderer> getRenderer() const
+        {
+            return renderer;
+        }
+
+        void setJuliaMode(bool value)
+        {
+            julia_mode = value;
+        }
+        void setOrigin(const glm::vec2& value)
+        {
+            origin = value;
+        }
+
     private:
         static constexpr float DEFAULT_STEP_SIZE = 0.0001f;
         static constexpr uint32_t DEFAULT_MAX_ITERATIONS = 128u;
@@ -45,7 +59,7 @@ namespace RtEngine
         static constexpr float INITIAL_BOUND = 2.0f;
         static inline const std::string DEFAULT_PALETTE_NAME = "Sunburn";
 
-        glm::vec2 origin = glm::vec2(-1.0, .0f);
+        glm::vec2 origin = glm::vec2(.0f, .0f);
         glm::vec2 offset = glm::vec2(0.0f);
         float step_size = DEFAULT_STEP_SIZE;
         uint32_t max_iterations = DEFAULT_MAX_ITERATIONS;

@@ -14,6 +14,8 @@
 #include <util/RandomUtil.hpp>
 #include <utility>
 
+#include "library/animation/animations/VectorAnimation.hpp"
+
 namespace mandelbulb
 {
     namespace
@@ -42,10 +44,8 @@ namespace mandelbulb
         std::shared_ptr<::Animation::EasingFunction> randomInOutEasing()
         {
             constexpr std::array curves = {
-                ::Animation::EasingCurve::Linear,
                 ::Animation::EasingCurve::Cubic,
                 ::Animation::EasingCurve::Elastic,
-                ::Animation::EasingCurve::Bounce,
             };
             const std::size_t idx = RtEngine::RandomUtil::generateInt() % curves.size();
             return ::Animation::makeEasingFunction(curves[idx], ::Animation::EasingDirection::InOut);
@@ -57,6 +57,21 @@ namespace mandelbulb
             return std::make_unique<::Animation::FloatAnimation>(
                 current, target, randomStepCount(),
                 [set](const float& v)
+                {
+                    if (set)
+                    {
+                        set(v);
+                    }
+                },
+                randomInOutEasing());
+        }
+
+         std::unique_ptr<::Animation::Vec3Animation> makeVec3Animation(
+            glm::vec3 current, glm::vec3 target, std::function<void(const glm::vec3&)> set)
+        {
+            return std::make_unique<::Animation::Vec3Animation>(
+                current, target, randomStepCount(),
+                [set](const glm::vec3& v)
                 {
                     if (set)
                     {
@@ -80,7 +95,7 @@ namespace mandelbulb
         float current)
     {
         const float target = randomFloat(POWER_MIN, POWER_MAX);
-        logger()->info(std::format("rolled power target = {:.3f}", target));
+        logger()->debug(std::format("rolled power target = {:.3f}", target));
         return {.animation = makeFloatAnimation(current, target, set_power_), .target = target};
     }
 
@@ -88,7 +103,7 @@ namespace mandelbulb
         float current)
     {
         const float target = randomFloat(THETA_OFFSET_MIN, THETA_OFFSET_MAX);
-        logger()->info(std::format("rolled theta_offset target = {:.3f}", target));
+        logger()->debug(std::format("rolled theta_offset target = {:.3f}", target));
         return {.animation = makeFloatAnimation(current, target, set_theta_offset_), .target = target};
     }
 
@@ -96,13 +111,14 @@ namespace mandelbulb
     MandelbulbAnimationGenerator::generateStepRotationAngleAnimation(float current)
     {
         const float target = randomFloat(STEP_ROTATION_ANGLE_MIN, STEP_ROTATION_ANGLE_MAX);
-        logger()->info(std::format("rolled step_rotation_angle target = {:.3f}", target));
+        logger()->debug(std::format("rolled step_rotation_angle target = {:.3f}", target));
         return {.animation = makeFloatAnimation(current, target, set_step_rotation_angle_), .target = target};
     }
 
-    void MandelbulbAnimationGenerator::applyRandomStepRotationAxis()
+    MandelbulbAnimationGenerator::Vec3AnimationResult MandelbulbAnimationGenerator::generateStepRotationAxisAnimation(
+        glm::vec3 current)
     {
-        // Uniform-ish point on the unit sphere, biased slightly away from
+         // Uniform-ish point on the unit sphere, biased slightly away from
         // degenerate zero vectors by the length check.
         glm::vec3 axis{
             randomFloat(-1.0f, 1.0f),
@@ -114,11 +130,7 @@ namespace mandelbulb
             axis = glm::vec3(0.0f, 1.0f, 0.0f);
         }
         axis = glm::normalize(axis);
-        logger()->info(std::format("rolled step_rotation_axis = ({:.2f},{:.2f},{:.2f})", axis.x, axis.y, axis.z));
-
-        if (set_step_rotation_axis_)
-        {
-            set_step_rotation_axis_(axis);
-        }
+        logger()->debug(std::format("rolled step_rotation_axis = ({:.2f},{:.2f},{:.2f})", axis.x, axis.y, axis.z));
+        return {.animation =  makeVec3Animation(current, axis, set_step_rotation_axis_), .target = axis};
     }
 } // namespace mandelbulb

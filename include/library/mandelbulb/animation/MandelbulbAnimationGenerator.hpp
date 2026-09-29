@@ -4,6 +4,7 @@
 #include <functional>
 #include <glm/vec3.hpp>
 #include <library/animation/animations/FloatAnimation.hpp>
+#include <library/animation/animations/VectorAnimation.hpp>
 #include <memory>
 
 namespace mandelbulb
@@ -35,13 +36,16 @@ namespace mandelbulb
             float target;
         };
 
+        struct Vec3AnimationResult
+        {
+            std::unique_ptr<::Animation::Vec3Animation> animation;
+            glm::vec3 target;
+        };
+
         FloatAnimationResult generatePowerAnimation(float current);
         FloatAnimationResult generateThetaOffsetAnimation(float current);
         FloatAnimationResult generateStepRotationAngleAnimation(float current);
-
-        // Non-interpolated re-roll: the axis snaps to a fresh unit vector so
-        // the compound step rotation swings through a new orientation.
-        void applyRandomStepRotationAxis();
+        Vec3AnimationResult generateStepRotationAxisAnimation(glm::vec3 current);
 
     private:
         std::function<void(float)> set_power_;

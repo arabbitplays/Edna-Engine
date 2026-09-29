@@ -8,6 +8,7 @@
 
 #include <Composition.hpp>
 #include <CyclicalCellularAutomaton.hpp>
+#include <GaussianBlur.hpp>
 #include <Glitch.hpp>
 #include <glm/gtx/quaternion.hpp>
 #include <Mandelbrot.hpp>
@@ -197,6 +198,12 @@ namespace RtEngine
                 auto gl = std::make_shared<Glitch>(ctx, scene_node);
                 gl->initProperties(properties, update_flags);
                 scene_node->addComponent(gl);
+            }
+            else if (comp_name == GaussianBlur::COMPONENT_NAME)
+            {
+                auto gb = std::make_shared<GaussianBlur>(ctx, scene_node);
+                gb->initProperties(properties, update_flags);
+                scene_node->addComponent(gb);
             }
             else if (comp_name == Composition::COMPONENT_NAME)
             {

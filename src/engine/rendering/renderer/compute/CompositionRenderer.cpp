@@ -9,7 +9,7 @@ namespace RtEngine
 {
     CompositionRenderer::CompositionRenderer(const std::shared_ptr<VulkanContext>& vulkan_context,
         VkExtent2D image_extent, std::shared_ptr<ImageConnector> input_a, std::shared_ptr<ImageConnector> input_b,
-        const uint32_t max_frames_in_flight)
+        std::shared_ptr<ImageConnector> input_c, const uint32_t max_frames_in_flight)
         : ComputeRenderer(vulkan_context, max_frames_in_flight)
     {
         output_connector = ImageConnectorFactory::createRenderTargetConnector(
@@ -18,6 +18,7 @@ namespace RtEngine
         addConnector(0, output_connector);
         addConnector(1, std::move(input_a));
         addConnector(2, std::move(input_b));
+        addConnector(3, std::move(input_c));
 
         setDispatchSize(
             [this]()

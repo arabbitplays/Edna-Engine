@@ -1,5 +1,25 @@
 scene:
   nodes:
+    - name: Camera
+      components:
+        Transform:
+          position:
+            - 0
+            - 0.5
+            - 3
+          rotation:
+            - -0.2
+            - 0
+            - 0
+          scale:
+            - 1
+            - 1
+            - 1
+        Camera:
+          fov: 45
+          interactive: false
+      children:
+        []
     - name: Mandelbrot
       components:
         Mandelbrot:
@@ -12,9 +32,22 @@ scene:
           animate: true
       children:
         []
+    - name: Mandelbulb
+      components:
+        Mandelbulb:
+          animate: true
+          rotation_speed: 0.14
+          rim_weight: 0.6
+          diffuse_weight: 1.2
+          coloring: "Radius"
+      children:
+        []
     - name: Composition
       components:
         Composition:
+          visualization: CCA
+          animate: true
+          rotation_interval_s: 60.0
           inversion_staccato: false
       children:
         []
@@ -22,8 +55,8 @@ scene:
       components:
         Glitch:
           source_node: Composition
-          shake_power: 0.03
-          shake_rate: 0.001
+          shake_power: 0.05
+          shake_rate: 0.005
           shake_speed: 5.0
           shake_block_size: 100
           shake_color_rate: 0.01

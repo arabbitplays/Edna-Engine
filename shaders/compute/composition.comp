@@ -3,10 +3,13 @@
 layout (binding = 0, rgba32f) uniform writeonly image2D target;
 layout (binding = 1, rgba32f) uniform readonly image2D input_a;
 layout (binding = 2, rgba32f) uniform readonly image2D input_b;
+layout (binding = 3, rgba32f) uniform readonly image2D input_c;
 
 layout (push_constant) uniform PushConstants {
-    // 0 = pure input_a, 1 = pure input_b, linear crossfade in between.
-    float fade;
+    // Per-input weights; typically at most two are non-zero during a fade.
+    float weight_a;
+    float weight_b;
+    float weight_c;
     uint  invert_color;
 } pc;
 
@@ -20,8 +23,9 @@ void main()
 
     vec4 a = imageLoad(input_a, pixel);
     vec4 b = imageLoad(input_b, pixel);
+    vec4 c = imageLoad(input_c, pixel);
 
-    vec4 blended = mix(a, b, clamp(pc.fade, 0.0, 1.0));
+    vec4 blended = a * pc.weight_a + b * pc.weight_b + c * pc.weight_c;
 
     if (pc.invert_color != 0u) {
         blended.rgb = vec3(1.0) - blended.rgb;

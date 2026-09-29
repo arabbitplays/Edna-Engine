@@ -20,6 +20,7 @@ namespace RtEngine
     class CompositionRenderer;
     class GlitchRenderer;
     class Glitch;
+    class Renderer;
 
     class Composition : public Component
     {
@@ -48,10 +49,19 @@ namespace RtEngine
         void tryBuildManager();
 
         bool inversion_staccato = false;
+        bool applied_inversion_staccato = false;
+        bool animate = true;
+        float rotation_interval_s = 60.0f;
+        std::string current_visualization;
+        std::string applied_visualization;
 
         std::shared_ptr<CompositionRenderer> composition_renderer;
         std::shared_ptr<GlitchRenderer> glitch_renderer;
         std::unique_ptr<RaveVisualizer::CompositionManager> manager;
+
+        std::weak_ptr<Renderer> cca_renderer;
+        std::weak_ptr<Renderer> mandelbrot_renderer;
+        std::weak_ptr<Renderer> mandelbulb_renderer;
 
         // Deferred to next OnUpdate: SwapchainManager fires resize callbacks
         // in unspecified order, so we can't assume our siblings have recreated

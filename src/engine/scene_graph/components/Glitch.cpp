@@ -37,8 +37,8 @@ namespace RtEngine
             return;
         }
 
-        renderer->setShakePower(shake_power);
-        renderer->setShakeRate(shake_rate);
+        renderer->setShakePower(override_shake_power.value_or(shake_power));
+        renderer->setShakeRate(override_shake_rate.value_or(shake_rate));
         renderer->setShakeSpeed(shake_speed);
         renderer->setShakeBlockSize(shake_block_size);
         renderer->setShakeColorRate(shake_color_rate);

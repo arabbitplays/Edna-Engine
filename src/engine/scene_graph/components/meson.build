@@ -4,6 +4,7 @@
 src += files(
   'Composition.cpp',
   'Mandelbulb.cpp',
+  'GaussianBlur.cpp',
   'Rigidbody.cpp',
   'Glitch.cpp',
   'Mandelbrot.cpp',

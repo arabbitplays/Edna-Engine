@@ -12,7 +12,6 @@ namespace Animation
         virtual ~IAnimation() = default;
 
         virtual void step() = 0;
-        virtual void reset() = 0;
         virtual bool finished() const = 0;
     };
 

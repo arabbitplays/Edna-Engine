@@ -8,8 +8,6 @@
 #include <library/animation/easing_functions/EasingDirection.hpp>
 #include <library/animation/easing_functions/EasingFunction.hpp>
 #include <library/animation/easing_functions/EasingFunctionFactory.hpp>
-#include <library/color/ColorPaletteFactory.hpp>
-#include <library/color/ColorPaletteName.hpp>
 #include <library/mandelbrot/animation/MandelbrotAnimationGenerator.hpp>
 #include <library/mandelbrot/animation/MandelbrotProbe.hpp>
 #include <limits>
@@ -142,7 +140,7 @@ namespace mandelbrot
             const double centre_re = -half_span + ((static_cast<double>(best_x) + 0.5) * step);
             const double centre_im = -half_span + ((static_cast<double>(best_y) + 0.5) * step);
             const float reference = Gen::PROBE_REFERENCE_SPAN;
-            logger()->info(std::format("directed offset cell=({},{}) score={:.3f}", best_x, best_y, best_score));
+            logger()->debug(std::format("directed offset cell=({},{}) score={:.3f}", best_x, best_y, best_score));
             return {std::clamp(static_cast<float>(centre_re) / reference, Gen::OFFSET_MIN, Gen::OFFSET_MAX),
                 std::clamp(static_cast<float>(centre_im) / reference, Gen::OFFSET_MIN, Gen::OFFSET_MAX)};
         }
@@ -162,7 +160,7 @@ namespace mandelbrot
                 const float score = score_of(candidate);
                 if (score >= Gen::PROBE_ACCEPT_EDGE)
                 {
-                    logger()->info(
+                    logger()->debug(
                         std::format("candidate accepted after {} attempt(s), score={:.3f}", attempt + 1U, score));
                     return candidate;
                 }
@@ -172,17 +170,16 @@ namespace mandelbrot
                     best = candidate;
                 }
             }
-            logger()->info(
+            logger()->debug(
                 std::format("exhausted {} attempts, best score={:.3f}", Gen::PROBE_MAX_ATTEMPTS, best_score));
             return best;
         }
     } // namespace
 
     MandelbrotAnimationGenerator::MandelbrotAnimationGenerator(std::function<void(const glm::vec2&)> set_offset,
-        std::function<void(float)> set_step_size, std::function<void(const glm::vec2&)> set_initial,
-        std::function<void(const ::color::ColorPalette&)> set_palette)
+        std::function<void(float)> set_step_size, std::function<void(const glm::vec2&)> set_initial)
         : set_offset_(std::move(set_offset)), set_step_size_(std::move(set_step_size)),
-          set_initial_(std::move(set_initial)), set_palette_(std::move(set_palette))
+          set_initial_(std::move(set_initial))
     {
     }
 
@@ -204,7 +201,7 @@ namespace mandelbrot
                         return std::pair{cubicBezier(current.offset, cp.first, cp.second, target, t), current.initial};
                     });
             });
-        logger()->info(std::format("offset target=({:.3f},{:.3f})", target.x, target.y));
+        logger()->debug(std::format("offset target=({:.3f},{:.3f})", target.x, target.y));
 
         auto set = set_offset_;
         auto animation = std::make_unique<::Animation::Vec2BezierAnimation>(
@@ -226,14 +223,16 @@ namespace mandelbrot
     {
         // Bias log-delta by current view density: high edge score pushes the
         // target downward (zoom in on detail), low pushes upward (zoom out to
-        // find something). Saturation matches the runner's speed threshold.
+        // find something). Inward bias is larger than outward so an
+        // interesting frame gets dived into faster than a flat one gets fled.
+        // Saturation matches the runner's speed threshold.
         const float density = std::clamp(current_view_edge_score / ZOOM_EDGE_SATURATION, 0.0F, 1.0F);
-        const float bias = ZOOM_BIAS_LOG * (1.0F - 2.0F * density);
+        const float bias = glm::mix(ZOOM_OUT_BIAS_LOG, -ZOOM_IN_BIAS_LOG, density);
         const float log_delta = bias + randomFloat(-ZOOM_NOISE_LOG, ZOOM_NOISE_LOG);
         const float log_current = std::log10(std::max(current.step_size, 1e-9F));
         const float log_target = std::clamp(log_current + log_delta, LOG_STEP_SIZE_MIN, LOG_STEP_SIZE_MAX);
         const float target = std::pow(10.0F, log_target);
-        logger()->info(
+        logger()->debug(
             std::format("step_size target={:.6f} (log_delta={:.3f} density={:.2f})", target, log_delta, density));
 
         auto set = set_step_size_;
@@ -261,7 +260,7 @@ namespace mandelbrot
                     [&](float t) { return std::pair{current.offset, glm::mix(current.initial, candidate, t)}; });
             });
 
-        logger()->info(std::format("initial target=({:.3f},{:.3f})", target.x, target.y));
+        logger()->debug(std::format("initial target=({:.3f},{:.3f})", target.x, target.y));
 
         auto set = set_initial_;
         auto animation = std::make_unique<::Animation::Vec2Animation>(
@@ -278,29 +277,4 @@ namespace mandelbrot
         return {.animation = std::move(animation), .target = target};
     }
 
-    MandelbrotAnimationGenerator::PaletteAnimationResult MandelbrotAnimationGenerator::generatePaletteAnimation(
-        const ::color::ColorPalette& current)
-    {
-        const auto all_names = ::color::ColorPaletteName::getAllNames();
-        const std::size_t idx = RtEngine::RandomUtil::generateInt() % all_names.size();
-        const auto& picked_name = all_names[idx];
-        logger()->info(std::format("palette target={}", picked_name));
-
-        ::color::ColorPalette target = ::color::ColorPaletteFactory::create(
-            ::color::ColorPaletteName::fromString(picked_name, ::color::ColorPaletteName::Fire));
-
-        auto set = set_palette_;
-        auto animation = std::make_unique<::color::ColorPaletteAnimation>(
-            current, target, randomStepCount(),
-            [set](const ::color::ColorPalette& p)
-            {
-                if (set)
-                {
-                    set(p);
-                }
-            },
-            randomInOutEasing());
-
-        return {.animation = std::move(animation), .target = std::move(target)};
-    }
 } // namespace mandelbrot

@@ -31,10 +31,8 @@ namespace RtEngine
         const std::vector<glm::vec4> colors = loadPaletteColors(palette_name);
         applied_palette_name = palette_name;
 
-        renderer = std::make_shared<MandelbrotRenderer>(vulkan_context, extent, colors, static_cast<double>(origin.x),
-            static_cast<double>(origin.y), static_cast<double>(offset.x), static_cast<double>(offset.y),
-            static_cast<double>(step_size), max_iterations, static_cast<double>(initial_number.x),
-            static_cast<double>(initial_number.y), julia_mode);
+        renderer = std::make_shared<MandelbrotRenderer>(vulkan_context, extent, colors, origin.x, origin.y, offset.x,
+            offset.y, step_size, max_iterations, initial_number.x, initial_number.y, julia_mode);
         renderer->init();
 
         rendering_manager->addComputeRenderer(renderer, renderer->getOutputConnector());
@@ -43,16 +41,8 @@ namespace RtEngine
         // switching animate/manual just picks who owns the values.
         animation_runner = std::make_unique<::mandelbrot::MandelbrotAnimationRunner>([this](const glm::vec2& v)
             { offset = v; }, [this](float v) { step_size = v; }, [this](const glm::vec2& v) { initial_number = v; },
-            [this](const ::color::ColorPalette& p)
-            {
-                if (renderer)
-                {
-                    renderer->setPalette(p.colors);
-                }
-            },
             ::mandelbrot::MandelbrotState{
-                .offset = offset, .step_size = step_size, .initial = initial_number, .julia_mode = julia_mode},
-            ::color::ColorPalette{colors});
+                .offset = offset, .step_size = step_size, .initial = initial_number, .julia_mode = julia_mode});
 
         resize_callback_handle = context->swapchain_manager->addRecreateCallback(
             [this](uint32_t width, uint32_t height) { renderer->handleResize(VkExtent2D{width, height}); });
@@ -91,11 +81,11 @@ namespace RtEngine
             applied_palette_name = palette_name;
         }
 
-        renderer->setOrigin(static_cast<double>(origin.x), static_cast<double>(origin.y));
-        renderer->setOffset(static_cast<double>(offset.x), static_cast<double>(offset.y));
-        renderer->setStepSize(static_cast<double>(step_size));
+        renderer->setOrigin(origin.x, origin.y);
+        renderer->setOffset(offset.x, offset.y);
+        renderer->setStepSize(step_size);
         renderer->setMaxIterations(max_iterations);
-        renderer->setInitial(static_cast<double>(initial_number.x), static_cast<double>(initial_number.y));
+        renderer->setInitial(initial_number.x, initial_number.y);
         renderer->setJuliaMode(julia_mode);
     }
 

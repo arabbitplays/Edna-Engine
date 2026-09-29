@@ -1,44 +1,75 @@
 #include "compute/CompositionRenderer.hpp"
 #include "compute/GlitchRenderer.hpp"
 #include "Glitch.hpp"
+#include "InputManager.hpp"
 
 #include <algorithm>
 #include <library/rave_visualizer/CompositionManager.hpp>
+#include <util/RandomUtil.hpp>
 #include <utility>
 
 namespace RaveVisualizer
 {
-    CompositionManager::CompositionManager(
-        std::shared_ptr<RtEngine::CompositionRenderer> composition, std::shared_ptr<RtEngine::Glitch> glitch)
-        : composition(std::move(composition)), glitch(std::move(glitch))
+    CompositionManager::CompositionManager(std::shared_ptr<RtEngine::CompositionRenderer> composition,
+        std::shared_ptr<RtEngine::Glitch> glitch, ::color::ColorPalette initial_palette,
+        std::shared_ptr<RtEngine::InputManager> input_manager)
+        : composition(std::move(composition)), glitch(std::move(glitch)), input_manager(std::move(input_manager)),
+          palette_runner(std::move(initial_palette))
     {
-        rave_state.fade_progress = fadeValueFor(rave_state.current);
         pushToComposition();
+    }
+
+    void CompositionManager::addPaletteListener(PaletteListener listener)
+    {
+        palette_runner.addListener(std::move(listener));
+    }
+
+    void CompositionManager::setMandelbrotActivationSetter(MandelbrotActivationSetter setter)
+    {
+        mandelbrot_activation_setter = std::move(setter);
     }
 
     void CompositionManager::tick(const float dt)
     {
-        rotation_elapsed_s += dt;
-        if (rotation_elapsed_s >= ROTATION_INTERVAL_S)
+        handleInput();
+
+        if (staccato_remaining_s > 0.0F)
+        {
+            staccato_remaining_s -= dt;
+            if (staccato_remaining_s <= 0.0F)
+            {
+                staccato_remaining_s = 0.0F;
+                setInversionStaccato(false);
+                resetGlitchRamp();
+            }
+        }
+
+        if (animate)
+        {
+            rotation_elapsed_s += dt;
+            if (rotation_elapsed_s >= rotation_interval_s)
+            {
+                rotation_elapsed_s = 0.0F;
+                const std::size_t current_index = visualizationTypeIndex(rave_state.current);
+                const std::size_t next_index = (current_index + 1) % VISUALIZATION_TYPE_COUNT;
+                TryChangeType(visualizationTypeFromIndex(next_index));
+            }
+        }
+        else
         {
             rotation_elapsed_s = 0.0F;
-            const VisualizationType next =
-                rave_state.current == VisualizationType::CCA ? VisualizationType::MANDELBROT : VisualizationType::CCA;
-            TryChangeType(next);
         }
 
         if (rave_state.phase == VisualizationPhase::FADE)
         {
             fade_elapsed_s += dt;
             const float t = std::clamp(fade_elapsed_s / FADE_DURATION_S, 0.0F, 1.0F);
-            const float from = fadeValueFor(rave_state.current);
-            const float to = fadeValueFor(rave_state.target);
-            rave_state.fade_progress = from + ((to - from) * t);
+            rave_state.fade_progress = t;
 
             if (t >= 1.0F)
             {
                 rave_state.current = rave_state.target;
-                rave_state.fade_progress = fadeValueFor(rave_state.current);
+                rave_state.fade_progress = 0.0F;
                 rave_state.phase = VisualizationPhase::VISUALIZATION;
                 fade_elapsed_s = 0.0F;
             }
@@ -55,6 +86,17 @@ namespace RaveVisualizer
             }
         }
 
+        if (glitch_ramp_active && glitch)
+        {
+            glitch_ramp_power = std::min(GLITCH_RAMP_POWER_MAX,
+                std::max(glitch_ramp_power, glitch->baseShakePower()) + GLITCH_RAMP_POWER_PER_S * dt);
+            glitch_ramp_rate = std::min(GLITCH_RAMP_RATE_MAX,
+                std::max(glitch_ramp_rate, glitch->baseShakeRate()) + GLITCH_RAMP_RATE_PER_S * dt);
+            glitch->setShakeOverride(glitch_ramp_power, glitch_ramp_rate);
+        }
+
+        palette_runner.update();
+
         pushToComposition();
     }
 
@@ -70,8 +112,83 @@ namespace RaveVisualizer
         }
 
         rave_state.target = new_type;
+        rave_state.fade_progress = 0.0F;
         fade_elapsed_s = 0.0F;
         rave_state.phase = VisualizationPhase::FADE;
+
+        if (new_type == VisualizationType::MANDELBROT && mandelbrot_activation_setter)
+        {
+            const bool julia_mode = (RtEngine::RandomUtil::generateInt() & 1U) != 0U;
+            const glm::vec2 origin = julia_mode ? glm::vec2{0.0F, 0.0F} : glm::vec2{-0.5F, 0.0F};
+            mandelbrot_activation_setter(julia_mode, origin);
+        }
+    }
+
+    void CompositionManager::triggerInversionStaccato()
+    {
+        staccato_remaining_s = INVERSION_STACCATO_DURATION_S;
+        setInversionStaccato(true);
+    }
+
+    void CompositionManager::startGlitchRamp()
+    {
+        if (!glitch_ramp_active)
+        {
+            glitch_ramp_active = true;
+            glitch_ramp_power = 0.0F;
+            glitch_ramp_rate = 0.0F;
+        }
+    }
+
+    void CompositionManager::resetGlitchRamp()
+    {
+        glitch_ramp_active = false;
+        glitch_ramp_power = 0.0F;
+        glitch_ramp_rate = 0.0F;
+        if (glitch)
+        {
+            glitch->clearShakeOverride();
+        }
+    }
+
+    void CompositionManager::pollInput()
+    {
+        if (!input_manager)
+        {
+            return;
+        }
+
+        if (input_manager->getKeyDown(RtEngine::Keycode::NUM_3))
+        {
+            pending_trigger_staccato = true;
+        }
+        if (input_manager->getKeyDown(RtEngine::Keycode::NUM_2))
+        {
+            pending_start_ramp = true;
+        }
+        if (input_manager->getKeyDown(RtEngine::Keycode::NUM_1))
+        {
+            pending_reset_ramp = true;
+        }
+    }
+
+    void CompositionManager::handleInput()
+    {
+        if (pending_trigger_staccato)
+        {
+            triggerInversionStaccato();
+            pending_trigger_staccato = false;
+        }
+        if (pending_start_ramp)
+        {
+            startGlitchRamp();
+            pending_start_ramp = false;
+        }
+        if (pending_reset_ramp)
+        {
+            resetGlitchRamp();
+            pending_reset_ramp = false;
+        }
     }
 
     void CompositionManager::setInversionStaccato(const bool active)
@@ -127,9 +244,22 @@ namespace RaveVisualizer
         forwardToGlitch(glitch, [v](auto& r) { r.setShakeColorRate(v); });
     }
 
-    float CompositionManager::fadeValueFor(const VisualizationType type)
+    std::array<float, VISUALIZATION_TYPE_COUNT> CompositionManager::currentWeights() const
     {
-        return type == VisualizationType::MANDELBROT ? 1.0F : 0.0F;
+        std::array<float, VISUALIZATION_TYPE_COUNT> weights{};
+        weights.fill(0.0F);
+        const std::size_t current_index = visualizationTypeIndex(rave_state.current);
+        if (rave_state.phase == VisualizationPhase::FADE)
+        {
+            const std::size_t target_index = visualizationTypeIndex(rave_state.target);
+            weights[current_index] = 1.0F - rave_state.fade_progress;
+            weights[target_index] = rave_state.fade_progress;
+        }
+        else
+        {
+            weights[current_index] = 1.0F;
+        }
+        return weights;
     }
 
     void CompositionManager::pushToComposition()
@@ -138,7 +268,8 @@ namespace RaveVisualizer
         {
             return;
         }
-        composition->setFade(rave_state.fade_progress);
+        const auto weights = currentWeights();
+        composition->setWeights(weights[0], weights[1], weights[2]);
         composition->setInvertColor(rave_state.invert_color);
     }
 } // namespace RaveVisualizer

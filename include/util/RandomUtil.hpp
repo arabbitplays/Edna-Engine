@@ -1,11 +1,10 @@
-//
-// Created by oschdi on 6/5/25.
-//
-
 #ifndef RANDOMUTIL_HPP
 #define RANDOMUTIL_HPP
 
+#include <cstdint>
+#include <limits>
 #include <random>
+#include <type_traits>
 
 namespace RtEngine
 {
@@ -14,16 +13,30 @@ namespace RtEngine
     public:
         static uint32_t generateInt()
         {
-            static std::mt19937 gen(init_seed());
             static std::uniform_int_distribution<uint32_t> dist(0, std::numeric_limits<uint32_t>::max());
-            return dist(gen);
+            return dist(generator());
+        }
+
+        template <typename T> static T randomInRange(T min, T max)
+        {
+            static_assert(std::is_arithmetic_v<T>, "randomInRange requires an arithmetic type");
+            if constexpr (std::is_integral_v<T>)
+            {
+                std::uniform_int_distribution<T> dist(min, max);
+                return dist(generator());
+            }
+            else
+            {
+                std::uniform_real_distribution<T> dist(min, max);
+                return dist(generator());
+            }
         }
 
     private:
-        static uint32_t init_seed()
+        static std::mt19937& generator()
         {
-            std::random_device rd;
-            return rd();
+            static std::mt19937 gen{std::random_device{}()};
+            return gen;
         }
     };
 } // namespace RtEngine

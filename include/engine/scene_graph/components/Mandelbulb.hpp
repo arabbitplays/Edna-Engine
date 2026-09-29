@@ -36,6 +36,11 @@ namespace RtEngine
 
         std::shared_ptr<ImageConnector> getOutputConnector() const override;
 
+        std::shared_ptr<MandelbulbRenderer> getRenderer() const
+        {
+            return renderer;
+        }
+
     private:
         static constexpr uint32_t DEFAULT_MAX_ITERATIONS = 8u;
         static constexpr uint32_t MIN_MAX_ITERATIONS = 2u;
