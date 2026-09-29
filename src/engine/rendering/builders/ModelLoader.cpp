@@ -1,7 +1,7 @@
-#include "ModelLoader.hpp"
+#include <engine/rendering/builders/ModelLoader.hpp>
 
 #include <iostream>
-#include <PathUtil.hpp>
+#include <util/PathUtil.hpp>
 #include <stdexcept>
 
 namespace RtEngine

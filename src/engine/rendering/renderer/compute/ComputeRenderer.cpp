@@ -1,4 +1,4 @@
-#include "compute/ComputeRenderer.hpp"
+#include <engine/rendering/renderer/compute/ComputeRenderer.hpp>
 
 #include <cassert>
 #include <stdexcept>

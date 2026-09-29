@@ -14,7 +14,7 @@
 #include <util/RandomUtil.hpp>
 #include <utility>
 
-#include "library/animation/animations/VectorAnimation.hpp"
+#include <library/animation/animations/VectorAnimation.hpp>
 
 namespace mandelbulb
 {

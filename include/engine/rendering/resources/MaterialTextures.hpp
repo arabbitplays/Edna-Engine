@@ -1,11 +1,11 @@
 #ifndef TEXTUREREPOSITORY_HPP
 #define TEXTUREREPOSITORY_HPP
 
-#include "TextureRepository.hpp"
+#include <engine/repositories/TextureRepository.hpp>
 
-#include <DeletionQueue.hpp>
+#include <util/DeletionQueue.hpp>
 #include <memory>
-#include <ResourceBuilder.hpp>
+#include <engine/rendering/builders/ResourceBuilder.hpp>
 #include <unordered_map>
 
 namespace RtEngine

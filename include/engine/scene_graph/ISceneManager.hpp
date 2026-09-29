@@ -1,6 +1,6 @@
 #ifndef VULKAN_RAYTRACING_ISCENEMANAGER_HPP
 #define VULKAN_RAYTRACING_ISCENEMANAGER_HPP
-#include "Material.hpp"
+#include <engine/rendering/resources/materials/Material.hpp>
 
 #include <memory>
 

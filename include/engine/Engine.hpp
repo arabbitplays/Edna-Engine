@@ -1,10 +1,10 @@
 #ifndef VULKAN_RAYTRACING_ENGINE_HPP
 #define VULKAN_RAYTRACING_ENGINE_HPP
-#include "GuiManager.hpp"
-#include "IRunner.hpp"
-#include "RaytracingRenderer.hpp"
-#include "RenderingManager.hpp"
-#include "Runner.hpp"
+#include <engine/ui/core/GuiManager.hpp>
+#include <engine/runner/IRunner.hpp>
+#include <engine/rendering/renderer/RaytracingRenderer.hpp>
+#include <engine/RenderingManager.hpp>
+#include <engine/runner/Runner.hpp>
 
 #include <memory>
 

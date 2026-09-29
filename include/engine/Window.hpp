@@ -1,6 +1,6 @@
 #ifndef VULKAN_RAYTRACING_WINDOW_HPP
 #define VULKAN_RAYTRACING_WINDOW_HPP
-#include "GuiWindow.hpp"
+#include <engine/ui/core/GuiWindow.hpp>
 
 #include <GLFW/glfw3.h>
 

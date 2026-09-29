@@ -1,9 +1,9 @@
-#include "BenchmarkRunner.hpp"
+#include <engine/runner/BenchmarkRunner.hpp>
 
-#include "ImageUtil.hpp"
-#include "PathUtil.hpp"
-#include "QuickTimer.hpp"
-#include "ReferenceRunner.hpp"
+#include <util/ImageUtil.hpp>
+#include <util/PathUtil.hpp>
+#include <util/QuickTimer.hpp>
+#include <engine/runner/ReferenceRunner.hpp>
 
 #include <filesystem>
 #include <logging/LogManager.hpp>

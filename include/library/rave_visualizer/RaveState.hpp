@@ -1,7 +1,7 @@
 #ifndef EDNA_ENGINE_RAVESTATE_HPP
 #define EDNA_ENGINE_RAVESTATE_HPP
-#include "VisualizationPhase.hpp"
-#include "VisualizationType.hpp"
+#include <library/rave_visualizer/VisualizationPhase.hpp>
+#include <library/rave_visualizer/VisualizationType.hpp>
 
 namespace RaveVisualizer
 {

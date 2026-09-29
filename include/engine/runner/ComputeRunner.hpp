@@ -1,11 +1,11 @@
 #ifndef EDNA_ENGINE_COMPUTERUNNER_HPP
 #define EDNA_ENGINE_COMPUTERUNNER_HPP
-#include "EngineContext.hpp"
-#include "IRunner.hpp"
-#include "PresentStage.hpp"
-#include "RendererStack.hpp"
-#include "SceneManager.hpp"
-#include "SyncManager.hpp"
+#include <engine/EngineContext.hpp>
+#include <engine/runner/IRunner.hpp>
+#include <engine/PresentStage.hpp>
+#include <engine/rendering/renderer/RendererStack.hpp>
+#include <engine/scene_graph/SceneManager.hpp>
+#include <engine/SyncManager.hpp>
 
 #include <memory>
 

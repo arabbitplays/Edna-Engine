@@ -1,4 +1,4 @@
-#include "HierarchyWindow.hpp"
+#include <engine/ui/windows/HierarchyWindow.hpp>
 
 namespace RtEngine
 {

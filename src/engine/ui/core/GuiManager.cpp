@@ -1,4 +1,4 @@
-#include "../../../include/engine/ui/GuiManager.hpp"
+#include <engine/ui/core/GuiManager.hpp>
 
 namespace RtEngine
 {

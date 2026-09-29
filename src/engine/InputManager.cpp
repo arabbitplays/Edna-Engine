@@ -1,4 +1,4 @@
-#include "InputManager.hpp"
+#include <engine/InputManager.hpp>
 
 #include <GLFW/glfw3.h>
 

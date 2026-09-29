@@ -1,7 +1,7 @@
 #ifndef VULKAN_RAYTRACING_ISERIALIZABLE_HPP
 #define VULKAN_RAYTRACING_ISERIALIZABLE_HPP
-#include "IProperties.hpp"
-#include "UpdateFlagValue.hpp"
+#include <properties/IProperties.hpp>
+#include <engine/UpdateFlagValue.hpp>
 
 #include <memory>
 

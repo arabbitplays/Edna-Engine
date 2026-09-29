@@ -1,4 +1,4 @@
-#include "ComputePipeline.hpp"
+#include <engine/rendering/resources/pipelines/ComputePipeline.hpp>
 
 namespace RtEngine
 {

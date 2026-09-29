@@ -4,7 +4,7 @@
 
 #ifndef RIGIDBODY_HPP
 #define RIGIDBODY_HPP
-#include <Component.hpp>
+#include <engine/scene_graph/components/Component.hpp>
 
 namespace RtEngine
 {

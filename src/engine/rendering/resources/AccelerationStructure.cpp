@@ -1,4 +1,4 @@
-#include "AccelerationStructure.hpp"
+#include <engine/rendering/resources/AccelerationStructure.hpp>
 
 #include <cassert>
 #include <stdexcept>

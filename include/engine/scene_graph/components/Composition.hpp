@@ -1,10 +1,10 @@
 #ifndef EDNA_ENGINE_COMPOSITION_HPP
 #define EDNA_ENGINE_COMPOSITION_HPP
-#include "Component.hpp"
-#include "SwapchainManager.hpp"
+#include <engine/scene_graph/components/Component.hpp>
+#include <engine/SwapchainManager.hpp>
 
 #include <chrono>
-#include <FrameGate.hpp>
+#include <util/FrameGate.hpp>
 #include <memory>
 #include <optional>
 #include <string>

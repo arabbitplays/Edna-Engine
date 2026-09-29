@@ -1,13 +1,13 @@
-#include "../../include/engine/Engine.hpp"
+#include <engine/Engine.hpp>
 
-#include "BenchmarkRunner.hpp"
-#include "CommandLineParser.hpp"
-#include "ComputeRunner.hpp"
-#include "HierarchyWindow.hpp"
-#include "InspectorWindow.hpp"
-#include "ReferenceRunner.hpp"
-#include "SceneReader.hpp"
-#include "YamlLoadProperties.hpp"
+#include <engine/runner/BenchmarkRunner.hpp>
+#include <util/CommandLineParser.hpp>
+#include <engine/runner/ComputeRunner.hpp>
+#include <engine/ui/windows/HierarchyWindow.hpp>
+#include <engine/ui/windows/InspectorWindow.hpp>
+#include <engine/runner/ReferenceRunner.hpp>
+#include <io/SceneReader.hpp>
+#include <properties/YamlLoadProperties.hpp>
 
 #include <logging/LogManager.hpp>
 

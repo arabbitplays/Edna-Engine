@@ -1,9 +1,9 @@
 #ifndef PIPELINE_HPP
 #define PIPELINE_HPP
-#include <DeletionQueue.hpp>
+#include <util/DeletionQueue.hpp>
 #include <vector>
 #include <vulkan/vulkan_core.h>
-#include <VulkanContext.hpp>
+#include <engine/rendering/context/VulkanContext.hpp>
 
 namespace RtEngine
 {

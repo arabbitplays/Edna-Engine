@@ -1,6 +1,6 @@
-#include "Camera.hpp"
+#include <engine/scene_graph/components/Camera.hpp>
 
-#include "Node.hpp"
+#include <engine/scene_graph/Node.hpp>
 
 #include <glm/gtx/quaternion.hpp>
 

@@ -5,10 +5,10 @@
 #ifndef SCENEUTIL_HPP
 #define SCENEUTIL_HPP
 
-#include "components/Camera.hpp"
+#include <engine/scene_graph/components/Camera.hpp>
 
-#include <MeshRenderer.hpp>
-#include <Node.hpp>
+#include <engine/scene_graph/components/MeshRenderer.hpp>
+#include <engine/scene_graph/Node.hpp>
 
 namespace RtEngine
 {

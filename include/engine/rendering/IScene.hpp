@@ -4,10 +4,10 @@
 
 #ifndef VULKAN_RAYTRACING_ISCENE_HPP
 #define VULKAN_RAYTRACING_ISCENE_HPP
-#include "EnvironmentMap.hpp"
-#include "Material.hpp"
-#include "MeshAsset.hpp"
-#include "resources/IRenderable.hpp"
+#include <engine/rendering/resources/EnvironmentMap.hpp>
+#include <engine/rendering/resources/materials/Material.hpp>
+#include <engine/rendering/resources/MeshAsset.hpp>
+#include <engine/rendering/resources/IRenderable.hpp>
 
 namespace RtEngine
 {

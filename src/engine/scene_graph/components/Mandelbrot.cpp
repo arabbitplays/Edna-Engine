@@ -1,6 +1,6 @@
-#include "Mandelbrot.hpp"
+#include <engine/scene_graph/components/Mandelbrot.hpp>
 
-#include "compute/MandelbrotRenderer.hpp"
+#include <engine/rendering/renderer/compute/MandelbrotRenderer.hpp>
 
 #include <glm/glm.hpp>
 #include <library/color/ColorPaletteFactory.hpp>

@@ -1,7 +1,7 @@
 #ifndef VULKAN_RAYTRACING_SWAPCHAINMANAGER_HPP
 #define VULKAN_RAYTRACING_SWAPCHAINMANAGER_HPP
 #include <cstdint>
-#include <Swapchain.hpp>
+#include <engine/rendering/Swapchain.hpp>
 #include <unordered_map>
 #include <vector>
 

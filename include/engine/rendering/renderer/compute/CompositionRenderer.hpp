@@ -1,7 +1,7 @@
 #ifndef EDNA_ENGINE_COMPOSITIONRENDERER_HPP
 #define EDNA_ENGINE_COMPOSITIONRENDERER_HPP
-#include "ComputeRenderer.hpp"
-#include "ImageConnector.hpp"
+#include <engine/rendering/renderer/compute/ComputeRenderer.hpp>
+#include <engine/rendering/connectors/ImageConnector.hpp>
 
 namespace RtEngine
 {

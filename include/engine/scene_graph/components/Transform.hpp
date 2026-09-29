@@ -1,9 +1,9 @@
 #ifndef TRANSFORM_HPP
 #define TRANSFORM_HPP
 
-#include <Component.hpp>
+#include <engine/scene_graph/components/Component.hpp>
 #include <glm/glm.hpp>
-#include <TransformUtil.hpp>
+#include <util/TransformUtil.hpp>
 
 namespace RtEngine
 {

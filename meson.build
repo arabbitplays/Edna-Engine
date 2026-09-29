@@ -8,24 +8,6 @@ project('Edna-Engine',
 
 incdirs = [
     include_directories('include'),
-    include_directories('include/engine'),
-    include_directories('include/engine/rendering'),
-    include_directories('include/engine/rendering/builders'),
-    include_directories('include/engine/rendering/connectors'),
-    include_directories('include/engine/rendering/context'),
-    include_directories('include/engine/rendering/renderer'),
-    include_directories('include/engine/rendering/resources'),
-    include_directories('include/engine/rendering/resources/materials'),
-    include_directories('include/engine/rendering/resources/pipelines'),
-    include_directories('include/engine/rendering/vulkan_scene_representation'),
-    include_directories('include/engine/repositories'),
-    include_directories('include/engine/runner'),
-    include_directories('include/engine/scene_graph'),
-    include_directories('include/engine/scene_graph/components'),
-    include_directories('include/engine/ui'),
-    include_directories('include/io'),
-    include_directories('include/properties'),
-    include_directories('include/util'),
 ]
 
 vulkan = dependency('vulkan', version: ['>=1.3.0'], required: false)

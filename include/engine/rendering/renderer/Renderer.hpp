@@ -1,9 +1,9 @@
 #ifndef VULKAN_RAYTRACING_RENDERER_HPP
 #define VULKAN_RAYTRACING_RENDERER_HPP
-#include "DeviceManager.hpp"
-#include "IRenderable.hpp"
-#include "RenderTarget.hpp"
-#include "VulkanContext.hpp"
+#include <engine/rendering/context/DeviceManager.hpp>
+#include <engine/rendering/resources/IRenderable.hpp>
+#include <engine/rendering/RenderTarget.hpp>
+#include <engine/rendering/context/VulkanContext.hpp>
 
 namespace RtEngine
 {

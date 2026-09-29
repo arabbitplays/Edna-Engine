@@ -1,8 +1,8 @@
-#include "Mandelbulb.hpp"
+#include <engine/scene_graph/components/Mandelbulb.hpp>
 
-#include "Camera.hpp"
-#include "compute/MandelbulbRenderer.hpp"
-#include "Scene.hpp"
+#include <engine/scene_graph/components/Camera.hpp>
+#include <engine/rendering/renderer/compute/MandelbulbRenderer.hpp>
+#include <engine/scene_graph/Scene.hpp>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>

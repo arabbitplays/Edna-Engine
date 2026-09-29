@@ -1,4 +1,4 @@
-#include "RenderPassBuilder.hpp"
+#include <engine/rendering/builders/RenderPassBuilder.hpp>
 
 #include <array>
 #include <stdexcept>

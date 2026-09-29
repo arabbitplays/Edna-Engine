@@ -1,8 +1,8 @@
 #ifndef EDNA_ENGINE_RENDERERSTACK_HPP
 #define EDNA_ENGINE_RENDERERSTACK_HPP
-#include "ImageConnector.hpp"
-#include "PresentStage.hpp"
-#include "Renderer.hpp"
+#include <engine/rendering/connectors/ImageConnector.hpp>
+#include <engine/PresentStage.hpp>
+#include <engine/rendering/renderer/Renderer.hpp>
 
 #include <memory>
 #include <vector>

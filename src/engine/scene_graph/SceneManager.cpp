@@ -2,10 +2,10 @@
 // Created by oschdi on 18.01.26.
 //
 
-#include "SceneManager.hpp"
+#include <engine/scene_graph/SceneManager.hpp>
 
-#include "EngineContext.hpp"
-#include "SceneReader.hpp"
+#include <engine/EngineContext.hpp>
+#include <io/SceneReader.hpp>
 
 #include <cassert>
 #include <filesystem>

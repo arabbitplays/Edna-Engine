@@ -1,6 +1,6 @@
-#include "../../../../include/engine/rendering/renderer/Renderer.hpp"
+#include <engine/rendering/renderer/Renderer.hpp>
 
-#include "MeshAsset.hpp"
+#include <engine/rendering/resources/MeshAsset.hpp>
 
 #include <logging/LogManager.hpp>
 #include <stdexcept>

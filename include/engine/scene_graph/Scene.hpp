@@ -1,17 +1,17 @@
 #ifndef SCENE_HPP
 #define SCENE_HPP
 
-#include "Camera.hpp"
-#include "EnvironmentMap.hpp"
-#include "IScene.hpp"
+#include <engine/scene_graph/components/Camera.hpp>
+#include <engine/rendering/resources/EnvironmentMap.hpp>
+#include <engine/rendering/IScene.hpp>
 
 #include <array>
 #include <bits/shared_ptr.h>
 #include <glm/vec3.hpp>
-#include <MeshAsset.hpp>
-#include <MeshAssetBuilder.hpp>
-#include <Node.hpp>
-#include <PhongMaterial.hpp>
+#include <engine/rendering/resources/MeshAsset.hpp>
+#include <engine/rendering/builders/MeshAssetBuilder.hpp>
+#include <engine/scene_graph/Node.hpp>
+#include <engine/rendering/resources/materials/PhongMaterial.hpp>
 #include <utility>
 
 #define POINT_LIGHT_COUNT 4

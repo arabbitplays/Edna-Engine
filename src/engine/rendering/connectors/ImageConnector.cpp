@@ -1,4 +1,4 @@
-#include "ImageConnector.hpp"
+#include <engine/rendering/connectors/ImageConnector.hpp>
 
 #include <utility>
 

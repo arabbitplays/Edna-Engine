@@ -5,8 +5,8 @@
 #ifndef VULKAN_RAYTRACING_TEXTUREREPOSITORY_HPP
 #define VULKAN_RAYTRACING_TEXTUREREPOSITORY_HPP
 
-#include "ResourceBuilder.hpp"
-#include "Texture.hpp"
+#include <engine/rendering/builders/ResourceBuilder.hpp>
+#include <engine/rendering/resources/Texture.hpp>
 
 #include <format>
 #include <glm/packing.hpp>

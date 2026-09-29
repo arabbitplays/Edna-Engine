@@ -1,9 +1,9 @@
 #ifndef EDNA_ENGINE_CYCLICALCELLULARAUTOMATON_HPP
 #define EDNA_ENGINE_CYCLICALCELLULARAUTOMATON_HPP
-#include "Component.hpp"
-#include "SwapchainManager.hpp"
+#include <engine/scene_graph/components/Component.hpp>
+#include <engine/SwapchainManager.hpp>
 
-#include <FrameGate.hpp>
+#include <util/FrameGate.hpp>
 #include <library/cellular_automaton/animation/CyclicalCellularAutomatonAnimationRunner.hpp>
 #include <memory>
 #include <string>

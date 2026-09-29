@@ -1,7 +1,7 @@
-#include "compute/GlitchRenderer.hpp"
+#include <engine/rendering/renderer/compute/GlitchRenderer.hpp>
 
-#include "ImageConnectorFactory.hpp"
-#include "VulkanUtil.hpp"
+#include <engine/rendering/connectors/ImageConnectorFactory.hpp>
+#include <util/VulkanUtil.hpp>
 
 #include <cmath>
 #include <glitch.comp.spv.h>

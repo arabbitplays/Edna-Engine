@@ -2,9 +2,9 @@
 // Created by oschdi on 5/4/25.
 //
 
-#include "Rigidbody.hpp"
+#include <engine/scene_graph/components/Rigidbody.hpp>
 
-#include <Node.hpp>
+#include <engine/scene_graph/Node.hpp>
 
 namespace RtEngine
 {

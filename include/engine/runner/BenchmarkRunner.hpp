@@ -1,8 +1,8 @@
 #ifndef BENCHMARKRENDERER_HPP
 #define BENCHMARKRENDERER_HPP
-#include "Runner.hpp"
+#include <engine/runner/Runner.hpp>
 
-#include <../rendering/renderer/RaytracingRenderer.hpp>
+#include <engine/rendering/renderer/RaytracingRenderer.hpp>
 
 namespace RtEngine
 {

@@ -2,7 +2,7 @@
 // Created by oschdi on 25.01.26.
 //
 
-#include "../../include/properties/ImGuiProperties.hpp"
+#include <properties/ImGuiProperties.hpp>
 
 #include "imgui.h"
 

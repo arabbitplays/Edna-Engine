@@ -1,6 +1,6 @@
 #ifndef VULKAN_RAYTRACING_IMGUIPROPERTIES_HPP
 #define VULKAN_RAYTRACING_IMGUIPROPERTIES_HPP
-#include "IProperties.hpp"
+#include <properties/IProperties.hpp>
 
 namespace RtEngine
 {

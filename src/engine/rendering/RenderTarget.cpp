@@ -1,6 +1,6 @@
-#include "RenderTarget.hpp"
+#include <engine/rendering/RenderTarget.hpp>
 
-#include "ImageConnectorFactory.hpp"
+#include <engine/rendering/connectors/ImageConnectorFactory.hpp>
 
 namespace RtEngine
 {

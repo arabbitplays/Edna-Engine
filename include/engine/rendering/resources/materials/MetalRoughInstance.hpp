@@ -1,8 +1,8 @@
 #ifndef VULKAN_RAYTRACING_METALROUGHINSTANCE_HPP
 #define VULKAN_RAYTRACING_METALROUGHINSTANCE_HPP
-#include "MaterialInstance.hpp"
-#include "MaterialTextures.hpp"
-#include "TextureRepository.hpp"
+#include <engine/rendering/resources/materials/MaterialInstance.hpp>
+#include <engine/rendering/resources/MaterialTextures.hpp>
+#include <engine/repositories/TextureRepository.hpp>
 
 #include <glm/gtc/epsilon.hpp>
 

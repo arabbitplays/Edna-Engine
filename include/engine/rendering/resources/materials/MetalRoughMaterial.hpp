@@ -2,8 +2,8 @@
 #define METALROUGHMATERIAL_HPP
 
 #include <glm/vec3.hpp>
-#include <Material.hpp>
-#include <MaterialTextures.hpp>
+#include <engine/rendering/resources/materials/Material.hpp>
+#include <engine/rendering/resources/MaterialTextures.hpp>
 
 #define METAL_ROUGH_MATERIAL_NAME "metal_rough"
 

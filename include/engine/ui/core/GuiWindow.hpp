@@ -1,6 +1,6 @@
 #ifndef GUIWINDOW_HPP
 #define GUIWINDOW_HPP
-#include "UpdateFlagValue.hpp"
+#include <engine/UpdateFlagValue.hpp>
 
 #include <deque>
 #include <functional>

@@ -1,7 +1,7 @@
 #ifndef GEOMETRYMANAGER_HPP
 #define GEOMETRYMANAGER_HPP
 
-#include <VulkanContext.hpp>
+#include <engine/rendering/context/VulkanContext.hpp>
 
 namespace RtEngine
 {

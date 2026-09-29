@@ -1,7 +1,7 @@
-#include "MeshRenderer.hpp"
+#include <engine/scene_graph/components/MeshRenderer.hpp>
 
-#include <Node.hpp>
-#include <Scene.hpp>
+#include <engine/scene_graph/Node.hpp>
+#include <engine/scene_graph/Scene.hpp>
 
 namespace RtEngine
 {

@@ -1,18 +1,18 @@
-#include "PhongMaterial.hpp"
+#include <engine/rendering/resources/materials/PhongMaterial.hpp>
 
 #include "miss.rmiss.spv.h"
-#include "PhongInstance.hpp"
+#include <engine/rendering/resources/materials/PhongInstance.hpp>
 #include "shadow_miss.rmiss.spv.h"
 
-#include <DescriptorLayoutBuilder.hpp>
+#include <engine/rendering/builders/DescriptorLayoutBuilder.hpp>
 #include <environment_miss.rmiss.spv.h>
 #include <format>
 #include <glm/detail/type_mat4x3.hpp>
 #include <logging/LogManager.hpp>
-#include <OptionsWindow.hpp>
+#include <engine/ui/windows/OptionsWindow.hpp>
 #include <phong_closesthit.rchit.spv.h>
 #include <phong_raygen.rgen.spv.h>
-#include <VulkanUtil.hpp>
+#include <util/VulkanUtil.hpp>
 
 namespace RtEngine
 {

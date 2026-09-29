@@ -1,16 +1,16 @@
-#include "MetalRoughMaterial.hpp"
+#include <engine/rendering/resources/materials/MetalRoughMaterial.hpp>
 
-#include "MetalRoughInstance.hpp"
+#include <engine/rendering/resources/materials/MetalRoughInstance.hpp>
 
-#include <DescriptorLayoutBuilder.hpp>
+#include <engine/rendering/builders/DescriptorLayoutBuilder.hpp>
 #include <format>
 #include <logging/LogManager.hpp>
 #include <metal_rough_closesthit.rchit.spv.h>
 #include <metal_rough_miss.rmiss.spv.h>
 #include <metal_rough_raygen.rgen.spv.h>
-#include <OptionsWindow.hpp>
+#include <engine/ui/windows/OptionsWindow.hpp>
 #include <shadow_miss.rmiss.spv.h>
-#include <VulkanUtil.hpp>
+#include <util/VulkanUtil.hpp>
 
 namespace RtEngine
 {

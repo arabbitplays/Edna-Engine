@@ -1,8 +1,8 @@
 #ifndef VULKAN_RAYTRACING_MATERIALINSTANCE_HPP
 #define VULKAN_RAYTRACING_MATERIALINSTANCE_HPP
-#include "ISerializable.hpp"
-#include "MaterialTextures.hpp"
-#include "YAML_glm.hpp"
+#include <properties/ISerializable.hpp>
+#include <engine/rendering/resources/MaterialTextures.hpp>
+#include <io/YAML_glm.hpp>
 
 #include <yaml-cpp/yaml.h>
 

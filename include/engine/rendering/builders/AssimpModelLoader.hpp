@@ -4,7 +4,7 @@
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
-#include <ModelLoader.hpp>
+#include <engine/rendering/builders/ModelLoader.hpp>
 
 namespace RtEngine
 {

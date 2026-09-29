@@ -1,17 +1,17 @@
-#include "SceneWriter.hpp"
+#include <io/SceneWriter.hpp>
 
-#include "YamlDumpProperties.hpp"
+#include <properties/YamlDumpProperties.hpp>
 
 #include <format>
 #include <fstream>
 #include <iostream>
 #include <logging/LogManager.hpp>
-#include <MeshRenderer.hpp>
-#include <MetalRoughMaterial.hpp>
-#include <QuickTimer.hpp>
-#include <SceneUtil.hpp>
-#include <TransformUtil.hpp>
-#include <YAML_glm.hpp>
+#include <engine/scene_graph/components/MeshRenderer.hpp>
+#include <engine/rendering/resources/materials/MetalRoughMaterial.hpp>
+#include <util/QuickTimer.hpp>
+#include <util/SceneUtil.hpp>
+#include <util/TransformUtil.hpp>
+#include <io/YAML_glm.hpp>
 
 namespace RtEngine
 {

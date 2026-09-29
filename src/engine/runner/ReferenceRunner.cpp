@@ -1,7 +1,7 @@
-#include "ReferenceRunner.hpp"
+#include <engine/runner/ReferenceRunner.hpp>
 
-#include "ImageUtil.hpp"
-#include "PathUtil.hpp"
+#include <util/ImageUtil.hpp>
+#include <util/PathUtil.hpp>
 
 #include <cmath>
 #include <filesystem>

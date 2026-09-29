@@ -1,6 +1,6 @@
 #ifndef VULKAN_RAYTRACING_YAMLDUMPPROPERTIES_HPP
 #define VULKAN_RAYTRACING_YAMLDUMPPROPERTIES_HPP
-#include "IProperties.hpp"
+#include <properties/IProperties.hpp>
 
 #include <yaml-cpp/yaml.h>
 

@@ -1,15 +1,15 @@
-#include "ResourceBuilder.hpp"
+#include <engine/rendering/builders/ResourceBuilder.hpp>
 
 #include <cstring>
 #include <stdexcept>
 
 #define STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_WRITE_IMPLEMENTATION
-#include "QuickTimer.hpp"
+#include <util/QuickTimer.hpp>
 
 #include <glm/vector_relational.hpp>
 #include <logging/LogManager.hpp>
-#include <PathUtil.hpp>
+#include <util/PathUtil.hpp>
 #include <stb_image.h>
 #include <stb_image_write.h>
 

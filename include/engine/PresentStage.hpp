@@ -1,10 +1,10 @@
 #ifndef EDNA_ENGINE_PRESENTSTAGE_HPP
 #define EDNA_ENGINE_PRESENTSTAGE_HPP
-#include "DeletionQueue.hpp"
-#include "GuiRenderer.hpp"
-#include "ImageConnector.hpp"
-#include "SyncManager.hpp"
-#include "VulkanContext.hpp"
+#include <util/DeletionQueue.hpp>
+#include <engine/ui/core/GuiRenderer.hpp>
+#include <engine/rendering/connectors/ImageConnector.hpp>
+#include <engine/SyncManager.hpp>
+#include <engine/rendering/context/VulkanContext.hpp>
 
 #include <memory>
 #include <vector>

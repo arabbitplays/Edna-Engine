@@ -1,16 +1,16 @@
-#include "Composition.hpp"
+#include <engine/scene_graph/components/Composition.hpp>
 
-#include "compute/CompositionRenderer.hpp"
-#include "compute/CyclicalCellularAutomatonRenderer.hpp"
-#include "compute/GlitchRenderer.hpp"
-#include "compute/MandelbrotRenderer.hpp"
-#include "compute/MandelbulbRenderer.hpp"
-#include "CyclicalCellularAutomaton.hpp"
-#include "EngineContext.hpp"
-#include "Glitch.hpp"
-#include "Mandelbrot.hpp"
-#include "Mandelbulb.hpp"
-#include "Scene.hpp"
+#include <engine/rendering/renderer/compute/CompositionRenderer.hpp>
+#include <engine/rendering/renderer/compute/CyclicalCellularAutomatonRenderer.hpp>
+#include <engine/rendering/renderer/compute/GlitchRenderer.hpp>
+#include <engine/rendering/renderer/compute/MandelbrotRenderer.hpp>
+#include <engine/rendering/renderer/compute/MandelbulbRenderer.hpp>
+#include <engine/scene_graph/components/CyclicalCellularAutomaton.hpp>
+#include <engine/EngineContext.hpp>
+#include <engine/scene_graph/components/Glitch.hpp>
+#include <engine/scene_graph/components/Mandelbrot.hpp>
+#include <engine/scene_graph/components/Mandelbulb.hpp>
+#include <engine/scene_graph/Scene.hpp>
 
 #include <library/color/ColorPaletteFactory.hpp>
 #include <library/color/ColorPaletteName.hpp>

@@ -1,6 +1,6 @@
 #ifndef VULKAN_RAYTRACING_METALROUGHINSTANCE_HPP
 #define VULKAN_RAYTRACING_METALROUGHINSTANCE_HPP
-#include "MaterialInstance.hpp"
+#include <engine/rendering/resources/materials/MaterialInstance.hpp>
 
 namespace RtEngine
 {

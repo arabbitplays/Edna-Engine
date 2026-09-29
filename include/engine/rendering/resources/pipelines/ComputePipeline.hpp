@@ -1,6 +1,6 @@
 #ifndef VULKAN_RAYTRACING_COMPUTEPIPELINE_HPP
 #define VULKAN_RAYTRACING_COMPUTEPIPELINE_HPP
-#include "VulkanContext.hpp"
+#include <engine/rendering/context/VulkanContext.hpp>
 
 namespace RtEngine
 {

@@ -1,6 +1,6 @@
 
 
-#include "PhongInstance.hpp"
+#include <engine/rendering/resources/materials/PhongInstance.hpp>
 
 namespace RtEngine
 {

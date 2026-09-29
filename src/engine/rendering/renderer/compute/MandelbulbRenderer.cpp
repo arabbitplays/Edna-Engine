@@ -1,8 +1,8 @@
-#include "compute/MandelbulbRenderer.hpp"
+#include <engine/rendering/renderer/compute/MandelbulbRenderer.hpp>
 
-#include "BufferConnectorFactory.hpp"
-#include "ImageConnectorFactory.hpp"
-#include "VulkanUtil.hpp"
+#include <engine/rendering/connectors/BufferConnectorFactory.hpp>
+#include <engine/rendering/connectors/ImageConnectorFactory.hpp>
+#include <util/VulkanUtil.hpp>
 
 #include <cassert>
 #include <cstring>

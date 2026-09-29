@@ -1,4 +1,4 @@
-#include "BufferConnectorFactory.hpp"
+#include <engine/rendering/connectors/BufferConnectorFactory.hpp>
 
 namespace RtEngine
 {

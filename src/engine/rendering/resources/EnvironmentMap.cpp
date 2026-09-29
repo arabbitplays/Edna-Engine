@@ -2,9 +2,9 @@
 // Created by oschdi on 17.01.26.
 //
 
-#include "EnvironmentMap.hpp"
+#include <engine/rendering/resources/EnvironmentMap.hpp>
 
-#include "DescriptorAllocator.hpp"
+#include <engine/rendering/DescriptorAllocator.hpp>
 
 #include <utility>
 

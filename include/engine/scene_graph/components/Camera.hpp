@@ -1,9 +1,9 @@
 #ifndef VULKAN_RAYTRACING_CAMERA_HPP
 #define VULKAN_RAYTRACING_CAMERA_HPP
-#include "Component.hpp"
-#include "Node.hpp"
-#include "SwapchainManager.hpp"
-#include "Transform.hpp"
+#include <engine/scene_graph/components/Component.hpp>
+#include <engine/scene_graph/Node.hpp>
+#include <engine/SwapchainManager.hpp>
+#include <engine/scene_graph/components/Transform.hpp>
 
 namespace RtEngine
 {

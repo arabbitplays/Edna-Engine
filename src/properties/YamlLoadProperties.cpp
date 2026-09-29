@@ -1,4 +1,4 @@
-#include "../../include/properties/YamlLoadProperties.hpp"
+#include <properties/YamlLoadProperties.hpp>
 
 #include <format>
 #include <logging/LogManager.hpp>

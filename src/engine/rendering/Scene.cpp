@@ -1,11 +1,11 @@
-#include "Scene.hpp"
+#include <engine/scene_graph/Scene.hpp>
 
-#include "SceneUtil.hpp"
+#include <util/SceneUtil.hpp>
 
-#include <components/Camera.hpp>
+#include <engine/scene_graph/components/Camera.hpp>
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/ext/matrix_transform.hpp>
-#include <PhongMaterial.hpp>
+#include <engine/rendering/resources/materials/PhongMaterial.hpp>
 
 namespace RtEngine
 {

@@ -1,8 +1,8 @@
 #ifndef MESHRENDERER_HPP
 #define MESHRENDERER_HPP
 
-#include <Component.hpp>
-#include <Material.hpp>
+#include <engine/scene_graph/components/Component.hpp>
+#include <engine/rendering/resources/materials/Material.hpp>
 
 namespace RtEngine
 {

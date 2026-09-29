@@ -1,6 +1,6 @@
 #ifndef COMPONENT_HPP
 #define COMPONENT_HPP
-#include "EngineContext.hpp"
+#include <engine/EngineContext.hpp>
 
 namespace RtEngine
 {

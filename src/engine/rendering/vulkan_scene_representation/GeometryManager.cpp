@@ -1,7 +1,7 @@
-#include "QuickTimer.hpp"
+#include <util/QuickTimer.hpp>
 
-#include <GeometryManager.hpp>
-#include <MeshRenderer.hpp>
+#include <engine/rendering/vulkan_scene_representation/GeometryManager.hpp>
+#include <engine/scene_graph/components/MeshRenderer.hpp>
 
 namespace RtEngine
 {

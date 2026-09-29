@@ -2,7 +2,7 @@
 // Created by oschdi on 4/29/25.
 //
 
-#include <InstanceManager.hpp>
+#include <engine/rendering/vulkan_scene_representation/InstanceManager.hpp>
 
 namespace RtEngine
 {

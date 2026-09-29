@@ -1,7 +1,7 @@
-#include "RendererStackFactory.hpp"
+#include <engine/rendering/renderer/RendererStackFactory.hpp>
 
-#include "compute/GlitchRenderer.hpp"
-#include "ImageConnectorFactory.hpp"
+#include <engine/rendering/renderer/compute/GlitchRenderer.hpp>
+#include <engine/rendering/connectors/ImageConnectorFactory.hpp>
 
 #include <utility>
 

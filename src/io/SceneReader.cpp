@@ -1,24 +1,24 @@
-#include "SceneReader.hpp"
+#include <io/SceneReader.hpp>
 
-#include "components/Camera.hpp"
-#include "EngineContext.hpp"
-#include "Material.hpp"
-#include "resources/EnvironmentMap.hpp"
-#include "YamlLoadProperties.hpp"
+#include <engine/scene_graph/components/Camera.hpp>
+#include <engine/EngineContext.hpp>
+#include <engine/rendering/resources/materials/Material.hpp>
+#include <engine/rendering/resources/EnvironmentMap.hpp>
+#include <properties/YamlLoadProperties.hpp>
 
-#include <Composition.hpp>
-#include <CyclicalCellularAutomaton.hpp>
-#include <GaussianBlur.hpp>
-#include <Glitch.hpp>
+#include <engine/scene_graph/components/Composition.hpp>
+#include <engine/scene_graph/components/CyclicalCellularAutomaton.hpp>
+#include <engine/scene_graph/components/GaussianBlur.hpp>
+#include <engine/scene_graph/components/Glitch.hpp>
 #include <glm/gtx/quaternion.hpp>
-#include <Mandelbrot.hpp>
-#include <Mandelbulb.hpp>
-#include <MeshRenderer.hpp>
-#include <Node.hpp>
-#include <QuickTimer.hpp>
-#include <Rigidbody.hpp>
-#include <TransformUtil.hpp>
-#include <YAML_glm.hpp>
+#include <engine/scene_graph/components/Mandelbrot.hpp>
+#include <engine/scene_graph/components/Mandelbulb.hpp>
+#include <engine/scene_graph/components/MeshRenderer.hpp>
+#include <engine/scene_graph/Node.hpp>
+#include <util/QuickTimer.hpp>
+#include <engine/scene_graph/components/Rigidbody.hpp>
+#include <util/TransformUtil.hpp>
+#include <io/YAML_glm.hpp>
 
 namespace RtEngine
 {

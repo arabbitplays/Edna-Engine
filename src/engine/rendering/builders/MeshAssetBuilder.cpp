@@ -1,9 +1,9 @@
-#include "MeshAssetBuilder.hpp"
+#include <engine/rendering/builders/MeshAssetBuilder.hpp>
 
-#include <AssimpModelLoader.hpp>
+#include <engine/rendering/builders/AssimpModelLoader.hpp>
 #include <cstring>
 #include <iostream>
-#include <ModelLoader.hpp>
+#include <engine/rendering/builders/ModelLoader.hpp>
 #include <stdexcept>
 #include <utility>
 

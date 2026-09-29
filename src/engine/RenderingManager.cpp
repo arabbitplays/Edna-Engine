@@ -1,6 +1,6 @@
-#include "../../include/engine/RenderingManager.hpp"
+#include <engine/RenderingManager.hpp>
 
-#include "RendererStackFactory.hpp"
+#include <engine/rendering/renderer/RendererStackFactory.hpp>
 
 #include <utility>
 

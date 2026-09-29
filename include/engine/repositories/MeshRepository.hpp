@@ -1,8 +1,8 @@
 #ifndef MESHREPOSITORY_HPP
 #define MESHREPOSITORY_HPP
-#include <DeletionQueue.hpp>
+#include <util/DeletionQueue.hpp>
 #include <memory>
-#include <MeshAssetBuilder.hpp>
+#include <engine/rendering/builders/MeshAssetBuilder.hpp>
 
 namespace RtEngine
 {

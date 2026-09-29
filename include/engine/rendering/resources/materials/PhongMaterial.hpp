@@ -1,7 +1,7 @@
 #ifndef PHONGMATERIAL_HPP
 #define PHONGMATERIAL_HPP
 #include <glm/vec3.hpp>
-#include <Material.hpp>
+#include <engine/rendering/resources/materials/Material.hpp>
 
 #define PHONG_MATERIAL_NAME "phong"
 

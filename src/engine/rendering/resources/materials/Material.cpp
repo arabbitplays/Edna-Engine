@@ -1,4 +1,4 @@
-#include "Material.hpp"
+#include <engine/rendering/resources/materials/Material.hpp>
 
 namespace RtEngine
 {

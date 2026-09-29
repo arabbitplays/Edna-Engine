@@ -1,6 +1,6 @@
-#include "Vertex.hpp"
+#include <engine/rendering/resources/Vertex.hpp>
 
-#include <RasterizerPipelineBuilder.hpp>
+#include <engine/rendering/builders/RasterizerPipelineBuilder.hpp>
 #include <string>
 
 namespace RtEngine

@@ -1,8 +1,8 @@
-#include "MeshRepository.hpp"
+#include <engine/repositories/MeshRepository.hpp>
 
 #include <format>
 #include <logging/LogManager.hpp>
-#include <VulkanContext.hpp>
+#include <engine/rendering/context/VulkanContext.hpp>
 
 namespace RtEngine
 {

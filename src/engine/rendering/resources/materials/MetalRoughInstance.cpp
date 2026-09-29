@@ -1,6 +1,6 @@
-#include "MetalRoughInstance.hpp"
+#include <engine/rendering/resources/materials/MetalRoughInstance.hpp>
 
-#include "Node.hpp"
+#include <engine/scene_graph/Node.hpp>
 
 namespace RtEngine
 {

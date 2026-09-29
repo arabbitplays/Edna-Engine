@@ -1,10 +1,10 @@
 #ifndef HIERARCHYWINDOW_HPP
 #define HIERARCHYWINDOW_HPP
 
-#include <../scene_graph/Scene.hpp>
-#include <GuiWindow.hpp>
+#include <engine/scene_graph/Scene.hpp>
+#include <engine/ui/core/GuiWindow.hpp>
 #include <imgui.h>
-#include <InspectorWindow.hpp>
+#include <engine/ui/windows/InspectorWindow.hpp>
 #include <memory>
 #include <string>
 

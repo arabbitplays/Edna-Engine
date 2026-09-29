@@ -4,7 +4,7 @@
 
 #ifndef REALTIMERENDERER_HPP
 #define REALTIMERENDERER_HPP
-#include "Runner.hpp"
+#include <engine/runner/Runner.hpp>
 
 namespace RtEngine
 {

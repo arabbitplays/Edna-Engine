@@ -1,4 +1,4 @@
-#include "../../include/engine/PresentStage.hpp"
+#include <engine/PresentStage.hpp>
 
 #include <stdexcept>
 

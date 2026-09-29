@@ -1,4 +1,4 @@
-#include "AssimpModelLoader.hpp"
+#include <engine/rendering/builders/AssimpModelLoader.hpp>
 
 #include <logging/LogManager.hpp>
 

@@ -1,11 +1,11 @@
 #ifndef BASICS_MESHASSETBUILDER_HPP
 #define BASICS_MESHASSETBUILDER_HPP
 
-#include "ResourceBuilder.hpp"
+#include <engine/rendering/builders/ResourceBuilder.hpp>
 
-#include <AccelerationStructure.hpp>
-#include <MeshAsset.hpp>
-#include <ModelLoader.hpp>
+#include <engine/rendering/resources/AccelerationStructure.hpp>
+#include <engine/rendering/resources/MeshAsset.hpp>
+#include <engine/rendering/builders/ModelLoader.hpp>
 
 namespace RtEngine
 {

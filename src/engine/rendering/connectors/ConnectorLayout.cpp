@@ -1,6 +1,6 @@
-#include "ConnectorLayout.hpp"
+#include <engine/rendering/connectors/ConnectorLayout.hpp>
 
-#include "DescriptorLayoutBuilder.hpp"
+#include <engine/rendering/builders/DescriptorLayoutBuilder.hpp>
 
 #include <cassert>
 #include <logging/LogManager.hpp>

@@ -1,6 +1,6 @@
-#include "ImageConnectorFactory.hpp"
+#include <engine/rendering/connectors/ImageConnectorFactory.hpp>
 
-#include "RandomUtil.hpp"
+#include <util/RandomUtil.hpp>
 
 namespace RtEngine
 {

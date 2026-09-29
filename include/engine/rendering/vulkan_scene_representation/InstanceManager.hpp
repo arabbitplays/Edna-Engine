@@ -5,9 +5,9 @@
 #ifndef INSTANCEMANAGER_HPP
 #define INSTANCEMANAGER_HPP
 
-#include "../resources/IRenderable.hpp"
+#include <engine/rendering/resources/IRenderable.hpp>
 
-#include <Material.hpp>
+#include <engine/rendering/resources/materials/Material.hpp>
 
 namespace RtEngine
 {

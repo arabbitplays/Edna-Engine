@@ -1,8 +1,8 @@
 #ifndef EDNA_ENGINE_CYCLICALCELLULARAUTOMATONRENDERER_HPP
 #define EDNA_ENGINE_CYCLICALCELLULARAUTOMATONRENDERER_HPP
-#include "BufferConnector.hpp"
-#include "ComputeRenderer.hpp"
-#include "ImageConnector.hpp"
+#include <engine/rendering/connectors/BufferConnector.hpp>
+#include <engine/rendering/renderer/compute/ComputeRenderer.hpp>
+#include <engine/rendering/connectors/ImageConnector.hpp>
 
 #include <array>
 #include <glm/glm.hpp>

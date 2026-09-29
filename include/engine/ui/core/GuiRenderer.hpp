@@ -1,15 +1,15 @@
 #ifndef GUIMANAGER_HPP
 #define GUIMANAGER_HPP
 
-#include "DeletionQueue.hpp"
+#include <util/DeletionQueue.hpp>
 
 #include <bits/shared_ptr.h>
-#include <DescriptorAllocator.hpp>
+#include <engine/rendering/DescriptorAllocator.hpp>
 #include <GLFW/glfw3.h>
 #include <imgui.h>
-#include <Swapchain.hpp>
+#include <engine/rendering/Swapchain.hpp>
 #include <vulkan/vulkan_core.h>
-#include <VulkanContext.hpp>
+#include <engine/rendering/context/VulkanContext.hpp>
 
 namespace RtEngine
 {

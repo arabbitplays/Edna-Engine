@@ -1,9 +1,9 @@
-#include "GaussianBlur.hpp"
+#include <engine/scene_graph/components/GaussianBlur.hpp>
 
-#include "compute/GaussianBlurRenderer.hpp"
-#include "EngineContext.hpp"
-#include "Node.hpp"
-#include "Scene.hpp"
+#include <engine/rendering/renderer/compute/GaussianBlurRenderer.hpp>
+#include <engine/EngineContext.hpp>
+#include <engine/scene_graph/Node.hpp>
+#include <engine/scene_graph/Scene.hpp>
 
 #include <format>
 #include <logging/LogManager.hpp>

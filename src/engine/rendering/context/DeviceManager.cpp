@@ -4,10 +4,10 @@
 
 #include <cassert>
 #include <cstring>
-#include <DeviceManager.hpp>
+#include <engine/rendering/context/DeviceManager.hpp>
 #include <set>
-#include <Swapchain.hpp>
-#include <VulkanUtil.hpp>
+#include <engine/rendering/Swapchain.hpp>
+#include <util/VulkanUtil.hpp>
 
 namespace RtEngine
 {

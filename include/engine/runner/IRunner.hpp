@@ -1,7 +1,7 @@
 #ifndef EDNA_ENGINE_IRUNNER_HPP
 #define EDNA_ENGINE_IRUNNER_HPP
-#include "ISerializable.hpp"
-#include "UpdateFlagValue.hpp"
+#include <properties/ISerializable.hpp>
+#include <engine/UpdateFlagValue.hpp>
 
 namespace RtEngine
 {

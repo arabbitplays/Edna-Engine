@@ -1,7 +1,7 @@
 #ifndef EDNA_ENGINE_IMAGECONNECTOR_HPP
 #define EDNA_ENGINE_IMAGECONNECTOR_HPP
-#include "Connector.hpp"
-#include "ResourceBuilder.hpp"
+#include <engine/rendering/connectors/Connector.hpp>
+#include <engine/rendering/builders/ResourceBuilder.hpp>
 
 #include <functional>
 

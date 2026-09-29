@@ -4,9 +4,9 @@
 
 #ifndef VULKAN_RAYTRACING_SCENEMANAGER_HPP
 #define VULKAN_RAYTRACING_SCENEMANAGER_HPP
-#include "Camera.hpp"
-#include "ISceneManager.hpp"
-#include "Scene.hpp"
+#include <engine/scene_graph/components/Camera.hpp>
+#include <engine/scene_graph/ISceneManager.hpp>
+#include <engine/scene_graph/Scene.hpp>
 
 #include <memory>
 #include <unordered_map>

@@ -1,12 +1,12 @@
 #ifndef EDNA_ENGINE_RENDERERSTACKFACTORY_HPP
 #define EDNA_ENGINE_RENDERERSTACKFACTORY_HPP
-#include "ImageConnector.hpp"
-#include "MeshRepository.hpp"
-#include "PresentStage.hpp"
-#include "RaytracingRenderer.hpp"
-#include "RendererStack.hpp"
-#include "TextureRepository.hpp"
-#include "VulkanContext.hpp"
+#include <engine/rendering/connectors/ImageConnector.hpp>
+#include <engine/repositories/MeshRepository.hpp>
+#include <engine/PresentStage.hpp>
+#include <engine/rendering/renderer/RaytracingRenderer.hpp>
+#include <engine/rendering/renderer/RendererStack.hpp>
+#include <engine/repositories/TextureRepository.hpp>
+#include <engine/rendering/context/VulkanContext.hpp>
 
 #include <memory>
 

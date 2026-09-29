@@ -1,9 +1,9 @@
 #ifndef VULKAN_RAYTRACING_MATERIALMANAGER_HPP
 #define VULKAN_RAYTRACING_MATERIALMANAGER_HPP
 
-#include "IScene.hpp"
-#include "MaterialInstance.hpp"
-#include "MaterialTextures.hpp"
+#include <engine/rendering/IScene.hpp>
+#include <engine/rendering/resources/materials/MaterialInstance.hpp>
+#include <engine/rendering/resources/MaterialTextures.hpp>
 
 namespace RtEngine
 {

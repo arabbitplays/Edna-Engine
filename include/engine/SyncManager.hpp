@@ -1,9 +1,9 @@
 #ifndef EDNA_ENGINE_SYNCMANAGER_HPP
 #define EDNA_ENGINE_SYNCMANAGER_HPP
-#include "DeletionQueue.hpp"
-#include "DeviceManager.hpp"
-#include "Swapchain.hpp"
-#include "SwapchainManager.hpp"
+#include <util/DeletionQueue.hpp>
+#include <engine/rendering/context/DeviceManager.hpp>
+#include <engine/rendering/Swapchain.hpp>
+#include <engine/SwapchainManager.hpp>
 
 #include <memory>
 #include <vector>

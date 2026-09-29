@@ -1,7 +1,7 @@
-#include "compute/CompositionRenderer.hpp"
-#include "compute/GlitchRenderer.hpp"
-#include "Glitch.hpp"
-#include "InputManager.hpp"
+#include <engine/rendering/renderer/compute/CompositionRenderer.hpp>
+#include <engine/rendering/renderer/compute/GlitchRenderer.hpp>
+#include <engine/scene_graph/components/Glitch.hpp>
+#include <engine/InputManager.hpp>
 
 #include <algorithm>
 #include <library/rave_visualizer/CompositionManager.hpp>

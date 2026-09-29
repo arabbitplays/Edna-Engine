@@ -1,10 +1,10 @@
 #ifndef ACCELERATIONSTRUCTURE_HPP
 #define ACCELERATIONSTRUCTURE_HPP
 
-#include "Vertex.hpp"
+#include <engine/rendering/resources/Vertex.hpp>
 
 #include <bits/shared_ptr.h>
-#include <ResourceBuilder.hpp>
+#include <engine/rendering/builders/ResourceBuilder.hpp>
 #include <vector>
 #include <vulkan/vulkan_core.h>
 

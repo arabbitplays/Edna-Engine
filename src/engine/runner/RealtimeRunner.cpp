@@ -2,9 +2,9 @@
 // Created by oschdi on 5/4/25.
 //
 
-#include "RealtimeRunner.hpp"
+#include <engine/runner/RealtimeRunner.hpp>
 
-#include <PathUtil.hpp>
+#include <util/PathUtil.hpp>
 
 enum
 {

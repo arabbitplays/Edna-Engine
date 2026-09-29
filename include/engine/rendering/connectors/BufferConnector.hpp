@@ -1,9 +1,9 @@
 #ifndef EDNA_ENGINE_BUFFERCONNECTOR_HPP
 #define EDNA_ENGINE_BUFFERCONNECTOR_HPP
 
-#include "Connector.hpp"
-#include "DeviceManager.hpp"
-#include "ResourceBuilder.hpp"
+#include <engine/rendering/connectors/Connector.hpp>
+#include <engine/rendering/context/DeviceManager.hpp>
+#include <engine/rendering/builders/ResourceBuilder.hpp>
 
 namespace RtEngine
 {

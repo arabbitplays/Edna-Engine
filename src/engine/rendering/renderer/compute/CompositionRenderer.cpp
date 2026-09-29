@@ -1,7 +1,7 @@
-#include "compute/CompositionRenderer.hpp"
+#include <engine/rendering/renderer/compute/CompositionRenderer.hpp>
 
-#include "ImageConnectorFactory.hpp"
-#include "VulkanUtil.hpp"
+#include <engine/rendering/connectors/ImageConnectorFactory.hpp>
+#include <util/VulkanUtil.hpp>
 
 #include <composition.comp.spv.h>
 

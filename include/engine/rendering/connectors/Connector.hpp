@@ -1,6 +1,6 @@
 #ifndef EDNA_ENGINE_CONNECTOR_HPP
 #define EDNA_ENGINE_CONNECTOR_HPP
-#include "DescriptorAllocator.hpp"
+#include <engine/rendering/DescriptorAllocator.hpp>
 
 #include <memory>
 

@@ -1,6 +1,6 @@
-#include "../../../include/engine/runner/ComputeRunner.hpp"
+#include <engine/runner/ComputeRunner.hpp>
 
-#include "UpdateFlagValue.hpp"
+#include <engine/UpdateFlagValue.hpp>
 
 #include <utility>
 

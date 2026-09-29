@@ -1,9 +1,9 @@
-#include "GuiRenderer.hpp"
+#include <engine/ui/core/GuiRenderer.hpp>
 
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_vulkan.h>
-#include <RenderPassBuilder.hpp>
+#include <engine/rendering/builders/RenderPassBuilder.hpp>
 #include <stdexcept>
 #include <string>
 

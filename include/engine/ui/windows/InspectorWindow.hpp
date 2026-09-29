@@ -1,12 +1,12 @@
 #ifndef INSPECTORWINDOW_HPP
 #define INSPECTORWINDOW_HPP
 
-#include "SceneManager.hpp"
+#include <engine/scene_graph/SceneManager.hpp>
 
-#include <GuiWindow.hpp>
+#include <engine/ui/core/GuiWindow.hpp>
 #include <memory>
-#include <Node.hpp>
-#include <VulkanContext.hpp>
+#include <engine/scene_graph/Node.hpp>
+#include <engine/rendering/context/VulkanContext.hpp>
 
 namespace RtEngine
 {

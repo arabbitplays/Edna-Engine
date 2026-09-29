@@ -1,5 +1,5 @@
-#include <AccelerationStructure.hpp>
-#include <RenderTarget.hpp>
+#include <engine/rendering/resources/AccelerationStructure.hpp>
+#include <engine/rendering/RenderTarget.hpp>
 
 #ifndef BASICS_IRENDERABLE_HPP
 #define BASICS_IRENDERABLE_HPP

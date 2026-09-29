@@ -1,4 +1,4 @@
-#include "../../include/engine/SyncManager.hpp"
+#include <engine/SyncManager.hpp>
 
 #include <cassert>
 #include <stdexcept>

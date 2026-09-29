@@ -4,8 +4,8 @@
 
 #ifndef VULKAN_RAYTRACING_ENVIRONMENTMAP_HPP
 #define VULKAN_RAYTRACING_ENVIRONMENTMAP_HPP
-#include "DescriptorAllocator.hpp"
-#include "TextureRepository.hpp"
+#include <engine/rendering/DescriptorAllocator.hpp>
+#include <engine/repositories/TextureRepository.hpp>
 
 #include <yaml-cpp/yaml.h>
 

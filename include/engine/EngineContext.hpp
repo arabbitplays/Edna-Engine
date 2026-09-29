@@ -1,15 +1,15 @@
 #ifndef RUNTIMECONTEXT_HPP
 #define RUNTIMECONTEXT_HPP
 
-#include "InputManager.hpp"
-#include "ISceneManager.hpp"
-#include "RaytracingRenderer.hpp"
-#include "RenderingManager.hpp"
-#include "SwapchainManager.hpp"
-#include "SyncManager.hpp"
+#include <engine/InputManager.hpp>
+#include <engine/scene_graph/ISceneManager.hpp>
+#include <engine/rendering/renderer/RaytracingRenderer.hpp>
+#include <engine/RenderingManager.hpp>
+#include <engine/SwapchainManager.hpp>
+#include <engine/SyncManager.hpp>
 
-#include <MeshRepository.hpp>
-#include <TextureRepository.hpp>
+#include <engine/repositories/MeshRepository.hpp>
+#include <engine/repositories/TextureRepository.hpp>
 
 namespace RtEngine
 {

@@ -1,7 +1,7 @@
-#include "OptionsWindow.hpp"
+#include <engine/ui/windows/OptionsWindow.hpp>
 
-#include "ImGuiProperties.hpp"
-#include "UpdateFlagValue.hpp"
+#include <properties/ImGuiProperties.hpp>
+#include <engine/UpdateFlagValue.hpp>
 
 #include <imgui.h>
 

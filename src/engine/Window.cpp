@@ -2,7 +2,7 @@
 // Created by oschdi on 18.01.26.
 //
 
-#include "../../include/engine/Window.hpp"
+#include <engine/Window.hpp>
 
 namespace RtEngine
 {

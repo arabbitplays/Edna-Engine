@@ -1,10 +1,10 @@
-#include "Swapchain.hpp"
+#include <engine/rendering/Swapchain.hpp>
 
 #include <bits/shared_ptr.h>
 #include <bits/stl_algo.h>
 #include <cassert>
 #include <limits>
-#include <VulkanUtil.hpp>
+#include <util/VulkanUtil.hpp>
 
 namespace RtEngine
 {

@@ -1,8 +1,8 @@
 #ifndef EDNA_ENGINE_COMPOSITIONMANAGER_HPP
 #define EDNA_ENGINE_COMPOSITIONMANAGER_HPP
 
-#include "RaveState.hpp"
-#include "VisualizationType.hpp"
+#include <library/rave_visualizer/RaveState.hpp>
+#include <library/rave_visualizer/VisualizationType.hpp>
 
 #include <array>
 #include <functional>

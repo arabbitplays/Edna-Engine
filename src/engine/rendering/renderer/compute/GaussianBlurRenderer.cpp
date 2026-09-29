@@ -1,7 +1,7 @@
-#include "compute/GaussianBlurRenderer.hpp"
+#include <engine/rendering/renderer/compute/GaussianBlurRenderer.hpp>
 
-#include "ImageConnectorFactory.hpp"
-#include "VulkanUtil.hpp"
+#include <engine/rendering/connectors/ImageConnectorFactory.hpp>
+#include <util/VulkanUtil.hpp>
 
 #include <algorithm>
 #include <gaussian_blur.comp.spv.h>

@@ -1,4 +1,4 @@
-#include "BufferConnector.hpp"
+#include <engine/rendering/connectors/BufferConnector.hpp>
 
 #include <cassert>
 #include <utility>

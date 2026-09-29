@@ -1,11 +1,11 @@
 #ifndef VULKAN_RAYTRACING_RUNNER_HPP
 #define VULKAN_RAYTRACING_RUNNER_HPP
-#include "IRunner.hpp"
-#include "PresentStage.hpp"
-#include "RaytracingRenderer.hpp"
-#include "RendererStack.hpp"
-#include "SceneManager.hpp"
-#include "SyncManager.hpp"
+#include <engine/runner/IRunner.hpp>
+#include <engine/PresentStage.hpp>
+#include <engine/rendering/renderer/RaytracingRenderer.hpp>
+#include <engine/rendering/renderer/RendererStack.hpp>
+#include <engine/scene_graph/SceneManager.hpp>
+#include <engine/SyncManager.hpp>
 
 namespace RtEngine
 {

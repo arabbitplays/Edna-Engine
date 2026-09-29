@@ -1,9 +1,9 @@
 #ifndef SWAPCHAIN_HPP
 #define SWAPCHAIN_HPP
 
-#include "ResourceBuilder.hpp"
+#include <engine/rendering/builders/ResourceBuilder.hpp>
 
-#include <DeviceManager.hpp>
+#include <engine/rendering/context/DeviceManager.hpp>
 #include <GLFW/glfw3.h>
 #include <vector>
 #include <vulkan/vulkan_core.h>

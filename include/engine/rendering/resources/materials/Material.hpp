@@ -1,15 +1,15 @@
 #ifndef MATERIAL_HPP
 #define MATERIAL_HPP
 
-#include "ISerializable.hpp"
-#include "MaterialInstance.hpp"
+#include <properties/ISerializable.hpp>
+#include <engine/rendering/resources/materials/MaterialInstance.hpp>
 
-#include <../pipelines/RaytracingPipeline.hpp>
+#include <engine/rendering/resources/pipelines/RaytracingPipeline.hpp>
 #include <bits/shared_ptr.h>
-#include <DeletionQueue.hpp>
-#include <DescriptorAllocator.hpp>
+#include <util/DeletionQueue.hpp>
+#include <engine/rendering/DescriptorAllocator.hpp>
 #include <glm/vec4.hpp>
-#include <ResourceBuilder.hpp>
+#include <engine/rendering/builders/ResourceBuilder.hpp>
 #include <vulkan/vulkan_core.h>
 
 namespace RtEngine

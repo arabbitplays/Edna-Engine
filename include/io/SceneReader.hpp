@@ -1,7 +1,7 @@
 #ifndef SCENEREADER_H
 #define SCENEREADER_H
 
-#include <../engine/scene_graph/Scene.hpp>
+#include <engine/scene_graph/Scene.hpp>
 #include <string>
 #include <yaml-cpp/yaml.h>
 

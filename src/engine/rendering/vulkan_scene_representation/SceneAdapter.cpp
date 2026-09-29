@@ -1,14 +1,14 @@
-#include "SceneAdapter.hpp"
+#include <engine/rendering/vulkan_scene_representation/SceneAdapter.hpp>
 
-#include "PhongMaterial.hpp"
-#include "UpdateFlagValue.hpp"
+#include <engine/rendering/resources/materials/PhongMaterial.hpp>
+#include <engine/UpdateFlagValue.hpp>
 
-#include <DescriptorLayoutBuilder.hpp>
-#include <MeshRenderer.hpp>
-#include <MetalRoughMaterial.hpp>
-#include <OptionsWindow.hpp>
-#include <QuickTimer.hpp>
-#include <SceneUtil.hpp>
+#include <engine/rendering/builders/DescriptorLayoutBuilder.hpp>
+#include <engine/scene_graph/components/MeshRenderer.hpp>
+#include <engine/rendering/resources/materials/MetalRoughMaterial.hpp>
+#include <engine/ui/windows/OptionsWindow.hpp>
+#include <util/QuickTimer.hpp>
+#include <util/SceneUtil.hpp>
 #include <utility>
 
 namespace RtEngine

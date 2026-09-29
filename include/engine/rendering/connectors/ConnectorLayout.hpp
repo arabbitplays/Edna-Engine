@@ -1,8 +1,8 @@
 #ifndef EDNA_ENGINE_CONNECTORLAYOUT_HPP
 #define EDNA_ENGINE_CONNECTORLAYOUT_HPP
-#include "Connector.hpp"
-#include "DescriptorAllocator.hpp"
-#include "DeviceManager.hpp"
+#include <engine/rendering/connectors/Connector.hpp>
+#include <engine/rendering/DescriptorAllocator.hpp>
+#include <engine/rendering/context/DeviceManager.hpp>
 
 #include <vector>
 

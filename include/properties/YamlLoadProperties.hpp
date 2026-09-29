@@ -4,8 +4,8 @@
 
 #ifndef VULKAN_RAYTRACING_PROPERTIES_HPP
 #define VULKAN_RAYTRACING_PROPERTIES_HPP
-#include "IProperties.hpp"
-#include "Node.hpp"
+#include <properties/IProperties.hpp>
+#include <engine/scene_graph/Node.hpp>
 
 #include <memory>
 #include <unordered_map>

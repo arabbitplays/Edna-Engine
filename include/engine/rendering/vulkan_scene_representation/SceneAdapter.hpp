@@ -1,16 +1,16 @@
 #ifndef SCENEMANAGER_HPP
 #define SCENEMANAGER_HPP
 
-#include "MaterialManager.hpp"
-#include "UpdateFlagValue.hpp"
+#include <engine/rendering/vulkan_scene_representation/MaterialManager.hpp>
+#include <engine/UpdateFlagValue.hpp>
 
-#include <GeometryManager.hpp>
-#include <InstanceManager.hpp>
+#include <engine/rendering/vulkan_scene_representation/GeometryManager.hpp>
+#include <engine/rendering/vulkan_scene_representation/InstanceManager.hpp>
 #include <memory>
-#include <OptionsWindow.hpp>
+#include <engine/ui/windows/OptionsWindow.hpp>
 #include <vector>
 #include <vulkan/vulkan_core.h>
-#include <VulkanContext.hpp>
+#include <engine/rendering/context/VulkanContext.hpp>
 
 namespace RtEngine
 {

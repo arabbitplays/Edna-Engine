@@ -1,10 +1,10 @@
 #ifndef OPTIONSUI_HPP
 #define OPTIONSUI_HPP
-#include "ISerializable.hpp"
+#include <properties/ISerializable.hpp>
 
 #include <bits/shared_ptr.h>
 #include <glm/fwd.hpp>
-#include <GuiWindow.hpp>
+#include <engine/ui/core/GuiWindow.hpp>
 
 namespace RtEngine
 {

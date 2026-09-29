@@ -1,8 +1,8 @@
-#include "InspectorWindow.hpp"
+#include <engine/ui/windows/InspectorWindow.hpp>
 
-#include "ImGuiProperties.hpp"
-#include "SceneAdapter.hpp"
-#include "UpdateFlagValue.hpp"
+#include <properties/ImGuiProperties.hpp>
+#include <engine/rendering/vulkan_scene_representation/SceneAdapter.hpp>
+#include <engine/UpdateFlagValue.hpp>
 
 #include <imgui.h>
 

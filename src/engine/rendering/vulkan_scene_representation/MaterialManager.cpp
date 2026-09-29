@@ -1,6 +1,6 @@
-#include "MaterialManager.hpp"
+#include <engine/rendering/vulkan_scene_representation/MaterialManager.hpp>
 
-#include "Material.hpp"
+#include <engine/rendering/resources/materials/Material.hpp>
 
 #include <utility>
 

@@ -1,12 +1,12 @@
 #ifndef BASICS_RESSOURCEBUILDER_HPP
 #define BASICS_RESSOURCEBUILDER_HPP
 
-#include "CommandManager.hpp"
+#include <engine/rendering/CommandManager.hpp>
 
 #include <cstring>
 #include <stb_image.h>
 #include <string>
-#include <Texture.hpp>
+#include <engine/rendering/resources/Texture.hpp>
 #include <vulkan/vulkan_core.h>
 
 namespace RtEngine

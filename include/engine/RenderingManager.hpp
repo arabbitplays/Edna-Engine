@@ -1,14 +1,14 @@
 #ifndef VULKAN_RAYTRACING_RENDERINGMANAGER_HPP
 #define VULKAN_RAYTRACING_RENDERINGMANAGER_HPP
-#include "compute/ComputeRenderer.hpp"
-#include "MeshRepository.hpp"
-#include "PresentStage.hpp"
-#include "RaytracingRenderer.hpp"
-#include "RendererStack.hpp"
-#include "SwapchainManager.hpp"
-#include "SyncManager.hpp"
-#include "TextureRepository.hpp"
-#include "VulkanContext.hpp"
+#include <engine/rendering/renderer/compute/ComputeRenderer.hpp>
+#include <engine/repositories/MeshRepository.hpp>
+#include <engine/PresentStage.hpp>
+#include <engine/rendering/renderer/RaytracingRenderer.hpp>
+#include <engine/rendering/renderer/RendererStack.hpp>
+#include <engine/SwapchainManager.hpp>
+#include <engine/SyncManager.hpp>
+#include <engine/repositories/TextureRepository.hpp>
+#include <engine/rendering/context/VulkanContext.hpp>
 
 #include <memory>
 

@@ -1,14 +1,14 @@
 #ifndef VULKANCONTEXT_HPP
 #define VULKANCONTEXT_HPP
 
-#include "../../Window.hpp"
+#include <engine/Window.hpp>
 
-#include <CommandManager.hpp>
-#include <DescriptorAllocator.hpp>
-#include <DeviceManager.hpp>
-#include <MeshAssetBuilder.hpp>
-#include <ResourceBuilder.hpp>
-#include <Swapchain.hpp>
+#include <engine/rendering/CommandManager.hpp>
+#include <engine/rendering/DescriptorAllocator.hpp>
+#include <engine/rendering/context/DeviceManager.hpp>
+#include <engine/rendering/builders/MeshAssetBuilder.hpp>
+#include <engine/rendering/builders/ResourceBuilder.hpp>
+#include <engine/rendering/Swapchain.hpp>
 
 namespace RtEngine
 {

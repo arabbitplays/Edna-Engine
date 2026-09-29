@@ -1,8 +1,8 @@
 #ifndef EDNA_ENGINE_BUFFERCONNECTORFACTORY_HPP
 #define EDNA_ENGINE_BUFFERCONNECTORFACTORY_HPP
-#include "BufferConnector.hpp"
-#include "DeviceManager.hpp"
-#include "ResourceBuilder.hpp"
+#include <engine/rendering/connectors/BufferConnector.hpp>
+#include <engine/rendering/context/DeviceManager.hpp>
+#include <engine/rendering/builders/ResourceBuilder.hpp>
 
 #include <memory>
 

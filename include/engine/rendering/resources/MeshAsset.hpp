@@ -1,8 +1,8 @@
 #ifndef MESHASSET_HPP
 #define MESHASSET_HPP
 
-#include "AccelerationStructure.hpp"
-#include "ResourceBuilder.hpp"
+#include <engine/rendering/resources/AccelerationStructure.hpp>
+#include <engine/rendering/builders/ResourceBuilder.hpp>
 
 #include <bits/shared_ptr.h>
 

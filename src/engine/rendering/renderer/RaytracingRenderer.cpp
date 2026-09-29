@@ -1,16 +1,16 @@
-#include "ImageUtil.hpp"
-#include "QuickTimer.hpp"
-#include "UpdateFlagValue.hpp"
+#include <util/ImageUtil.hpp>
+#include <util/QuickTimer.hpp>
+#include <engine/UpdateFlagValue.hpp>
 
-#include <../../../include/engine/rendering/renderer/RaytracingRenderer.hpp>
+#include <engine/rendering/renderer/RaytracingRenderer.hpp>
 #include <cstdlib>
 #include <filesystem>
 #include <glm/gtc/packing.hpp>
-#include <HierarchyWindow.hpp>
+#include <engine/ui/windows/HierarchyWindow.hpp>
 #include <logging/LogManager.hpp>
-#include <PathUtil.hpp>
-#include <RandomUtil.hpp>
-#include <SceneWriter.hpp>
+#include <util/PathUtil.hpp>
+#include <util/RandomUtil.hpp>
+#include <io/SceneWriter.hpp>
 #include <set>
 #include <utility>
 

@@ -1,7 +1,7 @@
 #ifndef VULKAN_RAYTRACING_GLITCHRENDERER_HPP
 #define VULKAN_RAYTRACING_GLITCHRENDERER_HPP
-#include "ComputeRenderer.hpp"
-#include "ImageConnector.hpp"
+#include <engine/rendering/renderer/compute/ComputeRenderer.hpp>
+#include <engine/rendering/connectors/ImageConnector.hpp>
 
 #include <chrono>
 

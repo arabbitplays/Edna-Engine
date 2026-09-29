@@ -7,11 +7,11 @@
 
 #include <vulkan/vulkan_core.h>
 #define GLFW_INCLUDE_VULKAN
-#include <DeletionQueue.hpp>
+#include <util/DeletionQueue.hpp>
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include <vector>
-#include <VulkanUtil.hpp>
+#include <util/VulkanUtil.hpp>
 
 namespace RtEngine
 {

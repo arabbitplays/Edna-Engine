@@ -1,6 +1,6 @@
-#include "CyclicalCellularAutomaton.hpp"
+#include <engine/scene_graph/components/CyclicalCellularAutomaton.hpp>
 
-#include "compute/CyclicalCellularAutomatonRenderer.hpp"
+#include <engine/rendering/renderer/compute/CyclicalCellularAutomatonRenderer.hpp>
 
 #include <glm/glm.hpp>
 #include <library/cellular_automaton/animation/CyclicalCellularAutomatonAnimationGenerator.hpp>

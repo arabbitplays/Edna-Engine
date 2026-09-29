@@ -1,9 +1,9 @@
 #ifndef VULKAN_RAYTRACING_COMPUTERENDERER_HPP
 #define VULKAN_RAYTRACING_COMPUTERENDERER_HPP
-#include "../Renderer.hpp"
-#include "ComputePipeline.hpp"
-#include "ConnectorLayout.hpp"
-#include "VulkanContext.hpp"
+#include <engine/rendering/renderer/Renderer.hpp>
+#include <engine/rendering/resources/pipelines/ComputePipeline.hpp>
+#include <engine/rendering/connectors/ConnectorLayout.hpp>
+#include <engine/rendering/context/VulkanContext.hpp>
 
 #include <functional>
 #include <memory>

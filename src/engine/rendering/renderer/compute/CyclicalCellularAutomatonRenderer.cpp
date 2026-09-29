@@ -1,8 +1,8 @@
-#include "compute/CyclicalCellularAutomatonRenderer.hpp"
+#include <engine/rendering/renderer/compute/CyclicalCellularAutomatonRenderer.hpp>
 
-#include "BufferConnectorFactory.hpp"
-#include "ImageConnectorFactory.hpp"
-#include "VulkanUtil.hpp"
+#include <engine/rendering/connectors/BufferConnectorFactory.hpp>
+#include <engine/rendering/connectors/ImageConnectorFactory.hpp>
+#include <util/VulkanUtil.hpp>
 
 #include <cassert>
 #include <cyclical_cellular_automaton.comp.spv.h>

@@ -1,9 +1,9 @@
 #ifndef RENDERTARGET_HPP
 #define RENDERTARGET_HPP
-#include <ImageConnector.hpp>
+#include <engine/rendering/connectors/ImageConnector.hpp>
 #include <memory>
-#include <ResourceBuilder.hpp>
-#include <Texture.hpp>
+#include <engine/rendering/builders/ResourceBuilder.hpp>
+#include <engine/rendering/resources/Texture.hpp>
 
 namespace RtEngine
 {

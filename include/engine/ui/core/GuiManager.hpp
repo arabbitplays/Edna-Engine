@@ -4,9 +4,9 @@
 
 #ifndef VULKAN_RAYTRACING_GUIMANAGER_HPP
 #define VULKAN_RAYTRACING_GUIMANAGER_HPP
-#include "HierarchyWindow.hpp"
-#include "InspectorWindow.hpp"
-#include "SceneManager.hpp"
+#include <engine/ui/windows/HierarchyWindow.hpp>
+#include <engine/ui/windows/InspectorWindow.hpp>
+#include <engine/scene_graph/SceneManager.hpp>
 
 namespace RtEngine
 {

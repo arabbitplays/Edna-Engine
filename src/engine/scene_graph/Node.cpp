@@ -1,4 +1,4 @@
-#include <Node.hpp>
+#include <engine/scene_graph/Node.hpp>
 
 namespace RtEngine
 {

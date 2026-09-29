@@ -9,16 +9,16 @@
 
 #define TINYOBJLOADER_IMPLEMENTATION
 
-#include "MeshRepository.hpp"
-#include "Renderer.hpp"
-#include "UpdateFlagValue.hpp"
+#include <engine/repositories/MeshRepository.hpp>
+#include <engine/rendering/renderer/Renderer.hpp>
+#include <engine/UpdateFlagValue.hpp>
 
-#include <../rendering/vulkan_scene_representation/SceneAdapter.hpp>
-#include <GuiRenderer.hpp>
-#include <GuiWindow.hpp>
+#include <engine/rendering/vulkan_scene_representation/SceneAdapter.hpp>
+#include <engine/ui/core/GuiRenderer.hpp>
+#include <engine/ui/core/GuiWindow.hpp>
 #include <memory>
-#include <RenderTarget.hpp>
-#include <VulkanContext.hpp>
+#include <engine/rendering/RenderTarget.hpp>
+#include <engine/rendering/context/VulkanContext.hpp>
 
 namespace RtEngine
 {

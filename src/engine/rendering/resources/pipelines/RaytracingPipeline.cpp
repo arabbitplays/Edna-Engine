@@ -1,7 +1,7 @@
-#include "../../../../../include/engine/rendering/resources/pipelines/RaytracingPipeline.hpp"
+#include <engine/rendering/resources/pipelines/RaytracingPipeline.hpp>
 
 #include <stdexcept>
-#include <VulkanUtil.hpp>
+#include <util/VulkanUtil.hpp>
 
 namespace RtEngine
 {

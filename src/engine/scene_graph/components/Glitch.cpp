@@ -1,9 +1,9 @@
-#include "Glitch.hpp"
+#include <engine/scene_graph/components/Glitch.hpp>
 
-#include "compute/GlitchRenderer.hpp"
-#include "EngineContext.hpp"
-#include "Node.hpp"
-#include "Scene.hpp"
+#include <engine/rendering/renderer/compute/GlitchRenderer.hpp>
+#include <engine/EngineContext.hpp>
+#include <engine/scene_graph/Node.hpp>
+#include <engine/scene_graph/Scene.hpp>
 
 #include <format>
 #include <logging/LogManager.hpp>

@@ -1,12 +1,12 @@
 #ifndef BASICS_COMMANDMANAGER_HPP
 #define BASICS_COMMANDMANAGER_HPP
 
-#include <DeviceManager.hpp>
+#include <engine/rendering/context/DeviceManager.hpp>
 #include <memory>
 #include <optional>
 #include <vector>
 #include <vulkan/vulkan_core.h>
-#include <VulkanUtil.hpp>
+#include <util/VulkanUtil.hpp>
 
 namespace RtEngine
 {

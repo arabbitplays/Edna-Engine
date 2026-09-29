@@ -1,8 +1,8 @@
 #ifndef EDNA_ENGINE_GLITCH_HPP
 #define EDNA_ENGINE_GLITCH_HPP
-#include "Component.hpp"
+#include <engine/scene_graph/components/Component.hpp>
 
-#include <FrameGate.hpp>
+#include <util/FrameGate.hpp>
 #include <memory>
 #include <optional>
 #include <string>

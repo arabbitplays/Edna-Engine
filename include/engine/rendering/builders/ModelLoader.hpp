@@ -1,8 +1,8 @@
 #ifndef MODELLOADER_HPP
 #define MODELLOADER_HPP
 
-#include <../rendering/resources/Vertex.hpp>
-#include <MeshAsset.hpp>
+#include <engine/rendering/resources/Vertex.hpp>
+#include <engine/rendering/resources/MeshAsset.hpp>
 #include <string.h>
 #include <vector>
 

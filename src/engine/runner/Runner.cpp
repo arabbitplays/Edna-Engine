@@ -1,8 +1,8 @@
-#include "../../../include/engine/runner/Runner.hpp"
+#include <engine/runner/Runner.hpp>
 
-#include "PathUtil.hpp"
-#include "SceneWriter.hpp"
-#include "UpdateFlagValue.hpp"
+#include <util/PathUtil.hpp>
+#include <io/SceneWriter.hpp>
+#include <engine/UpdateFlagValue.hpp>
 
 namespace RtEngine
 {
