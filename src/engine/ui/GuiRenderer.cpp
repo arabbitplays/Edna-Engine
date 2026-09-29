@@ -5,6 +5,7 @@
 #include <imgui_impl_vulkan.h>
 #include <RenderPassBuilder.hpp>
 #include <stdexcept>
+#include <string>
 
 // only used as imgui callback
 namespace RtEngine
@@ -15,7 +16,7 @@ namespace RtEngine
         {
             return;
         }
-        throw std::runtime_error("Error: VkResult = " + err);
+        throw std::runtime_error("Error: VkResult = " + std::to_string(static_cast<int>(err)));
     }
 
     GuiRenderer::GuiRenderer(const std::shared_ptr<VulkanContext>& context) : context(context)
@@ -84,6 +85,7 @@ namespace RtEngine
         ImGuiIO& io = ImGui::GetIO();
         (void)io;
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+        io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
         ImGui::StyleColorsDark();
         // ImGui::StyleColorsLight();
@@ -96,12 +98,13 @@ namespace RtEngine
         init_info.QueueFamily = device_manager->getQueueIndices().graphicsAndComputeFamily.value();
         init_info.Queue = device_manager->getQueue(GRAPHICS);
         init_info.PipelineCache = VK_NULL_HANDLE;
-        init_info.DescriptorPool = descriptor_pool;
-        init_info.RenderPass = render_pass;
-        init_info.Subpass = 0;
+        init_info.DescriptorPool = VK_NULL_HANDLE;
+        init_info.DescriptorPoolSize = 64;
+        init_info.PipelineInfoMain.RenderPass = render_pass;
+        init_info.PipelineInfoMain.Subpass = 0;
         init_info.MinImageCount = minImageCount;
         init_info.ImageCount = static_cast<uint32_t>(swapchain->images.size());
-        init_info.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
+        init_info.PipelineInfoMain.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
         init_info.Allocator = nullptr;
         init_info.CheckVkResultFn = checkVulkanResult;
         ImGui_ImplVulkan_Init(&init_info);
@@ -127,6 +130,8 @@ namespace RtEngine
         ImGui_ImplVulkan_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
+
+        ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport(), ImGuiDockNodeFlags_PassthruCentralNode);
 
         for (auto& window : gui_windows)
         {
